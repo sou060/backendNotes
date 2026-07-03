@@ -1,0 +1,17 @@
+{
+  "name": "Backend Notes & Flashcards",
+  "short_name": "BackendNotes",
+  "description": "An interactive study guide and flashcard deck for backend engineering interviews.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E1420",
+  "theme_color": "#0B1F3A",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1055/1055666.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
