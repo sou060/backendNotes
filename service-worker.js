@@ -2,6 +2,7 @@ const CACHE_NAME = 'backend-notes-v2';
 const ASSETS_TO_CACHE = [
   './',
     './manifest.json',
+  './data.json',
   'https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css'
 ];
