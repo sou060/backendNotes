@@ -1,4 +1,4 @@
-const CACHE_NAME = 'backend-notes-v4';
+const CACHE_NAME = 'backend-notes-v5';
 const ASSETS_TO_CACHE = [
   './',
     './manifest.json',

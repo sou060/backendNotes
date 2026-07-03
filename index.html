@@ -2308,9 +2308,7 @@
         renderDiagrams();
         renderTraps();
         
-        // Re-run buildSearchIndex now that DOM is populated
         setTimeout(buildSearchIndex, 500);
-        updateStats();
       } catch (err) {
         console.error("Failed to load data.json", err);
         alert("Failed to load study data. Ensure you are running this on a web server or Vercel, not a raw file:// path.");
