@@ -1,4 +1,4 @@
-const CACHE_NAME = 'backend-notes-v11';
+const CACHE_NAME = 'backend-notes-v12';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
