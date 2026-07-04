@@ -8,10 +8,12 @@
     
     // Render Mermaid diagrams if switching to diagrams view
     if (id === 'view-diagrams' && typeof mermaid !== 'undefined') {
-      const unrendered = document.querySelectorAll('#view-diagrams .mermaid:not([data-processed="true"])');
-      if (unrendered.length > 0) {
-        mermaid.init(undefined, unrendered);
-      }
+      setTimeout(() => {
+        const unrendered = document.querySelectorAll('#view-diagrams .mermaid:not([data-processed="true"])');
+        if (unrendered.length > 0) {
+          mermaid.init(undefined, unrendered);
+        }
+      }, 10);
     }
     
     window.scrollTo({ top: 0 });
@@ -53,7 +55,9 @@
 
       // Run mermaid if present
       if (typeof mermaid !== 'undefined') {
-        mermaid.init(undefined, container.querySelectorAll('.mermaid'));
+        setTimeout(() => {
+          mermaid.init(undefined, container.querySelectorAll('.mermaid'));
+        }, 10);
       }
 
       // Update progress
