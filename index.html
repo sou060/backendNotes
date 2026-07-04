@@ -16,6 +16,14 @@
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.4.0/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof mermaid !== 'undefined') {
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+      }
+    });
+  </script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
 </head>
@@ -1634,8 +1642,76 @@
 <text fill="#0B1F3A" font-size="14" font-weight="600" text-anchor="middle" x="80" y="130">RIGHT JOIN</text>
 <text fill="#33405A" font-size="11" text-anchor="middle" x="80" y="150">All Right + Overlap</text>
 </g>
-</svg>
+    </svg>
+  </div>
 </div>
+
+<!-- NEW MERMAID DIAGRAMS -->
+<div class="diagram-card" data-tag="System Design">
+  <div class="diagram-card__head"><span class="tag-chip">System Design</span>
+    <h3>Rate Limiter (Token Bucket & Redis)</h3>
+  </div>
+  <div class="diagram-svg" style="padding: 20px; font-family: Inter, sans-serif;">
+    <div class="mermaid">
+flowchart LR
+    Client((Client)) --> API[API Gateway]
+    API -- Check Limit --> Redis[(Redis Cache)]
+    Redis -- Tokens > 0 --> API
+    API -- Route Request --> Service[Backend Service]
+    Redis -- Tokens = 0 --> API
+    API -- 429 Too Many Requests --> Client
+    </div>
+  </div>
+</div>
+
+<div class="diagram-card" data-tag="System Design">
+  <div class="diagram-card__head"><span class="tag-chip">System Design</span>
+    <h3>News Feed (Fanout-on-Write)</h3>
+  </div>
+  <div class="diagram-svg" style="padding: 20px; font-family: Inter, sans-serif;">
+    <div class="mermaid">
+flowchart TD
+    User((User)) -->|Post Status| PostSvc[Post Service]
+    PostSvc --> DB[(Post DB)]
+    PostSvc -->|Publish| MsgBroker[Message Broker]
+    MsgBroker --> Fanout[Fanout Worker]
+    Fanout -- Fetch Friends --> Graph[(Graph DB)]
+    Fanout -- Push to Feeds --> Cache[(Feed Cache Cluster)]
+    Reader((Follower)) -->|Read Feed| FeedSvc[Feed Service]
+    FeedSvc -- Fetch from Cache --> Cache
+    </div>
+  </div>
+</div>
+
+<div class="diagram-card" data-tag="System Design">
+  <div class="diagram-card__head"><span class="tag-chip">System Design</span>
+    <h3>Payment Ledger (Double-entry & Idempotency)</h3>
+  </div>
+  <div class="diagram-svg" style="padding: 20px; font-family: Inter, sans-serif;">
+    <div class="mermaid">
+sequenceDiagram
+    participant C as Client
+    participant P as Payment Svc
+    participant DB as Ledger DB
+    participant Ext as Bank API
+    
+    C->>P: POST /pay (Idempotency-Key)
+    P->>DB: Check Idempotency Key
+    alt Key exists
+        DB-->>P: Return saved state
+        P-->>C: Return 200 OK (cached)
+    else New Request
+        P->>DB: Record intent (State: PENDING)
+        P->>Ext: Execute Payment
+        Ext-->>P: Success Response
+        P->>DB: Double-entry: Debit A, Credit B
+        P->>DB: Update State: SUCCESS
+        P-->>C: Return 200 OK
+    end
+    </div>
+  </div>
+</div>
+
 </div></div>
 </section>
 <!-- QA VIEW -->
@@ -1662,7 +1738,7 @@
 </div>
 </div>
 <div class="filter-row" id="qa-filters">
-<button class="filter-chip" onclick="filterQA('review',this)" style="background: var(--gold); color: #1C1404;">⚠️ Needs Review</button><button class="filter-chip active" onclick="filterQA('all',this)">All chapters</button><button class="filter-chip" onclick="filterQA('1',this)">Ch.1 - Core Java Fundamentals</button><button class="filter-chip" onclick="filterQA('2',this)">Ch.2 - Object-Oriented Programming (OOP)</button><button class="filter-chip" onclick="filterQA('3',this)">Ch.3 - Collections Framework</button><button class="filter-chip" onclick="filterQA('4',this)">Ch.4 - Multithreading</button><button class="filter-chip" onclick="filterQA('5',this)">Ch.5 - Spring Framework</button><button class="filter-chip" onclick="filterQA('6',this)">Ch.6 - Spring Boot Web MVC</button><button class="filter-chip" onclick="filterQA('7',this)">Ch.7 - Spring Data JPA</button><button class="filter-chip" onclick="filterQA('8',this)">Ch.8 - Spring Boot Fundamentals</button><button class="filter-chip" onclick="filterQA('9',this)">Ch.9 - Spring Security</button><button class="filter-chip" onclick="filterQA('10',this)">Ch.10 - Spring Boot Testing</button><button class="filter-chip" onclick="filterQA('11',this)">Ch.11 - Spring Boot Production Deployment</button><button class="filter-chip" onclick="filterQA('12',this)">Ch.12 - Generative AI</button><button class="filter-chip" onclick="filterQA('13',this)">Ch.13 - Aspect Oriented Programming (AOP) in  Spring Boot</button><button class="filter-chip" onclick="filterQA('14',this)">Ch.14 - Caching</button><button class="filter-chip" onclick="filterQA('15',this)">Ch.15 - Microservices Architecture with Spring Boot</button><button class="filter-chip" onclick="filterQA('16',this)">Ch.16 - API Gateway Filters</button><button class="filter-chip" onclick="filterQA('17',this)">Ch.17 - Apache Kafka with Spring Boot</button><button class="filter-chip" onclick="filterQA('18',this)">Ch.18 - Docker for Backend</button><button class="filter-chip" onclick="filterQA('19',this)">Ch.19 - Kubernetes for Backend</button><button class="filter-chip" onclick="filterQA('20',this)">Ch.20 - Google Kubernetes Engine</button><button class="filter-chip" onclick="filterQA('21',this)">Ch.21 - Java Threads</button><button class="filter-chip" onclick="filterQA('22',this)">Ch.22 - Spring Boot Fundamentals</button><button class="filter-chip" onclick="filterQA('23',this)">Ch.23 - Spring Security</button><button class="filter-chip" onclick="filterQA('24',this)">Ch.24 - Spring Boot Testing</button><button class="filter-chip" onclick="filterQA('25',this)">Ch.25 - Generative AI</button></div>
+<button class="filter-chip" onclick="filterQA('review',this)" style="background: var(--gold); color: #1C1404;">⚠️ Needs Review</button><button class="filter-chip active" onclick="filterQA('all',this)">All chapters</button><button class="filter-chip" onclick="filterQA('1',this)">Ch.1 - Core Java Fundamentals</button><button class="filter-chip" onclick="filterQA('2',this)">Ch.2 - Object-Oriented Programming (OOP)</button><button class="filter-chip" onclick="filterQA('3',this)">Ch.3 - Collections Framework</button><button class="filter-chip" onclick="filterQA('4',this)">Ch.4 - Multithreading</button><button class="filter-chip" onclick="filterQA('5',this)">Ch.5 - Spring Framework</button><button class="filter-chip" onclick="filterQA('6',this)">Ch.6 - Spring Boot Web MVC</button><button class="filter-chip" onclick="filterQA('7',this)">Ch.7 - Spring Data JPA</button><button class="filter-chip" onclick="filterQA('8',this)">Ch.8 - Spring Boot Fundamentals</button><button class="filter-chip" onclick="filterQA('9',this)">Ch.9 - Spring Security</button><button class="filter-chip" onclick="filterQA('10',this)">Ch.10 - Spring Boot Testing</button><button class="filter-chip" onclick="filterQA('11',this)">Ch.11 - Spring Boot Production Deployment</button><button class="filter-chip" onclick="filterQA('12',this)">Ch.12 - Generative AI</button><button class="filter-chip" onclick="filterQA('13',this)">Ch.13 - Aspect Oriented Programming (AOP) in  Spring Boot</button><button class="filter-chip" onclick="filterQA('14',this)">Ch.14 - Caching</button><button class="filter-chip" onclick="filterQA('15',this)">Ch.15 - Microservices Architecture with Spring Boot</button><button class="filter-chip" onclick="filterQA('16',this)">Ch.16 - API Gateway Filters</button><button class="filter-chip" onclick="filterQA('17',this)">Ch.17 - Apache Kafka with Spring Boot</button><button class="filter-chip" onclick="filterQA('18',this)">Ch.18 - Docker for Backend</button><button class="filter-chip" onclick="filterQA('19',this)">Ch.19 - Kubernetes for Backend</button><button class="filter-chip" onclick="filterQA('20',this)">Ch.20 - Google Kubernetes Engine</button><button class="filter-chip" onclick="filterQA('21',this)">Ch.21 - Java Threads</button></div>
 <div id="qa-list">
 <div id="flashcard-controls" style="display: none; justify-content: center; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
 <button onclick="prevFlashcard()" style="padding: 10px 20px; border-radius: 20px; background: var(--teal); color: #1C1404; border: none; font-weight: bold; cursor: pointer;">← Previous</button>
@@ -1835,6 +1911,28 @@
 </div>
 </div>
 </div>
+<div class="qa-card" data-chapter="1">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.1 · Core Java</span>
+<span class="qa-q__text">Guess the output: Streams and Lazy Evaluation
+
+```java
+Stream<Integer> s = Stream.of(1, 2, 3)
+    .peek(n -> System.out.print(n + " "));
+System.out.println("Done");
+```</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+Output is simply: `Done`
+
+Because Streams are **lazy**, intermediate operations (like `peek`, `map`, `filter`) are not executed until a **terminal operation** (like `collect`, `forEach`, `count`) is invoked. Since there is no terminal operation on the stream, `peek` never runs.
+</div>
+</div>
+</div>
 <div class="qa-card" data-chapter="2">
 <button class="qa-q" onclick="toggleQA(this)">
 <span class="tag-chip small">Ch.2 · OOP</span>
@@ -1949,6 +2047,527 @@
 </div>
 </div>
 </div>
+<div class="qa-card" data-chapter="2">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.2 · OOP</span>
+<span class="qa-q__text">Explain the concept of: Four Pillars of OOPsOOP: The Four Pillars</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<p class="note-para">These are the core principles that define object-oriented programming. You should be
+              able to explain each thoroughly, provide real-world analogies, and demonstrate them with code. a.
+              Encapsulation</p><ul class="note-list lvl-1">
+              <li><strong>Concept:</strong> The binding of data (attributes/fields) and the methods that operate on that
+                data into a single unit (a class), and keeping them safe from outside interference and misuse. It's
+                about "data hiding" or "information hiding."</li>
+              <li>How it's achieved in Java:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Declaring instance variables as private:</strong> This prevents direct access from outside
+                  the class.</li>
+                <li><strong>Providing public getter and setter methods:</strong> These "accessor" and "mutator" methods
+                  are the controlled ways to read and modify the private data. You can add validation logic within
+                  setters.</li>
+              </ul>
+              <li>Benefits:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Data Security:</strong> Protects data from unauthorized access.</li>
+                <li><strong>Flexibility/Maintainability:</strong> Allows changes to the internal implementation of a
+                  class without affecting external code that uses it (as long as the public interface, i.e.,
+                  getters/setters, remains consistent).</li>
+                <li><strong>Modularity:</strong> Makes classes self-contained and easier to reuse.</li>
+                <li><strong>Control over Data:</strong> You can enforce business rules or validation logic when data is
+                  set.</li>
+              </ul>
+              <li>Example:</li>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Declaring instance variables as private:</strong> This prevents direct access from outside
+                  the class.</li>
+                <li><strong>Providing public getter and setter methods:</strong> These "accessor" and "mutator" methods
+                  are the controlled ways to read and modify the private data. You can add validation logic within
+                  setters.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Data Security:</strong> Protects data from unauthorized access.</li>
+                <li><strong>Flexibility/Maintainability:</strong> Allows changes to the internal implementation of a
+                  class without affecting external code that uses it (as long as the public interface, i.e.,
+                  getters/setters, remains consistent).</li>
+                <li><strong>Modularity:</strong> Makes classes self-contained and easier to reuse.</li>
+                <li><strong>Control over Data:</strong> You can enforce business rules or validation logic when data is
+                  set.</li>
+              </ul><p class="note-para">b. Inheritance</p><ul class="note-list lvl-1">
+              <li><strong>Concept:</strong> The mechanism by which one class acquires the properties (fields) and
+                behaviors (methods) of another class. It represents an "is-a" relationship (e.g., "A Car is-a Vehicle").
+              </li>
+              <li>Keywords:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>extends:</strong> Used by a class to inherit from another class.</li>
+                <li><strong>implements:</strong> Used by a class to implement an interface.</li>
+              </ul>
+              <li>Types of Inheritance (in terms of class hierarchy):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Single Inheritance:</strong> A class inherits from only one direct parent class. (Java
+                  supports this for classes).</li>
+                <li><strong>Multilevel Inheritance:</strong> A class inherits from a class, which in turn inherits from
+                  another class (e.g., A -&gt; B -&gt; C).</li>
+                <li><strong>Hierarchical Inheritance:</strong> Multiple classes inherit from a single parent class.</li>
+                <li><strong>Multiple Inheritance:</strong> A class inheriting from multiple direct parent classes. Java
+                  does NOT support multiple inheritance for classes to avoid the "diamond problem" (ambiguity if parent
+                  classes have methods with same signature).</li>
+                <li><strong>Hybrid Inheritance:</strong> A mix of two or more types of inheritance.</li>
+              </ul>
+              <li>Benefits:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Code Reusability:</strong> Child classes don't need to rewrite code already present in the
+                  parent.</li>
+                <li><strong>Extensibility:</strong> New functionalities can be added by extending existing classes.</li>
+                <li><strong>Polymorphism:</strong> A key enabler for runtime polymorphism.</li>
+              </ul>
+              <li>Example:</li>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>extends:</strong> Used by a class to inherit from another class.</li>
+                <li><strong>implements:</strong> Used by a class to implement an interface.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Single Inheritance:</strong> A class inherits from only one direct parent class. (Java
+                  supports this for classes).</li>
+                <li><strong>Multilevel Inheritance:</strong> A class inherits from a class, which in turn inherits from
+                  another class (e.g., A -&gt; B -&gt; C).</li>
+                <li><strong>Hierarchical Inheritance:</strong> Multiple classes inherit from a single parent class.</li>
+                <li><strong>Multiple Inheritance:</strong> A class inheriting from multiple direct parent classes. Java
+                  does NOT support multiple inheritance for classes to avoid the "diamond problem" (ambiguity if parent
+                  classes have methods with same signature).</li>
+                <li><strong>Hybrid Inheritance:</strong> A mix of two or more types of inheritance.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Code Reusability:</strong> Child classes don't need to rewrite code already present in the
+                  parent.</li>
+                <li><strong>Extensibility:</strong> New functionalities can be added by extending existing classes.</li>
+                <li><strong>Polymorphism:</strong> A key enabler for runtime polymorphism.</li>
+              </ul><p class="note-para">c. Polymorphism</p><ul class="note-list lvl-1">
+              <li><strong>Concept:</strong> "Many forms." It refers to the ability of an object to take on many forms or
+                the ability of a variable to refer to objects of different types at different times. In Java, it
+                primarily means that a single interface can be used for different underlying forms (data types).</li>
+              <li>Types of Polymorphism in Java:</li>
+            </ul><p class="note-para">1. Compile-time Polymorphism (Static Polymorphism / Method Overloading):</p><ul class="note-list lvl-3">
+              <li><strong>Concept:</strong> Occurs when there are multiple methods in the same class with the same name
+                but different method signatures (different number of parameters, different types of parameters, or
+                different order of parameters).</li>
+              <li>The compiler decides which method to call based on the arguments passed at compile time.</li>
+              <li>Example:</li>
+            </ul><ul class="note-list lvl-3">
+              <li><strong>Concept:</strong> Occurs when a subclass provides a specific implementation for a method that
+                is already defined in its superclass. The method signature (name, return type, parameters) must be
+                exactly the same.</li>
+              <li>The decision of which method to call is made at runtime based on the actual object type, not the
+                reference type. This is also known as "Dynamic Method Dispatch."</li>
+              <li>Rules for Overriding:</li>
+            </ul><p class="note-para">▪ Method must have the same name, same parameters, and same</p><p class="note-para">return type.</p><p class="note-para">▪ Access modifier cannot be more restrictive than the overridden</p><p class="note-para">method.</p><p class="note-para">▪ final or static methods cannot be overridden.</p><p class="note-para">▪ Constructors cannot be overridden.</p><ul class="note-list lvl-3">
+              <li>Example (refer to Vehicle and Car example in Inheritance):</li>
+            </ul><ul class="note-list lvl-1">
+              <li>Benefits:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Flexibility:</strong> A single interface (method name) can be used to perform different
+                  actions depending on the object.</li>
+                <li><strong>Code Reusability:</strong> Write generic code that can work with objects of different types,
+                  as long as they share a common supertype.</li>
+                <li><strong>Maintainability:</strong> Easier to add new types without modifying existing code, just
+                  extend the base class and override.</li>
+              </ul>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Flexibility:</strong> A single interface (method name) can be used to perform different
+                  actions depending on the object.</li>
+                <li><strong>Code Reusability:</strong> Write generic code that can work with objects of different types,
+                  as long as they share a common supertype.</li>
+                <li><strong>Maintainability:</strong> Easier to add new types without modifying existing code, just
+                  extend the base class and override.</li>
+              </ul><p class="note-para">d. Abstraction</p><ul class="note-list lvl-1">
+              <li><strong>Concept:</strong> The process of hiding the implementation details and showing only the
+                essential features of an object to the outside world. It's about "what" an object does, not "how" it
+                does it.</li>
+              <li>How it's achieved in Java:</li>
+              <ul class="note-list lvl-2">
+                <li>Abstract Classes:</li>
+                <ul class="note-list lvl-3">
+                  <li>A class declared with the abstract keyword.</li>
+                  <li>Cannot be instantiated (you cannot create objects of an abstract class).</li>
+                  <li>Can have both abstract methods (methods without an implementation, marked abstract) and concrete
+                    (non-abstract) methods.</li>
+                  <li>Can have constructors (which are called by subclass constructors via super()).</li>
+                  <li>Can have instance variables and static variables.</li>
+                  <li>A subclass of an abstract class must either implement all its abstract methods or also be declared
+                    abstract.</li>
+                  <li>Represents a partial implementation, serving as a base for specific subclasses.</li>
+                </ul>
+                <li>Interfaces:</li>
+                <ul class="note-list lvl-3">
+                  <li>A blueprint of a class. All methods in an interface are implicitly public abstract (before Java
+                    8).</li>
+                  <li>Can only declare constants (implicitly public static final) and abstract methods.</li>
+                  <li>Cannot have constructors.</li>
+                  <li>Before Java 8, interfaces could only have abstract methods. From Java 8, they can have default and
+                    static methods with implementations. From Java 9, they can also have private methods.</li>
+                  <li>A class implements an interface using the implements keyword and must provide implementations for
+                    all its abstract methods (unless the implementing class is abstract itself).</li>
+                  <li><strong>Represents a contract:</strong> any class implementing the interface guarantees to provide
+                    the specified behaviors.</li>
+                  <li>Java supports multiple inheritance of interfaces (a class can implement multiple interfaces).</li>
+                </ul>
+              </ul>
+              <li>Abstract Class vs. Interface (Key Differences):</li>
+            </ul><ul class="note-list lvl-2">
+                <li>Abstract Classes:</li>
+                <ul class="note-list lvl-3">
+                  <li>A class declared with the abstract keyword.</li>
+                  <li>Cannot be instantiated (you cannot create objects of an abstract class).</li>
+                  <li>Can have both abstract methods (methods without an implementation, marked abstract) and concrete
+                    (non-abstract) methods.</li>
+                  <li>Can have constructors (which are called by subclass constructors via super()).</li>
+                  <li>Can have instance variables and static variables.</li>
+                  <li>A subclass of an abstract class must either implement all its abstract methods or also be declared
+                    abstract.</li>
+                  <li>Represents a partial implementation, serving as a base for specific subclasses.</li>
+                </ul>
+                <li>Interfaces:</li>
+                <ul class="note-list lvl-3">
+                  <li>A blueprint of a class. All methods in an interface are implicitly public abstract (before Java
+                    8).</li>
+                  <li>Can only declare constants (implicitly public static final) and abstract methods.</li>
+                  <li>Cannot have constructors.</li>
+                  <li>Before Java 8, interfaces could only have abstract methods. From Java 8, they can have default and
+                    static methods with implementations. From Java 9, they can also have private methods.</li>
+                  <li>A class implements an interface using the implements keyword and must provide implementations for
+                    all its abstract methods (unless the implementing class is abstract itself).</li>
+                  <li><strong>Represents a contract:</strong> any class implementing the interface guarantees to provide
+                    the specified behaviors.</li>
+                  <li>Java supports multiple inheritance of interfaces (a class can implement multiple interfaces).</li>
+                </ul>
+              </ul><ul class="note-list lvl-3">
+                  <li>A class declared with the abstract keyword.</li>
+                  <li>Cannot be instantiated (you cannot create objects of an abstract class).</li>
+                  <li>Can have both abstract methods (methods without an implementation, marked abstract) and concrete
+                    (non-abstract) methods.</li>
+                  <li>Can have constructors (which are called by subclass constructors via super()).</li>
+                  <li>Can have instance variables and static variables.</li>
+                  <li>A subclass of an abstract class must either implement all its abstract methods or also be declared
+                    abstract.</li>
+                  <li>Represents a partial implementation, serving as a base for specific subclasses.</li>
+                </ul><ul class="note-list lvl-3">
+                  <li>A blueprint of a class. All methods in an interface are implicitly public abstract (before Java
+                    8).</li>
+                  <li>Can only declare constants (implicitly public static final) and abstract methods.</li>
+                  <li>Cannot have constructors.</li>
+                  <li>Before Java 8, interfaces could only have abstract methods. From Java 8, they can have default and
+                    static methods with implementations. From Java 9, they can also have private methods.</li>
+                  <li>A class implements an interface using the implements keyword and must provide implementations for
+                    all its abstract methods (unless the implementing class is abstract itself).</li>
+                  <li><strong>Represents a contract:</strong> any class implementing the interface guarantees to provide
+                    the specified behaviors.</li>
+                  <li>Java supports multiple inheritance of interfaces (a class can implement multiple interfaces).</li>
+                </ul><p class="note-para">Feature Abstract Class Interface</p><p class="note-para">Keyword abstract class interface</p><p class="note-para">Instantiation Cannot be instantiated directly Cannot be instantiated directly</p><p class="note-para">Abstract All methods were implicitly public</p><p class="note-para">Can have zero or more</p><p class="note-para">Methods abstract before Java 8.</p><p class="note-para">From Java 8, can have default and</p><p class="note-para">static methods.</p><p class="note-para">From Java 9, can have private</p><p class="note-para">methods.</p><p class="note-para">Only default and static methods</p><p class="note-para">Concrete Can have concrete methods (with</p><p class="note-para">(and private in Java 9) can have</p><p class="note-para">Methods body)</p><p class="note-para">bodies.</p><p class="note-para">Only public static final variables</p><p class="note-para">Variables Can have instance and static variables</p><p class="note-para">(constants)</p><p class="note-para">Constructors Can have constructors Cannot have constructors</p><p class="note-para">Feature Abstract Class Interface</p><p class="note-para">A class implements multiple</p><p class="note-para">Inheritance A class extends one abstract class.</p><p class="note-para">interfaces.</p><p class="note-para">Defines a contract for behavior.</p><p class="note-para">Defines a template for subclasses with</p><p class="note-para">Good for "can-do" relationships</p><p class="note-para">some common implementation. Good</p><p class="note-para">Purpose or specifying common</p><p class="note-para">for "is-a" relationships where some</p><p class="note-para">functionalities across unrelated</p><p class="note-para">common behavior is shared.</p><p class="note-para">classes.</p><ul class="note-list lvl-1">
+              <li>When to Use Which:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Abstract Class:</strong> Use when you want to provide a base class with some common
+                  functionality implemented, but also enforce that subclasses implement specific methods. Ideal when you
+                  have a strong "is-a" relationship and want to share code.</li>
+                <li><strong>Interface:</strong> Use when you want to define a contract that multiple unrelated classes
+                  can adhere to. Ideal for defining capabilities or behaviors that can be shared across different class
+                  hierarchies.</li>
+              </ul>
+              <li>Example (Abstraction):</li>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Abstract Class:</strong> Use when you want to provide a base class with some common
+                  functionality implemented, but also enforce that subclasses implement specific methods. Ideal when you
+                  have a strong "is-a" relationship and want to share code.</li>
+                <li><strong>Interface:</strong> Use when you want to define a contract that multiple unrelated classes
+                  can adhere to. Ideal for defining capabilities or behaviors that can be shared across different class
+                  hierarchies.</li>
+              </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="2">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.2 · OOP</span>
+<span class="qa-q__text">Explain the concept of: Constructors</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<ul class="note-list lvl-1">
+              <li><strong>Concept:</strong> A special type of method used to initialize objects. It's invoked
+                automatically when an object of a class is created using the new keyword.</li>
+              <li>Rules:</li>
+              <ul class="note-list lvl-2">
+                <li>Must have the same name as the class.</li>
+                <li>Has no return type (not even void).</li>
+                <li>Cannot be static, final, abstract, or synchronized.</li>
+              </ul>
+              <li>Types of Constructors:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Default Constructor:</strong> If you don't define any constructor, Java automatically
+                  provides a public, no-argument default constructor. It initializes instance variables to their default
+                  values.</li>
+                <li><strong>No-argument Constructor:</strong> A constructor explicitly defined by you that takes no
+                  arguments.</li>
+                <li><strong>Parameterized Constructor:</strong> A constructor that takes arguments. Used to initialize
+                  instance variables with specific values provided at object creation.</li>
+              </ul>
+              <li><strong>Constructor Overloading:</strong> A class can have multiple constructors with the same name
+                but different parameter lists (just like method overloading).</li>
+              <li>Constructor Chaining:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Using this():</strong> To call another constructor of the same class.</li>
+                <li><strong>Using super():</strong> To call a constructor of the parent class. super() or super(args)
+                  must be the first statement in a child class constructor.</li>
+              </ul>
+              <li>Example:</li>
+            </ul><ul class="note-list lvl-2">
+                <li>Must have the same name as the class.</li>
+                <li>Has no return type (not even void).</li>
+                <li>Cannot be static, final, abstract, or synchronized.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Default Constructor:</strong> If you don't define any constructor, Java automatically
+                  provides a public, no-argument default constructor. It initializes instance variables to their default
+                  values.</li>
+                <li><strong>No-argument Constructor:</strong> A constructor explicitly defined by you that takes no
+                  arguments.</li>
+                <li><strong>Parameterized Constructor:</strong> A constructor that takes arguments. Used to initialize
+                  instance variables with specific values provided at object creation.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Using this():</strong> To call another constructor of the same class.</li>
+                <li><strong>Using super():</strong> To call a constructor of the parent class. super() or super(args)
+                  must be the first statement in a child class constructor.</li>
+              </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="2">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.2 · OOP</span>
+<span class="qa-q__text">Explain the concept of: equals() and hashCode()Abstract Class vs Interface</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<p class="note-para">These methods (defined in java.lang.Object) are crucial when dealing with collections,
+              especially HashMap, HashSet, and Hashtable.</p><ul class="note-list lvl-1">
+              <li>equals() Method:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Used to compare two objects for equality of content (value equality), not
+                  just reference equality (==).</li>
+                <li><strong>Default Implementation:</strong> In the Object class, equals() behaves like == (compares
+                  memory addresses).</li>
+                <li><strong>Overriding:</strong> You should override equals() whenever you want to define what it means
+                  for two objects of your class to be logically equal, based on their content.</li>
+                <li>Contract (Important!): If you override equals(), you must also override hashCode() to maintain the
+                  general contract for the Object.hashCode() method.</li>
+              </ul>
+              <li>hashCode() Method:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Returns an integer hash code value for the object. This hash code is
+                  primarily used by hash-based collections (HashMap, HashSet, Hashtable) to determine where to store and
+                  retrieve objects efficiently.</li>
+                <li><strong>Default Implementation:</strong> In Object class, hashCode() typically returns a unique
+                  integer for each object based on its memory address.</li>
+                <li>Contract:</li>
+              </ul>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Used to compare two objects for equality of content (value equality), not
+                  just reference equality (==).</li>
+                <li><strong>Default Implementation:</strong> In the Object class, equals() behaves like == (compares
+                  memory addresses).</li>
+                <li><strong>Overriding:</strong> You should override equals() whenever you want to define what it means
+                  for two objects of your class to be logically equal, based on their content.</li>
+                <li>Contract (Important!): If you override equals(), you must also override hashCode() to maintain the
+                  general contract for the Object.hashCode() method.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Returns an integer hash code value for the object. This hash code is
+                  primarily used by hash-based collections (HashMap, HashSet, Hashtable) to determine where to store and
+                  retrieve objects efficiently.</li>
+                <li><strong>Default Implementation:</strong> In Object class, hashCode() typically returns a unique
+                  integer for each object based on its memory address.</li>
+                <li>Contract:</li>
+              </ul><p class="note-para">1. If two objects are equals() according to the equals() method, then calling the</p><p class="note-para">hashCode() method on each of the two objects must produce the same</p><p class="note-para">integer result.</p><p class="note-para">2. If two objects are not equals(), their hash codes do not have to be different.</p><p class="note-para">However, different hash codes for unequal objects can improve the</p><p class="note-para">performance of hash tables.</p><p class="note-para">3. The hashCode() result must be consistent: if the object's state (used in</p><p class="note-para">equals() comparisons) is not modified, hashCode() must return the same</p><p class="note-para">value.</p><ul class="note-list lvl-1">
+              <li>Why override both?</li>
+              <ul class="note-list lvl-2">
+                <li>If you override equals() but not hashCode(), and you put objects of your class into a HashSet or use
+                  them as keys in a HashMap:</li>
+                <ul class="note-list lvl-3">
+                  <li>HashSet might store two "equal" objects at different locations because their default hashCode()
+                    values (based on memory address) would be different, leading to duplicate "equal" objects in a set.
+                  </li>
+                  <li>HashMap might not be able to retrieve a value you stored because the key you use for retrieval
+                    (which is equals() to the original key) hashes to a different bucket.</li>
+                </ul>
+                <li>HashMap first checks hashCode() to narrow down the search to a specific bucket, then uses equals()
+                  to find the exact object within that bucket. If hashCode() values differ for equal objects, the second
+                  equals() check will never happen.</li>
+              </ul>
+              <li>Example (Overriding equals() and hashCode()):</li>
+            </ul><ul class="note-list lvl-2">
+                <li>If you override equals() but not hashCode(), and you put objects of your class into a HashSet or use
+                  them as keys in a HashMap:</li>
+                <ul class="note-list lvl-3">
+                  <li>HashSet might store two "equal" objects at different locations because their default hashCode()
+                    values (based on memory address) would be different, leading to duplicate "equal" objects in a set.
+                  </li>
+                  <li>HashMap might not be able to retrieve a value you stored because the key you use for retrieval
+                    (which is equals() to the original key) hashes to a different bucket.</li>
+                </ul>
+                <li>HashMap first checks hashCode() to narrow down the search to a specific bucket, then uses equals()
+                  to find the exact object within that bucket. If hashCode() values differ for equal objects, the second
+                  equals() check will never happen.</li>
+              </ul><ul class="note-list lvl-3">
+                  <li>HashSet might store two "equal" objects at different locations because their default hashCode()
+                    values (based on memory address) would be different, leading to duplicate "equal" objects in a set.
+                  </li>
+                  <li>HashMap might not be able to retrieve a value you stored because the key you use for retrieval
+                    (which is equals() to the original key) hashes to a different bucket.</li>
+                </ul><p class="note-para">via hash &amp; equals)</p><p class="note-para">}</p><p class="note-para">}</p>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="2">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.2 · OOP</span>
+<span class="qa-q__text">Explain the concept of: Composition vs. Inheritance</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<p class="note-para">Two fundamental ways to establish relationships between classes.</p><ul class="note-list lvl-1">
+              <li>Inheritance (is-a relationship):</li>
+              <ul class="note-list lvl-2">
+                <li>As discussed, one class acquires properties and behaviors of another.</li>
+                <li><strong>Example:</strong> Car extends Vehicle (A Car is-a Vehicle).</li>
+                <li><strong>Pros:</strong> Code reuse, facilitates polymorphism.</li>
+                <li><strong>Cons:</strong> Tight coupling between parent and child classes, can lead to rigid
+                  hierarchies, "fragile base class problem" (changes in base class can break subclasses).</li>
+              </ul>
+              <li>Composition (has-a relationship):</li>
+              <ul class="note-list lvl-2">
+                <li>A class contains an object of another class as one of its fields (instance variables).</li>
+                <li>Instead of inheriting, you use an instance of another class to get its functionality.</li>
+                <li><strong>Example:</strong> Car has an Engine (A Car has-a Engine).</li>
+                <li>Pros:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>Loose Coupling:</strong> Classes are less dependent on each other.</li>
+                  <li><strong>Flexibility:</strong> You can change the component class at runtime or easily swap
+                    implementations.</li>
+                  <li><strong>High Reusability:</strong> The component class can be reused independently.</li>
+                  <li><strong>Better Maintainability:</strong> Changes in one class are less likely to impact others.
+                  </li>
+                </ul>
+                <li><strong>Cons:</strong> Can sometimes involve more initial setup (delegating calls).</li>
+              </ul>
+              <li>When to Prefer Composition over Inheritance:</li>
+              <ul class="note-list lvl-2">
+                <li>"Favor composition over inheritance" is a common design principle.</li>
+                <li>Use inheritance when there's a strong, clear "is-a" relationship and you want to leverage
+                  polymorphism and common base class implementations.</li>
+                <li>Use composition when a class has or uses another class's functionality, but isn't necessarily a
+                  specialized version of it. It offers greater flexibility and less coupling.</li>
+              </ul>
+              <li>Example:</li>
+            </ul><ul class="note-list lvl-2">
+                <li>As discussed, one class acquires properties and behaviors of another.</li>
+                <li><strong>Example:</strong> Car extends Vehicle (A Car is-a Vehicle).</li>
+                <li><strong>Pros:</strong> Code reuse, facilitates polymorphism.</li>
+                <li><strong>Cons:</strong> Tight coupling between parent and child classes, can lead to rigid
+                  hierarchies, "fragile base class problem" (changes in base class can break subclasses).</li>
+              </ul><ul class="note-list lvl-2">
+                <li>A class contains an object of another class as one of its fields (instance variables).</li>
+                <li>Instead of inheriting, you use an instance of another class to get its functionality.</li>
+                <li><strong>Example:</strong> Car has an Engine (A Car has-a Engine).</li>
+                <li>Pros:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>Loose Coupling:</strong> Classes are less dependent on each other.</li>
+                  <li><strong>Flexibility:</strong> You can change the component class at runtime or easily swap
+                    implementations.</li>
+                  <li><strong>High Reusability:</strong> The component class can be reused independently.</li>
+                  <li><strong>Better Maintainability:</strong> Changes in one class are less likely to impact others.
+                  </li>
+                </ul>
+                <li><strong>Cons:</strong> Can sometimes involve more initial setup (delegating calls).</li>
+              </ul><ul class="note-list lvl-3">
+                  <li><strong>Loose Coupling:</strong> Classes are less dependent on each other.</li>
+                  <li><strong>Flexibility:</strong> You can change the component class at runtime or easily swap
+                    implementations.</li>
+                  <li><strong>High Reusability:</strong> The component class can be reused independently.</li>
+                  <li><strong>Better Maintainability:</strong> Changes in one class are less likely to impact others.
+                  </li>
+                </ul><ul class="note-list lvl-2">
+                <li>"Favor composition over inheritance" is a common design principle.</li>
+                <li>Use inheritance when there's a strong, clear "is-a" relationship and you want to leverage
+                  polymorphism and common base class implementations.</li>
+                <li>Use composition when a class has or uses another class's functionality, but isn't necessarily a
+                  specialized version of it. It offers greater flexibility and less coupling.</li>
+              </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="2">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.2 · OOP</span>
+<span class="qa-q__text">Explain the concept of: Design Patterns (Basic knowledge for 3 years experience)</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<p class="note-para">While a full deep dive into all design patterns isn't expected, knowing a few common
+              ones and their purpose demonstrates good design principles. a. Singleton Pattern</p><ul class="note-list lvl-1">
+              <li><strong>Purpose:</strong> Ensures that a class has only one instance and provides a global point of
+                access to that instance.</li>
+              <li><strong>Use Cases:</strong> Logging, configuration management, thread pools, database connection
+                pools, caching.</li>
+              <li>Implementation (Common ways):</li>
+            </ul><p class="note-para">1. Lazy Initialization (Thread-safe with synchronized method/block):</p><p class="note-para">b. Factory Method Pattern</p><ul class="note-list lvl-1">
+              <li><strong>Purpose:</strong> Provides an interface for creating objects in a superclass, but allows
+                subclasses to alter the type of objects that will be created. It's about "deferring instantiation to
+                subclasses."</li>
+              <li><strong>Use Cases:</strong> When a class cannot anticipate the type of objects it needs to create, or
+                when a class wants its subclasses to specify the objects to be created.1</li>
+              <li>Example:2</li>
+            </ul><p class="note-para">c. Builder Pattern</p><ul class="note-list lvl-1">
+              <li><strong>Purpose:</strong> Constructs a complex object step by step. It separates the construction of a
+                complex object from its representation, so the same construction process can create different
+                representations.</li>
+              <li><strong>Use Cases:</strong> When an object has many optional parameters, or when its construction
+                involves multiple steps or requires various configurations. Avoids "telescoping constructors."</li>
+              <li>Example:</li>
+            </ul><p class="note-para">d. Observer Pattern</p><ul class="note-list lvl-1">
+              <li><strong>Purpose:</strong> Defines a one-to-many dependency between objects so that when one object
+                changes state, all its dependents are notified and updated automatically.</li>
+              <li><strong>Use Cases:</strong> Event handling systems, real-time data updates (e.g., stock tickers), UI
+                components reacting to model changes.</li>
+              <li>Components:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Subject (Observable):</strong> The object that maintains a list of its dependents
+                  (observers) and notifies them of state changes.</li>
+                <li><strong>Observer:</strong> The object that wants to be notified of changes in the subject.</li>
+              </ul>
+              <li>Example (Conceptual, using Java's built-in Observer/Observable is deprecated but good for
+                understanding; often custom interfaces are used):</li>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Subject (Observable):</strong> The object that maintains a list of its dependents
+                  (observers) and notifies them of state changes.</li>
+                <li><strong>Observer:</strong> The object that wants to be notified of changes in the subject.</li>
+              </ul><p class="note-para">Mastering these OOP concepts is fundamental. Be ready to explain them theoretically,
+              draw diagrams if needed, and write simple code demonstrating each principle. Good luck! Alright, let's
+              deep dive into "3. Collections Framework". This is an absolutely critical topic for any Java developer,
+              especially one with 3 years of experience. You'll use these classes daily, and interviewers often ask
+              about their internal workings, performance characteristics, and thread-safety aspects.</p>
+</div>
+</div>
+</div>
 <div class="qa-card" data-chapter="3">
 <button class="qa-q" onclick="toggleQA(this)">
 <span class="tag-chip small">Ch.3 · Collections</span>
@@ -1993,6 +2612,767 @@
 <div class="qa-a">
 </div>
 </div>
+<div class="qa-card" data-chapter="3">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.3 · Collections</span>
+<span class="qa-q__text">Explain the concept of: HierarchyCollections Framework Hierarchy</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<p class="note-para">Understanding the hierarchy is key to understanding the relationships and shared
+              behaviors among different collection types.</p><ul class="note-list lvl-1">
+              <li>Iterable&lt;E&gt; (Top-level Interface):</li>
+              <ul class="note-list lvl-2">
+                <li>The root of the collection hierarchy.</li>
+                <li>Defines the iterator() method, which returns an Iterator&lt;E&gt;.</li>
+                <li>Enables the use of the enhanced for-each loop.</li>
+              </ul>
+              <li>Collection&lt;E&gt; (Root Interface of all Collections):</li>
+              <ul class="note-list lvl-2">
+                <li>Extends Iterable&lt;E&gt;.</li>
+                <li>Represents a group of objects.</li>
+                <li><strong>Defines common behaviors for all collections:</strong> add(), remove(), contains(), size(),
+                  isEmpty(), toArray(), clear(), etc.</li>
+                <li><strong>Sub-interfaces:</strong> List, Set, Queue.</li>
+              </ul>
+              <li>List&lt;E&gt; (Interface):</li>
+              <ul class="note-list lvl-2">
+                <li>Extends Collection&lt;E&gt;.</li>
+                <li>Represents an ordered collection (elements have a specific sequence).</li>
+                <li>Allows duplicate elements.</li>
+                <li>Elements can be accessed by their integer index (0-based).</li>
+                <li>Provides methods like get(int index), set(int index, E element), add(int index, E element),
+                  remove(int index), indexOf(), lastIndexOf(), subList().</li>
+                <li><strong>Common Implementations:</strong> ArrayList, LinkedList, Vector (legacy), Stack (legacy).
+                </li>
+              </ul>
+              <li>Set&lt;E&gt; (Interface):</li>
+              <ul class="note-list lvl-2">
+                <li>Extends Collection&lt;E&gt;.</li>
+                <li>Represents a collection that contains no duplicate elements.</li>
+                <li>Does not guarantee order (except for LinkedHashSet which maintains insertion order, and TreeSet
+                  which maintains sorted order).</li>
+                <li>The add() method returns true if the element was added (i.e., it was not a duplicate) and false
+                  otherwise.</li>
+                <li><strong>Common Implementations:</strong> HashSet, LinkedHashSet, TreeSet.</li>
+              </ul>
+              <li>Queue&lt;E&gt; (Interface):</li>
+              <ul class="note-list lvl-2">
+                <li>Extends Collection&lt;E&gt;.</li>
+                <li>Represents a collection designed for holding elements prior to processing.</li>
+                <li>Typically orders elements in a FIFO (First-In, First-Out) manner, but other orderings are possible
+                  (e.g., PriorityQueue).</li>
+                <li>Provides specific methods for adding (offer), removing (poll, remove), and inspecting (peek,
+                  element) elements from the "head" of the queue.</li>
+                <li><strong>Common Implementations:</strong> LinkedList (implements Queue), PriorityQueue, ArrayDeque.
+                </li>
+              </ul>
+              <li>Map&lt;K, V&gt; (Interface):</li>
+              <ul class="note-list lvl-2">
+                <li>Does NOT extend Collection&lt;E&gt;. It's a separate hierarchy.</li>
+                <li>Represents a collection of key-value pairs.</li>
+                <li>Each key is unique; a key maps to at most one value.</li>
+                <li>Keys and values can be null (depending on implementation).</li>
+                <li>Provides methods like put(K key, V value), get(Object key), remove(Object key), containsKey(),
+                  containsValue(), keySet(), values(), entrySet().</li>
+                <li><strong>Common Implementations:</strong> HashMap, LinkedHashMap, TreeMap, Hashtable (legacy).</li>
+              </ul>
+            </ul><ul class="note-list lvl-2">
+                <li>The root of the collection hierarchy.</li>
+                <li>Defines the iterator() method, which returns an Iterator&lt;E&gt;.</li>
+                <li>Enables the use of the enhanced for-each loop.</li>
+              </ul><ul class="note-list lvl-2">
+                <li>Extends Iterable&lt;E&gt;.</li>
+                <li>Represents a group of objects.</li>
+                <li><strong>Defines common behaviors for all collections:</strong> add(), remove(), contains(), size(),
+                  isEmpty(), toArray(), clear(), etc.</li>
+                <li><strong>Sub-interfaces:</strong> List, Set, Queue.</li>
+              </ul><ul class="note-list lvl-2">
+                <li>Extends Collection&lt;E&gt;.</li>
+                <li>Represents an ordered collection (elements have a specific sequence).</li>
+                <li>Allows duplicate elements.</li>
+                <li>Elements can be accessed by their integer index (0-based).</li>
+                <li>Provides methods like get(int index), set(int index, E element), add(int index, E element),
+                  remove(int index), indexOf(), lastIndexOf(), subList().</li>
+                <li><strong>Common Implementations:</strong> ArrayList, LinkedList, Vector (legacy), Stack (legacy).
+                </li>
+              </ul><ul class="note-list lvl-2">
+                <li>Extends Collection&lt;E&gt;.</li>
+                <li>Represents a collection that contains no duplicate elements.</li>
+                <li>Does not guarantee order (except for LinkedHashSet which maintains insertion order, and TreeSet
+                  which maintains sorted order).</li>
+                <li>The add() method returns true if the element was added (i.e., it was not a duplicate) and false
+                  otherwise.</li>
+                <li><strong>Common Implementations:</strong> HashSet, LinkedHashSet, TreeSet.</li>
+              </ul><ul class="note-list lvl-2">
+                <li>Extends Collection&lt;E&gt;.</li>
+                <li>Represents a collection designed for holding elements prior to processing.</li>
+                <li>Typically orders elements in a FIFO (First-In, First-Out) manner, but other orderings are possible
+                  (e.g., PriorityQueue).</li>
+                <li>Provides specific methods for adding (offer), removing (poll, remove), and inspecting (peek,
+                  element) elements from the "head" of the queue.</li>
+                <li><strong>Common Implementations:</strong> LinkedList (implements Queue), PriorityQueue, ArrayDeque.
+                </li>
+              </ul><ul class="note-list lvl-2">
+                <li>Does NOT extend Collection&lt;E&gt;. It's a separate hierarchy.</li>
+                <li>Represents a collection of key-value pairs.</li>
+                <li>Each key is unique; a key maps to at most one value.</li>
+                <li>Keys and values can be null (depending on implementation).</li>
+                <li>Provides methods like put(K key, V value), get(Object key), remove(Object key), containsKey(),
+                  containsValue(), keySet(), values(), entrySet().</li>
+                <li><strong>Common Implementations:</strong> HashMap, LinkedHashMap, TreeMap, Hashtable (legacy).</li>
+              </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="3">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.3 · Collections</span>
+<span class="qa-q__text">Explain the concept of: List Implementations</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<ul class="note-list lvl-1">
+              <li>ArrayList:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Resizable array.</li>
+                <li><strong>Order:</strong> Maintains insertion order.</li>
+                <li><strong>Duplicates:</strong> Allows duplicates.</li>
+                <li><strong>Nulls:</strong> Allows null elements.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>get(index):</strong> O(1) - constant time, very fast due to direct index access.</li>
+                  <li><strong>add(element) (at end):</strong> Amortized O(1) - usually fast, but can be O(N) if resizing
+                    is needed (doubles its capacity).</li>
+                  <li>add(index, element) (in middle): O(N) - requires shifting elements.</li>
+                  <li><strong>remove(index):</strong> O(N) - requires shifting elements.</li>
+                  <li><strong>Iteration:</strong> Fast using for loop or enhanced for-each loop.</li>
+                </ul>
+                <li><strong>Use Case:</strong> When you need frequent random access to elements and fewer
+                  insertions/deletions in the middle.</li>
+              </ul>
+              <li>LinkedList:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Doubly-linked list.</li>
+                <li><strong>Order:</strong> Maintains insertion order.</li>
+                <li><strong>Duplicates:</strong> Allows duplicates.</li>
+                <li><strong>Nulls:</strong> Allows null elements.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>get(index):</strong> O(N) - requires traversing from head or tail.</li>
+                  <li><strong>add(element) (at end/start):</strong> O(1).</li>
+                  <li>add(index, element) (in middle): O(N) to find the index, then O(1) for insertion. Better than
+                    ArrayList if the current node is already known.</li>
+                  <li><strong>remove(index):</strong> O(N) to find the index, then O(1) for removal.</li>
+                  <li><strong>Iteration:</strong> Slower than ArrayList for direct index access, but fast using an
+                    Iterator.</li>
+                </ul>
+                <li><strong>Use Case:</strong> When you need frequent insertions and deletions at the ends or in the
+                  middle, and less frequent random access. Also implements Queue and Deque interfaces, making it
+                  suitable for queues, stacks, and double-ended queues.</li>
+              </ul>
+              <li>Vector (Legacy):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Resizable array, similar to ArrayList.</li>
+                <li><strong>Thread-Safety:</strong> Synchronized (thread-safe). All its methods are synchronized, which
+                  comes with performance overhead.</li>
+                <li><strong>Performance:</strong> Similar to ArrayList but slower due to synchronization. Capacity
+                  increments by doubling by default.</li>
+                <li><strong>Use Case:</strong> Rarely used in modern Java code unless thread-safety is strictly required
+                  for all operations on a single list instance, and Collections.synchronizedList() or
+                  CopyOnWriteArrayList are not viable. Generally, ArrayList with explicit synchronization or concurrent
+                  collections are preferred.</li>
+              </ul>
+              <li>Stack (Legacy):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Extends Vector.</li>
+                <li><strong>Concept:</strong> LIFO (Last-In, First-Out) data structure.</li>
+                <li><strong>Methods:</strong> push() (add), pop() (remove and return top), peek() (return top without
+                  removing), empty(), search().</li>
+                <li><strong>Thread-Safety:</strong> Synchronized (due to Vector inheritance).</li>
+                <li><strong>Use Case:</strong> Should be avoided. For LIFO stack functionality, use ArrayDeque which is
+                  more efficient and provides better performance, or LinkedList as a Deque.</li>
+              </ul>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Resizable array.</li>
+                <li><strong>Order:</strong> Maintains insertion order.</li>
+                <li><strong>Duplicates:</strong> Allows duplicates.</li>
+                <li><strong>Nulls:</strong> Allows null elements.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>get(index):</strong> O(1) - constant time, very fast due to direct index access.</li>
+                  <li><strong>add(element) (at end):</strong> Amortized O(1) - usually fast, but can be O(N) if resizing
+                    is needed (doubles its capacity).</li>
+                  <li>add(index, element) (in middle): O(N) - requires shifting elements.</li>
+                  <li><strong>remove(index):</strong> O(N) - requires shifting elements.</li>
+                  <li><strong>Iteration:</strong> Fast using for loop or enhanced for-each loop.</li>
+                </ul>
+                <li><strong>Use Case:</strong> When you need frequent random access to elements and fewer
+                  insertions/deletions in the middle.</li>
+              </ul><ul class="note-list lvl-3">
+                  <li><strong>get(index):</strong> O(1) - constant time, very fast due to direct index access.</li>
+                  <li><strong>add(element) (at end):</strong> Amortized O(1) - usually fast, but can be O(N) if resizing
+                    is needed (doubles its capacity).</li>
+                  <li>add(index, element) (in middle): O(N) - requires shifting elements.</li>
+                  <li><strong>remove(index):</strong> O(N) - requires shifting elements.</li>
+                  <li><strong>Iteration:</strong> Fast using for loop or enhanced for-each loop.</li>
+                </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Doubly-linked list.</li>
+                <li><strong>Order:</strong> Maintains insertion order.</li>
+                <li><strong>Duplicates:</strong> Allows duplicates.</li>
+                <li><strong>Nulls:</strong> Allows null elements.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>get(index):</strong> O(N) - requires traversing from head or tail.</li>
+                  <li><strong>add(element) (at end/start):</strong> O(1).</li>
+                  <li>add(index, element) (in middle): O(N) to find the index, then O(1) for insertion. Better than
+                    ArrayList if the current node is already known.</li>
+                  <li><strong>remove(index):</strong> O(N) to find the index, then O(1) for removal.</li>
+                  <li><strong>Iteration:</strong> Slower than ArrayList for direct index access, but fast using an
+                    Iterator.</li>
+                </ul>
+                <li><strong>Use Case:</strong> When you need frequent insertions and deletions at the ends or in the
+                  middle, and less frequent random access. Also implements Queue and Deque interfaces, making it
+                  suitable for queues, stacks, and double-ended queues.</li>
+              </ul><ul class="note-list lvl-3">
+                  <li><strong>get(index):</strong> O(N) - requires traversing from head or tail.</li>
+                  <li><strong>add(element) (at end/start):</strong> O(1).</li>
+                  <li>add(index, element) (in middle): O(N) to find the index, then O(1) for insertion. Better than
+                    ArrayList if the current node is already known.</li>
+                  <li><strong>remove(index):</strong> O(N) to find the index, then O(1) for removal.</li>
+                  <li><strong>Iteration:</strong> Slower than ArrayList for direct index access, but fast using an
+                    Iterator.</li>
+                </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Resizable array, similar to ArrayList.</li>
+                <li><strong>Thread-Safety:</strong> Synchronized (thread-safe). All its methods are synchronized, which
+                  comes with performance overhead.</li>
+                <li><strong>Performance:</strong> Similar to ArrayList but slower due to synchronization. Capacity
+                  increments by doubling by default.</li>
+                <li><strong>Use Case:</strong> Rarely used in modern Java code unless thread-safety is strictly required
+                  for all operations on a single list instance, and Collections.synchronizedList() or
+                  CopyOnWriteArrayList are not viable. Generally, ArrayList with explicit synchronization or concurrent
+                  collections are preferred.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Extends Vector.</li>
+                <li><strong>Concept:</strong> LIFO (Last-In, First-Out) data structure.</li>
+                <li><strong>Methods:</strong> push() (add), pop() (remove and return top), peek() (return top without
+                  removing), empty(), search().</li>
+                <li><strong>Thread-Safety:</strong> Synchronized (due to Vector inheritance).</li>
+                <li><strong>Use Case:</strong> Should be avoided. For LIFO stack functionality, use ArrayDeque which is
+                  more efficient and provides better performance, or LinkedList as a Deque.</li>
+              </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="3">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.3 · Collections</span>
+<span class="qa-q__text">Explain the concept of: Set ImplementationsArrayList vs LinkedList</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<ul class="note-list lvl-1">
+              <li>HashSet:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Uses a HashMap internally to store its elements (elements
+                  are stored as keys in the underlying HashMap, with a dummy value).</li>
+                <li><strong>Order:</strong> No guaranteed order. Order can change over time.</li>
+                <li><strong>Duplicates:</strong> Stores only unique elements.</li>
+                <li><strong>Nulls:</strong> Allows one null element.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>add(), remove(), contains(): O(1) on average (constant time), assuming good hash function
+                    distribution. In worst case (many collisions), can degrade to O(N).</li>
+                </ul>
+                <li><strong>Important:</strong> Relies on hashCode() and equals() methods of the stored objects for
+                  uniqueness. If you override equals(), you must override hashCode().</li>
+                <li><strong>Use Case:</strong> When you need to store unique elements and the order doesn't matter, and
+                  you need fast lookups.</li>
+              </ul>
+              <li>LinkedHashSet:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Uses a LinkedHashMap internally. Combines hashing with a
+                  doubly-linked list.</li>
+                <li><strong>Order:</strong> Maintains insertion order (the order in which elements were added).</li>
+                <li><strong>Duplicates:</strong> Stores only unique elements.</li>
+                <li><strong>Nulls:</strong> Allows one null element.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li><strong>Performance:</strong> Slightly slower than HashSet for insertions and deletions due to
+                  maintaining the linked list, but still O(1) on average. Iteration is faster than HashSet because it
+                  follows the insertion order link.</li>
+                <li><strong>Use Case:</strong> When you need unique elements and also want to preserve the order of
+                  insertion.</li>
+              </ul>
+              <li>TreeSet:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Uses a TreeMap internally (backed by a Red-Black tree, a
+                  self-balancing binary search tree).</li>
+                <li><strong>Order:</strong> Stores elements in sorted (natural) order or by a custom Comparator.</li>
+                <li><strong>Duplicates:</strong> Stores only unique elements.</li>
+                <li><strong>Nulls:</strong> Does NOT allow null elements (throws NullPointerException on add if the set
+                  is not empty or on first element if Comparator is used that cannot handle null).</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>add(), remove(), contains(): O(log N) - logarithmic time, efficient for large sets.</li>
+                </ul>
+                <li><strong>Important:</strong> Elements must implement Comparable interface (for natural ordering) or
+                  you must provide a Comparator in the TreeSet constructor.</li>
+                <li><strong>Use Case:</strong> When you need to store unique elements in a sorted order.</li>
+              </ul>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Uses a HashMap internally to store its elements (elements
+                  are stored as keys in the underlying HashMap, with a dummy value).</li>
+                <li><strong>Order:</strong> No guaranteed order. Order can change over time.</li>
+                <li><strong>Duplicates:</strong> Stores only unique elements.</li>
+                <li><strong>Nulls:</strong> Allows one null element.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>add(), remove(), contains(): O(1) on average (constant time), assuming good hash function
+                    distribution. In worst case (many collisions), can degrade to O(N).</li>
+                </ul>
+                <li><strong>Important:</strong> Relies on hashCode() and equals() methods of the stored objects for
+                  uniqueness. If you override equals(), you must override hashCode().</li>
+                <li><strong>Use Case:</strong> When you need to store unique elements and the order doesn't matter, and
+                  you need fast lookups.</li>
+              </ul><ul class="note-list lvl-3">
+                  <li>add(), remove(), contains(): O(1) on average (constant time), assuming good hash function
+                    distribution. In worst case (many collisions), can degrade to O(N).</li>
+                </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Uses a LinkedHashMap internally. Combines hashing with a
+                  doubly-linked list.</li>
+                <li><strong>Order:</strong> Maintains insertion order (the order in which elements were added).</li>
+                <li><strong>Duplicates:</strong> Stores only unique elements.</li>
+                <li><strong>Nulls:</strong> Allows one null element.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li><strong>Performance:</strong> Slightly slower than HashSet for insertions and deletions due to
+                  maintaining the linked list, but still O(1) on average. Iteration is faster than HashSet because it
+                  follows the insertion order link.</li>
+                <li><strong>Use Case:</strong> When you need unique elements and also want to preserve the order of
+                  insertion.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Uses a TreeMap internally (backed by a Red-Black tree, a
+                  self-balancing binary search tree).</li>
+                <li><strong>Order:</strong> Stores elements in sorted (natural) order or by a custom Comparator.</li>
+                <li><strong>Duplicates:</strong> Stores only unique elements.</li>
+                <li><strong>Nulls:</strong> Does NOT allow null elements (throws NullPointerException on add if the set
+                  is not empty or on first element if Comparator is used that cannot handle null).</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>add(), remove(), contains(): O(log N) - logarithmic time, efficient for large sets.</li>
+                </ul>
+                <li><strong>Important:</strong> Elements must implement Comparable interface (for natural ordering) or
+                  you must provide a Comparator in the TreeSet constructor.</li>
+                <li><strong>Use Case:</strong> When you need to store unique elements in a sorted order.</li>
+              </ul><ul class="note-list lvl-3">
+                  <li>add(), remove(), contains(): O(log N) - logarithmic time, efficient for large sets.</li>
+                </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="3">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.3 · Collections</span>
+<span class="qa-q__text">Explain the concept of: Map ImplementationsHashMap Internal WorkingHashMap vs Hashtable vs ConcurrentHashMap</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<ul class="note-list lvl-1">
+              <li>HashMap:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Array of linked lists (or Red-Black trees in Java 8+ for
+                  large buckets).</li>
+                <li><strong>Order:</strong> No guaranteed order. Order can change over time.</li>
+                <li><strong>Keys/Values:</strong> Allows one null key and multiple null values.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>put(), get(), remove(): O(1) on average (constant time), assuming good hash function for keys. In
+                    worst case (many collisions), can degrade to O(N).</li>
+                </ul>
+                <li><strong>Important:</strong> Relies on hashCode() and equals() methods of the keys for uniqueness and
+                  retrieval.</li>
+                <li><strong>Use Case:</strong> Most commonly used Map implementation when order is not important and you
+                  need fast key-based lookups.</li>
+              </ul>
+              <li>LinkedHashMap:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> HashMap + doubly-linked list running through its entries.
+                </li>
+                <li><strong>Order:</strong> Maintains insertion order by default. Can also be configured for access
+                  order (elements move to the end of the list when accessed, useful for LRU caches).</li>
+                <li><strong>Keys/Values:</strong> Allows one null key and multiple null values.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li><strong>Performance:</strong> Slightly slower than HashMap for additions and deletions due to
+                  maintaining the linked list, but still O(1) on average. Iteration is faster than HashMap because it
+                  follows the insertion/access order.</li>
+                <li><strong>Use Case:</strong> When you need a map that preserves the order of key-value pair insertion
+                  (or access).</li>
+              </ul>
+              <li>TreeMap:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Red-Black tree.</li>
+                <li><strong>Order:</strong> Stores entries in sorted order based on the keys (natural order or custom
+                  Comparator).</li>
+                <li><strong>Keys/Values:</strong> Does NOT allow null keys (throws NullPointerException). Allows
+                  multiple null values.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>put(), get(), remove(): O(log N).</li>
+                </ul>
+                <li><strong>Important:</strong> Keys must implement Comparable or you must provide a Comparator.</li>
+                <li><strong>Use Case:</strong> When you need a map where keys are stored in a sorted order, or when you
+                  need to perform range queries (e.g., subMap()).</li>
+              </ul>
+              <li>Hashtable (Legacy):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Array of linked lists, similar to HashMap.</li>
+                <li><strong>Order:</strong> No guaranteed order.</li>
+                <li><strong>Keys/Values:</strong> Does NOT allow null keys or null values. Throws NullPointerException.
+                </li>
+                <li><strong>Thread-Safety:</strong> Synchronized (thread-safe). All its methods are synchronized.</li>
+                <li><strong>Performance:</strong> Slower than HashMap due to synchronization overhead.</li>
+                <li><strong>Use Case:</strong> Largely superseded by ConcurrentHashMap for concurrent access or HashMap
+                  with external synchronization if needed.</li>
+              </ul>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Array of linked lists (or Red-Black trees in Java 8+ for
+                  large buckets).</li>
+                <li><strong>Order:</strong> No guaranteed order. Order can change over time.</li>
+                <li><strong>Keys/Values:</strong> Allows one null key and multiple null values.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>put(), get(), remove(): O(1) on average (constant time), assuming good hash function for keys. In
+                    worst case (many collisions), can degrade to O(N).</li>
+                </ul>
+                <li><strong>Important:</strong> Relies on hashCode() and equals() methods of the keys for uniqueness and
+                  retrieval.</li>
+                <li><strong>Use Case:</strong> Most commonly used Map implementation when order is not important and you
+                  need fast key-based lookups.</li>
+              </ul><ul class="note-list lvl-3">
+                  <li>put(), get(), remove(): O(1) on average (constant time), assuming good hash function for keys. In
+                    worst case (many collisions), can degrade to O(N).</li>
+                </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> HashMap + doubly-linked list running through its entries.
+                </li>
+                <li><strong>Order:</strong> Maintains insertion order by default. Can also be configured for access
+                  order (elements move to the end of the list when accessed, useful for LRU caches).</li>
+                <li><strong>Keys/Values:</strong> Allows one null key and multiple null values.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li><strong>Performance:</strong> Slightly slower than HashMap for additions and deletions due to
+                  maintaining the linked list, but still O(1) on average. Iteration is faster than HashMap because it
+                  follows the insertion/access order.</li>
+                <li><strong>Use Case:</strong> When you need a map that preserves the order of key-value pair insertion
+                  (or access).</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Red-Black tree.</li>
+                <li><strong>Order:</strong> Stores entries in sorted order based on the keys (natural order or custom
+                  Comparator).</li>
+                <li><strong>Keys/Values:</strong> Does NOT allow null keys (throws NullPointerException). Allows
+                  multiple null values.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>put(), get(), remove(): O(log N).</li>
+                </ul>
+                <li><strong>Important:</strong> Keys must implement Comparable or you must provide a Comparator.</li>
+                <li><strong>Use Case:</strong> When you need a map where keys are stored in a sorted order, or when you
+                  need to perform range queries (e.g., subMap()).</li>
+              </ul><ul class="note-list lvl-3">
+                  <li>put(), get(), remove(): O(log N).</li>
+                </ul><ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Array of linked lists, similar to HashMap.</li>
+                <li><strong>Order:</strong> No guaranteed order.</li>
+                <li><strong>Keys/Values:</strong> Does NOT allow null keys or null values. Throws NullPointerException.
+                </li>
+                <li><strong>Thread-Safety:</strong> Synchronized (thread-safe). All its methods are synchronized.</li>
+                <li><strong>Performance:</strong> Slower than HashMap due to synchronization overhead.</li>
+                <li><strong>Use Case:</strong> Largely superseded by ConcurrentHashMap for concurrent access or HashMap
+                  with external synchronization if needed.</li>
+              </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="3">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.3 · Collections</span>
+<span class="qa-q__text">Explain the concept of: Concurrency in Collections</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<p class="note-para">Thread-safety is a major concern when collections are accessed by multiple threads.</p><ul class="note-list lvl-1">
+              <li>Problem with non-thread-safe collections (ArrayList, HashMap, etc.) in multi-threaded environments:
+              </li>
+              <ul class="note-list lvl-2">
+                <li><strong>Race Conditions:</strong> Multiple threads trying to modify the collection simultaneously
+                  can lead to inconsistent state.</li>
+                <li><strong>ConcurrentModificationException:</strong> If one thread iterates over a collection while
+                  another thread modifies it (add/remove), the iterator can become invalid, leading to this runtime
+                  exception.</li>
+              </ul>
+              <li>Solutions for Thread-Safe Collections:</li>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Race Conditions:</strong> Multiple threads trying to modify the collection simultaneously
+                  can lead to inconsistent state.</li>
+                <li><strong>ConcurrentModificationException:</strong> If one thread iterates over a collection while
+                  another thread modifies it (add/remove), the iterator can become invalid, leading to this runtime
+                  exception.</li>
+              </ul><p class="note-para">1. Collections.synchronizedList(), Collections.synchronizedSet(),</p><p class="note-para">Collections.synchronizedMap():</p><ul class="note-list lvl-3">
+              <li><strong>How it works:</strong> These are static factory methods that return a synchronized (wrapper)
+                view of a non-synchronized collection. They internally wrap the methods of the underlying collection
+                with synchronized blocks.</li>
+              <li><strong>Example:</strong> List&lt;String&gt; synchronizedList = Collections.synchronizedList(new
+                ArrayList&lt;&gt;());</li>
+              <li>Drawbacks:</li>
+            </ul><p class="note-para">▪ Performance: Can be slow due to single lock for the entire collection</p><p class="note-para">(high contention).</p><p class="note-para">▪ External Synchronization for Iteration: You still need to manually</p><p class="note-para">synchronize externally when iterating over these collections to</p><p class="note-para">prevent ConcurrentModificationException.</p><ul class="note-list lvl-3">
+              <li>Provides highly optimized, scalable, and thread-safe alternatives. These are generally preferred for
+                concurrent applications.</li>
+              <li>ConcurrentHashMap:</li>
+            </ul><p class="note-para">▪ How it works: Uses a more fine-grained locking mechanism</p><p class="note-para">(segment locking or node-level locking depending on Java version)</p><p class="note-para">instead of a single global lock. This allows multiple threads to read</p><p class="note-para">and write concurrently to different parts of the map without</p><p class="note-para">blocking each other.</p><p class="note-para">▪ Performance: Much better concurrency than Hashtable or</p><p class="note-para">Collections.synchronizedMap().</p><p class="note-para">▪ Nulls: Does not allow null keys or values.</p><p class="note-para">▪ Iteration: Iterators are weakly consistent (fail-safe). They reflect the</p><p class="note-para">state of the map at the time the iterator was created and will not</p><p class="note-para">throw ConcurrentModificationException if the map is modified</p><p class="note-para">concurrently.</p><p class="note-para">▪ Use Case: Primary choice for thread-safe maps in high-concurrency</p><p class="note-para">environments.</p><ul class="note-list lvl-3">
+              <li>CopyOnWriteArrayList and CopyOnWriteArraySet:</li>
+            </ul><p class="note-para">▪ How they work: When a modifying operation (add, set, remove) is</p><p class="note-para">performed, a new copy of the underlying array is created. Reads</p><p class="note-para">operate on the old, unmodified array.</p><p class="note-para">▪ Performance: Excellent for concurrent read operations. Very poor</p><p class="note-para">for frequent write operations due to the overhead of copying the</p><p class="note-para">entire array.</p><p class="note-para">▪ Use Case: When reads vastly outnumber writes. E.g., maintaining a</p><p class="note-para">list of listeners in an event system. Iterators also fail-safe.</p><ul class="note-list lvl-3">
+              <li>BlockingQueue Interfaces (e.g., ArrayBlockingQueue, LinkedBlockingQueue):</li>
+            </ul><p class="note-para">▪ Concept: Queues that support operations that wait for the queue to</p><p class="note-para">become non-empty when retrieving an element, and wait for space</p><p class="note-para">to become available when storing an element.</p><p class="note-para">▪ Use Case: Producer-Consumer patterns, thread pools.</p><ul class="note-list lvl-1">
+              <li>Fail-Fast vs. Fail-Safe Iterators:</li>
+              <ul class="note-list lvl-2">
+                <li>Fail-Fast Iterators:</li>
+                <ul class="note-list lvl-3">
+                  <li>Implemented by most non-concurrent collections (ArrayList, HashMap, HashSet, etc.).</li>
+                  <li>They try to detect concurrent modifications (modifications to the underlying collection by any
+                    other means than the iterator's own remove() method) and throw a ConcurrentModificationException
+                    immediately.</li>
+                  <li>They are designed to "fail fast" to indicate potential bugs in multi-threaded code.</li>
+                </ul>
+                <li>Fail-Safe Iterators:</li>
+                <ul class="note-list lvl-3">
+                  <li>Implemented by concurrent collections (ConcurrentHashMap, CopyOnWriteArrayList, etc.).</li>
+                  <li>They operate on a clone or snapshot of the collection at the time the iterator was created.</li>
+                  <li>They do not throw ConcurrentModificationException if the original collection is modified
+                    concurrently.</li>
+                  <li>The trade-off is that they might not reflect the very latest state of the collection.</li>
+                </ul>
+              </ul>
+            </ul><ul class="note-list lvl-2">
+                <li>Fail-Fast Iterators:</li>
+                <ul class="note-list lvl-3">
+                  <li>Implemented by most non-concurrent collections (ArrayList, HashMap, HashSet, etc.).</li>
+                  <li>They try to detect concurrent modifications (modifications to the underlying collection by any
+                    other means than the iterator's own remove() method) and throw a ConcurrentModificationException
+                    immediately.</li>
+                  <li>They are designed to "fail fast" to indicate potential bugs in multi-threaded code.</li>
+                </ul>
+                <li>Fail-Safe Iterators:</li>
+                <ul class="note-list lvl-3">
+                  <li>Implemented by concurrent collections (ConcurrentHashMap, CopyOnWriteArrayList, etc.).</li>
+                  <li>They operate on a clone or snapshot of the collection at the time the iterator was created.</li>
+                  <li>They do not throw ConcurrentModificationException if the original collection is modified
+                    concurrently.</li>
+                  <li>The trade-off is that they might not reflect the very latest state of the collection.</li>
+                </ul>
+              </ul><ul class="note-list lvl-3">
+                  <li>Implemented by most non-concurrent collections (ArrayList, HashMap, HashSet, etc.).</li>
+                  <li>They try to detect concurrent modifications (modifications to the underlying collection by any
+                    other means than the iterator's own remove() method) and throw a ConcurrentModificationException
+                    immediately.</li>
+                  <li>They are designed to "fail fast" to indicate potential bugs in multi-threaded code.</li>
+                </ul><ul class="note-list lvl-3">
+                  <li>Implemented by concurrent collections (ConcurrentHashMap, CopyOnWriteArrayList, etc.).</li>
+                  <li>They operate on a clone or snapshot of the collection at the time the iterator was created.</li>
+                  <li>They do not throw ConcurrentModificationException if the original collection is modified
+                    concurrently.</li>
+                  <li>The trade-off is that they might not reflect the very latest state of the collection.</li>
+                </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="3">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.3 · Collections</span>
+<span class="qa-q__text">Explain the concept of: Comparable vs. Comparator</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<p class="note-para">These interfaces are used for custom sorting of objects.</p><ul class="note-list lvl-1">
+              <li>Comparable&lt;T&gt; (Natural Ordering):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Interface:</strong> public interface Comparable&lt;T&gt; { int compareTo(T o); }</li>
+                <li><strong>Purpose:</strong> Defines the natural or default sorting order for objects of a class.</li>
+                <li><strong>Implementation:</strong> The class whose objects you want to sort must implement this
+                  interface.</li>
+                <li>compareTo() method:</li>
+                <ul class="note-list lvl-3">
+                  <li>Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or
+                    greater than the specified object.</li>
+                  <li>obj1.compareTo(obj2):</li>
+                </ul>
+              </ul>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Interface:</strong> public interface Comparable&lt;T&gt; { int compareTo(T o); }</li>
+                <li><strong>Purpose:</strong> Defines the natural or default sorting order for objects of a class.</li>
+                <li><strong>Implementation:</strong> The class whose objects you want to sort must implement this
+                  interface.</li>
+                <li>compareTo() method:</li>
+                <ul class="note-list lvl-3">
+                  <li>Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or
+                    greater than the specified object.</li>
+                  <li>obj1.compareTo(obj2):</li>
+                </ul>
+              </ul><ul class="note-list lvl-3">
+                  <li>Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or
+                    greater than the specified object.</li>
+                  <li>obj1.compareTo(obj2):</li>
+                </ul><p class="note-para">▪ &lt; 0 if obj1 comes before obj2</p><p class="note-para">▪ == 0 if obj1 is equal to obj2</p><p class="note-para">▪ &gt; 0 if obj1 comes after obj2</p><ul class="note-list lvl-2">
+              <li><strong>Usage:</strong> Used by Collections.sort(List) for lists, and TreeSet/TreeMap constructors.
+              </li>
+            </ul><ul class="note-list lvl-1">
+              <li>Comparator&lt;T&gt; (Custom/External Ordering):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Interface:</strong> public interface Comparator&lt;T&gt; { int compare(T o1, T o2); boolean
+                  equals(Object obj); // Default method from Object }</li>
+                <li><strong>Purpose:</strong> Defines an alternative or custom sorting order for objects. Useful when:
+                </li>
+                <ul class="note-list lvl-3">
+                  <li>You don't want to modify the original class.</li>
+                  <li>You need multiple ways to sort the same objects (e.g., sort Employee by name, id, salary).</li>
+                  <li>The objects do not implement Comparable.</li>
+                </ul>
+                <li><strong>Implementation:</strong> You create a separate class that implements Comparator or use a
+                  lambda expression (Java 8+).</li>
+                <li>compare() method:</li>
+                <ul class="note-list lvl-3">
+                  <li>Returns a negative integer, zero, or a positive integer as the first argument is less than, equal
+                    to, or greater than the second.</li>
+                  <li>comparator.compare(obj1, obj2): Same return value logic as compareTo().</li>
+                </ul>
+                <li><strong>Usage:</strong> Used by Collections.sort(List, Comparator), Arrays.sort(array, Comparator),
+                  and TreeSet/TreeMap constructors that take a Comparator argument.</li>
+                <li><strong>Java 8+:</strong> Often implemented using lambda expressions for conciseness: (o1, o2) -&gt;
+                  o1.getName().compareTo(o2.getName())</li>
+              </ul>
+              <li>Example:</li>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Interface:</strong> public interface Comparator&lt;T&gt; { int compare(T o1, T o2); boolean
+                  equals(Object obj); // Default method from Object }</li>
+                <li><strong>Purpose:</strong> Defines an alternative or custom sorting order for objects. Useful when:
+                </li>
+                <ul class="note-list lvl-3">
+                  <li>You don't want to modify the original class.</li>
+                  <li>You need multiple ways to sort the same objects (e.g., sort Employee by name, id, salary).</li>
+                  <li>The objects do not implement Comparable.</li>
+                </ul>
+                <li><strong>Implementation:</strong> You create a separate class that implements Comparator or use a
+                  lambda expression (Java 8+).</li>
+                <li>compare() method:</li>
+                <ul class="note-list lvl-3">
+                  <li>Returns a negative integer, zero, or a positive integer as the first argument is less than, equal
+                    to, or greater than the second.</li>
+                  <li>comparator.compare(obj1, obj2): Same return value logic as compareTo().</li>
+                </ul>
+                <li><strong>Usage:</strong> Used by Collections.sort(List, Comparator), Arrays.sort(array, Comparator),
+                  and TreeSet/TreeMap constructors that take a Comparator argument.</li>
+                <li><strong>Java 8+:</strong> Often implemented using lambda expressions for conciseness: (o1, o2) -&gt;
+                  o1.getName().compareTo(o2.getName())</li>
+              </ul><ul class="note-list lvl-3">
+                  <li>You don't want to modify the original class.</li>
+                  <li>You need multiple ways to sort the same objects (e.g., sort Employee by name, id, salary).</li>
+                  <li>The objects do not implement Comparable.</li>
+                </ul><ul class="note-list lvl-3">
+                  <li>Returns a negative integer, zero, or a positive integer as the first argument is less than, equal
+                    to, or greater than the second.</li>
+                  <li>comparator.compare(obj1, obj2): Same return value logic as compareTo().</li>
+                </ul><p class="note-para">age</p><p class="note-para">String name;</p><p class="note-para">int age;</p><p class="note-para">public Person(String name, int age) {</p><p class="note-para">this.name = name;</p><p class="note-para">this.age = age;</p><p class="note-para">}</p><p class="note-para">@Override</p><p class="note-para">public int compareTo(Person other) {</p><p class="note-para">return Integer.compare(this.age, other.age); // Natural order: sort by age</p><p class="note-para">}</p><p class="note-para">@Override</p><p class="note-para">public String toString() {</p><p class="note-para">return "Person{" + "name='" + name + '\'' + ", age=" + age + '}';</p><p class="note-para">}</p><p class="note-para">} public class SortingDemo {</p><p class="note-para">public static void main(String[] args) {</p><p class="note-para">List&lt;Person&gt; people = new ArrayList&lt;&gt;();</p><p class="note-para">people.add(new Person("Alice", 30));</p><p class="note-para">people.add(new Person("Charlie", 25));</p><p class="note-para">people.add(new Person("Bob", 35));</p><p class="note-para">// 1. Sort using natural ordering (Comparable)</p><p class="note-para">Collections.sort(people); // Requires Person to implement Comparable</p><p class="note-para">System.out.println("Sorted by Age (Natural Order):");</p><p class="note-para">people.forEach(System.out::println);</p><p class="note-para">// Output: Charlie (25), Alice (30), Bob (35)</p><p class="note-para">// 2. Sort using a custom Comparator (by Name)</p><p class="note-para">Comparator&lt;Person&gt; nameComparator = (p1, p2) -&gt; p1.name.compareTo(p2.name);
+            </p><p class="note-para">Collections.sort(people, nameComparator);</p><p class="note-para">System.out.println("\nSorted by Name (Custom Comparator):");</p><p class="note-para">people.forEach(System.out::println);</p><p class="note-para">// Output: Alice (30), Bob (35), Charlie (25)</p><p class="note-para">// 3. Using a TreeSet (natural order)</p><p class="note-para">TreeSet&lt;Person&gt; sortedPeopleByAge = new TreeSet&lt;&gt;();</p><p class="note-para">sortedPeopleByAge.add(new Person("David", 40));</p><p class="note-para">sortedPeopleByAge.add(new Person("Eve", 20));</p><p class="note-para">sortedPeopleByAge.add(new Person("Frank", 30));</p><p class="note-para">System.out.println("\nTreeSet (Sorted by Age):");</p><p class="note-para">sortedPeopleByAge.forEach(System.out::println);</p><p class="note-para">// 4. Using a TreeMap (custom comparator for keys)</p><p class="note-para">Map&lt;Person, String&gt; personMap = new TreeMap&lt;&gt;(nameComparator); // TreeMap
+              uses</p><p class="note-para">Comparator</p><p class="note-para">personMap.put(new Person("Zara", 28), "Developer");</p><p class="note-para">personMap.put(new Person("Yara", 32), "Manager");</p><p class="note-para">personMap.put(new Person("Xavier", 25), "Analyst");</p><p class="note-para">System.out.println("\nTreeMap (Sorted by Name):");</p><p class="note-para">personMap.forEach((person, role) -&gt; System.out.println(person + " -&gt; " + role));
+            </p><p class="note-para">}</p><p class="note-para">} The Collections Framework is vast, but focusing on these core interfaces and their
+              most common implementations, their performance characteristics, and thread-safety concerns will make you
+              well- prepared for interview questions. Be ready to discuss specific scenarios for when to use ArrayList
+              vs. LinkedList, HashMap vs. TreeMap, and HashMap vs. ConcurrentHashMap. Got it. Let's delve into "4.
+              Multithreading and Concurrency" in detail. This is a crucial topic for a 3- year experienced Java
+              developer, as it directly relates to building high-performance, responsive, and scalable applications.
+              Interviewers will often ask about thread creation, synchronization, common concurrency problems, and the
+              java.util.concurrent package.</p>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="3">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.3 · Collections</span>
+<span class="qa-q__text">Guess the output: ConcurrentModificationException
+
+```java
+List<String> list = new ArrayList<>(Arrays.asList("A", "B", "C"));
+for (String s : list) {
+    if (s.equals("B")) {
+        list.remove(s);
+    }
+}
+System.out.println(list);
+```</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+Output: `ConcurrentModificationException` is thrown at runtime.
+
+The enhanced for-loop uses an Iterator under the hood. Modifying the list directly (`list.remove(s)`) instead of using `iterator.remove()` causes the list's internal `modCount` to misalign with the iterator's expected count, triggering a fast-fail exception on the next iteration.
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="3">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.3 · Collections</span>
+<span class="qa-q__text">Guess the output: Set behavior with mutable objects
+
+```java
+Set<StringBuilder> set = new HashSet<>();
+StringBuilder sb = new StringBuilder("Java");
+set.add(sb);
+sb.append("8");
+System.out.println(set.contains(sb));
+```</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+Output: `false` (usually).
+
+When `sb` was added to the `HashSet`, its hashcode was calculated and it was placed in a specific bucket. When we mutated it (`sb.append("8")`), its content changed, but its position in the set did not update. When calling `contains()`, the Set recalculates the hash and looks in a *different* bucket, resulting in `false`.
+
+**Rule of thumb:** Never mutate an object after using it as a key in a Map or adding it to a Set!
+</div>
+</div>
+</div>
 <div class="qa-card" data-chapter="4">
 <button class="qa-q" onclick="toggleQA(this)">
 <span class="tag-chip small">Ch.4 · Multithreading</span>
@@ -2035,6 +3415,521 @@
 </svg>
 </button>
 <div class="qa-a">
+</div>
+</div>
+<div class="qa-card" data-chapter="4">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.4 · Multithreading</span>
+<span class="qa-q__text">Explain the concept of: Thread Basics</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<ul class="note-list lvl-1">
+              <li>What is a Thread?</li>
+              <ul class="note-list lvl-2">
+                <li>The smallest unit of execution within a process.1</li>
+                <li>A single process can have multiple threads.2</li>
+                <li>Threads share the same memory space (heap) of the process, but each has its own call stack and PC
+                  (Program Counter) register.3</li>
+                <li>Lightweight compared to processes (faster context switching).4</li>
+              </ul>
+              <li>Advantages of Multithreading:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Responsiveness:</strong> UI applications remain responsive while long-running tasks execute
+                  in the background.</li>
+                <li><strong>Resource Utilization:</strong> Efficiently utilizes CPU (especially multi-core processors)
+                  by allowing tasks to run in parallel.5</li>
+                <li><strong>Faster Execution:</strong> Completes tasks quicker by dividing them among multiple threads.6
+                </li>
+                <li><strong>Better Resource Sharing:</strong> Threads within the same process can easily share data.7
+                </li>
+              </ul>
+              <li>Disadvantages of Multithreading:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Complexity:</strong> Harder to design, debug, and test concurrent applications due to race
+                  conditions, deadlocks, etc.</li>
+                <li><strong>Overhead:</strong> Context switching between threads incurs some overhead.</li>
+                <li><strong>Resource Contention:</strong> Multiple threads accessing shared resources can lead to data
+                  corruption or inconsistent states.8</li>
+              </ul>
+              <li><strong>Creating Threads:</strong> In Java, there are two primary ways to create and run threads:9
+              </li>
+            </ul><ul class="note-list lvl-2">
+                <li>The smallest unit of execution within a process.1</li>
+                <li>A single process can have multiple threads.2</li>
+                <li>Threads share the same memory space (heap) of the process, but each has its own call stack and PC
+                  (Program Counter) register.3</li>
+                <li>Lightweight compared to processes (faster context switching).4</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Responsiveness:</strong> UI applications remain responsive while long-running tasks execute
+                  in the background.</li>
+                <li><strong>Resource Utilization:</strong> Efficiently utilizes CPU (especially multi-core processors)
+                  by allowing tasks to run in parallel.5</li>
+                <li><strong>Faster Execution:</strong> Completes tasks quicker by dividing them among multiple threads.6
+                </li>
+                <li><strong>Better Resource Sharing:</strong> Threads within the same process can easily share data.7
+                </li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Complexity:</strong> Harder to design, debug, and test concurrent applications due to race
+                  conditions, deadlocks, etc.</li>
+                <li><strong>Overhead:</strong> Context switching between threads incurs some overhead.</li>
+                <li><strong>Resource Contention:</strong> Multiple threads accessing shared resources can lead to data
+                  corruption or inconsistent states.8</li>
+              </ul><p class="note-para">1. Extending the Thread Class:</p><ul class="note-list lvl-3">
+              <li>Create a class that extends java.lang.Thread.</li>
+              <li>Override the run() method with the code that the thread will execute.</li>
+              <li>Create an instance of your class and call its start() method (which in turn calls run() in a new
+                thread).</li>
+              <li><strong>Limitation:</strong> Java does not support multiple inheritance, so your class cannot extend
+                any other class if you choose this approach.</li>
+            </ul><ul class="note-list lvl-3">
+              <li>Create a class that implements java.lang.Runnable.</li>
+              <li>Override the run() method.</li>
+              <li>Create an instance of your Runnable class.</li>
+              <li>Create a Thread object, passing your Runnable instance to its constructor.</li>
+              <li>Call the start() method on the Thread object.</li>
+              <li><strong>Advantage:</strong> Your class can still extend another class while implementing Runnable,
+                offering more flexibility. This separates the task (what to run) from the thread (how to run it).</li>
+            </ul><ul class="note-list lvl-3">
+              <li><strong>Purpose:</strong> Runnable's run() method cannot return a value or throw checked exceptions.
+                Callable solves this.</li>
+              <li>Callable's call() method returns a result and can throw exceptions.10</li>
+              <li>Future represents the result of an asynchronous computation.11 It provides methods to check if the
+                computation is complete, wait for its completion, and retrieve the result.12</li>
+              <li>Requires an ExecutorService to execute Callable tasks.13</li>
+            </ul><ul class="note-list lvl-1">
+              <li><strong>Thread Lifecycle:</strong> A thread goes through various states from its creation to its
+                termination.</li>
+              <ul class="note-list lvl-2">
+                <li><strong>NEW:</strong> A thread that has been created but not yet started (i.e., start() method not
+                  called).</li>
+                <li><strong>RUNNABLE:</strong> A thread that is executing or ready to execute. It's waiting for its turn
+                  on the CPU. It includes both "Running" and "Ready" states.</li>
+                <li><strong>BLOCKED:</strong> A thread that is waiting for a monitor lock (e.g., waiting to enter a
+                  synchronized block/method) to access a shared resource.14</li>
+                <li><strong>WAITING:</strong> A thread that is indefinitely waiting for another thread to perform a
+                  particular action (e.g., calling Object.wait(), Thread.join(), LockSupport.park()). It will not return
+                  to the runnable state until another thread explicitly wakes it up.</li>
+                <li>TIMED_WAITING: A thread that is waiting for another thread to perform an action for a specified
+                  waiting time (e.g., Thread.sleep(long millis), Object.wait(long millis), Thread.join(long millis),
+                  LockSupport.parkNanos(), LockSupport.parkUntil()). It will return to the runnable state after the time
+                  expires or if woken up.</li>
+                <li><strong>TERMINATED:</strong> A thread that has finished its execution (its run() method has
+                  completed or thrown an uncaught exception).</li>
+              </ul>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>NEW:</strong> A thread that has been created but not yet started (i.e., start() method not
+                  called).</li>
+                <li><strong>RUNNABLE:</strong> A thread that is executing or ready to execute. It's waiting for its turn
+                  on the CPU. It includes both "Running" and "Ready" states.</li>
+                <li><strong>BLOCKED:</strong> A thread that is waiting for a monitor lock (e.g., waiting to enter a
+                  synchronized block/method) to access a shared resource.14</li>
+                <li><strong>WAITING:</strong> A thread that is indefinitely waiting for another thread to perform a
+                  particular action (e.g., calling Object.wait(), Thread.join(), LockSupport.park()). It will not return
+                  to the runnable state until another thread explicitly wakes it up.</li>
+                <li>TIMED_WAITING: A thread that is waiting for another thread to perform an action for a specified
+                  waiting time (e.g., Thread.sleep(long millis), Object.wait(long millis), Thread.join(long millis),
+                  LockSupport.parkNanos(), LockSupport.parkUntil()). It will return to the runnable state after the time
+                  expires or if woken up.</li>
+                <li><strong>TERMINATED:</strong> A thread that has finished its execution (its run() method has
+                  completed or thrown an uncaught exception).</li>
+              </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="4">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.4 · Multithreading</span>
+<span class="qa-q__text">Explain the concept of: Synchronization</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<p class="note-para">The process of controlling access to shared resources by multiple threads to prevent
+              race conditions and ensure data consistency.15</p><ul class="note-list lvl-1">
+              <li><strong>Race Condition:</strong> Occurs when multiple threads try to access and modify a shared
+                resource simultaneously, and the final outcome depends on the unpredictable order of execution of these
+                threads.16</li>
+              <li>How to achieve Synchronization:</li>
+            </ul><p class="note-para">1. synchronized Keyword:</p><ul class="note-list lvl-3">
+              <li>synchronized method:</li>
+            </ul><p class="note-para">▪ When applied to an instance method, it acquires the lock on the</p><p class="note-para">object itself (i.e., this object) before executing the method. Only one</p><p class="note-para">synchronized method of an object can be executed at a time by any</p><p class="note-para">thread.</p><p class="note-para">▪ When applied to a static method, it acquires the lock on the class</p><p class="note-para">object (ClassName.class). Only one static synchronized method of a</p><p class="note-para">class can be executed at a time by any thread.</p><p class="note-para">▪ Java</p><p class="note-para">▪ class Counter {</p><p class="note-para">▪ private int count = 0;</p><p class="note-para">▪ public synchronized void increment() { // Synchronized method</p><p class="note-para">▪ count++;</p><p class="note-para">▪ }</p><p class="note-para">▪ public synchronized int getCount() {</p><p class="note-para">▪ return count;</p><p class="note-para">▪ }</p><p class="note-para">▪ }</p><ul class="note-list lvl-3">
+              <li>synchronized block:</li>
+            </ul><p class="note-para">▪ Acquires a lock on a specified object (the monitor).</p><p class="note-para">▪ Allows for more fine-grained control than synchronized methods.</p><p class="note-para">You can synchronize only the critical section of code.</p><p class="note-para">▪ Java</p><p class="note-para">▪ class SharedResource {</p><p class="note-para">▪ private int data = 0;</p><p class="note-para">▪ private final Object lock = new Object(); // A dedicated lock</p><p class="note-para">object</p><p class="note-para">▪</p><p class="note-para">▪ public void increment() {</p><p class="note-para">▪ synchronized (lock) { // Synchronized block on 'lock' object</p><p class="note-para">▪ data++;</p><p class="note-para">▪ }</p><p class="note-para">▪ }</p><p class="note-para">▪ public void updateData(int newValue) {</p><p class="note-para">▪ synchronized (this) { // Synchronized on 'this' object</p><p class="note-para">▪ this.data = newValue;</p><p class="note-para">▪ }</p><p class="note-para">▪ }</p><p class="note-para">▪ }</p><ul class="note-list lvl-3">
+              <li>Key points about synchronized:</li>
+            </ul><p class="note-para">▪ Re-entrant: A thread that has acquired a lock can re-enter any</p><p class="note-para">synchronized block or method that is guarded by the same lock.</p><p class="note-para">▪ Intrinsic Lock (Monitor Lock): Every Java object has an intrinsic lock</p><p class="note-para">associated with it.</p><p class="note-para">2. volatile Keyword:</p><ul class="note-list lvl-3">
+              <li><strong>Purpose:</strong> Ensures visibility of changes to variables across threads. It prevents
+                compilers/CPUs from caching variables locally and ensures that any write to a volatile variable happens
+                before any subsequent read of that variable by another thread.</li>
+              <li><strong>Does NOT guarantee atomicity:</strong> volatile only ensures visibility, not that operations
+                like i++ (which are read-modify-write) are atomic. For atomicity, you need synchronization or Atomic
+                classes.</li>
+              <li><strong>Use Case:</strong> When one thread writes to a variable and other threads only read that
+                variable, and you need to ensure readers see the latest value. (e.g., a flag to stop a thread).</li>
+            </ul><p class="note-para">3. wait(), notify(), notifyAll() Methods:</p><ul class="note-list lvl-3">
+              <li><strong>From Object class:</strong> These methods are used for inter-thread communication and must be
+                called from within a synchronized block/method, on the object whose intrinsic lock is held.</li>
+              <li><strong>wait():</strong> Causes the current thread to release the lock on the object and go into a
+                WAITING or TIMED_WAITING state until another thread invokes notify() or notifyAll() on the same object,
+                or the specified timeout expires.</li>
+              <li><strong>notify():</strong> Wakes up a single thread that is waiting on this object's monitor.17 Which
+                thread gets woken up is non-deterministic.</li>
+              <li><strong>notifyAll():</strong> Wakes up all threads that are waiting on this object's monitor.</li>
+              <li><strong>Typical Use Case:</strong> Producer-Consumer problem.</li>
+            </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="4">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.4 · Multithreading</span>
+<span class="qa-q__text">Explain the concept of: Thread Pools (ExecutorService)Thread Lifecycle</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<ul class="note-list lvl-1">
+              <li><strong>Problem:</strong> Creating a new thread for every task is expensive in terms of resource
+                consumption (memory, CPU cycles for context switching).</li>
+              <li><strong>Solution:</strong> Thread pools manage a pool of worker threads. Tasks are submitted to the
+                pool, and the pool's threads execute them.</li>
+              <li><strong>ExecutorService (Interface):</strong> The main interface for executing tasks asynchronously.18
+              </li>
+              <li><strong>Executors (Utility Class):</strong> Provides static factory methods to create common
+                ExecutorService configurations.19</li>
+              <ul class="note-list lvl-2">
+                <li><strong>newFixedThreadPool(int nThreads):</strong> Creates a thread pool with a fixed number of
+                  threads.20 If more tasks are submitted than threads, they wait in a queue.</li>
+                <li><strong>newCachedThreadPool():</strong> Creates a thread pool that creates new threads as needed,
+                  but reuses existing ones when they become available.21 Good for applications with many short-lived
+                  tasks.</li>
+                <li><strong>newSingleThreadExecutor():</strong> Creates a single-threaded executor.22 Ensures tasks are
+                  executed sequentially.</li>
+                <li><strong>newScheduledThreadPool(int corePoolSize):</strong> Creates a thread pool that can schedule
+                  commands to run after a given delay, or to execute periodically.23</li>
+              </ul>
+              <li><strong>Lifecycle:</strong> ExecutorService needs to be explicitly shut down using shutdown() (waits
+                for current tasks to complete) or shutdownNow() (attempts to stop all running tasks immediately).24</li>
+              <li>Benefits:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Reduced Overhead:</strong> Reuses threads, avoiding the overhead of creating/destroying
+                  threads.25</li>
+                <li><strong>Resource Management:</strong> Limits the number of concurrent threads, preventing resource
+                  exhaustion.</li>
+                <li><strong>Improved Responsiveness:</strong> Tasks are picked up faster from the queue.</li>
+                <li><strong>Separation of Concerns:</strong> Decouples task submission from thread management.</li>
+              </ul>
+              <li>Example (See CallableFutureDemo above for basic usage).</li>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>newFixedThreadPool(int nThreads):</strong> Creates a thread pool with a fixed number of
+                  threads.20 If more tasks are submitted than threads, they wait in a queue.</li>
+                <li><strong>newCachedThreadPool():</strong> Creates a thread pool that creates new threads as needed,
+                  but reuses existing ones when they become available.21 Good for applications with many short-lived
+                  tasks.</li>
+                <li><strong>newSingleThreadExecutor():</strong> Creates a single-threaded executor.22 Ensures tasks are
+                  executed sequentially.</li>
+                <li><strong>newScheduledThreadPool(int corePoolSize):</strong> Creates a thread pool that can schedule
+                  commands to run after a given delay, or to execute periodically.23</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Reduced Overhead:</strong> Reuses threads, avoiding the overhead of creating/destroying
+                  threads.25</li>
+                <li><strong>Resource Management:</strong> Limits the number of concurrent threads, preventing resource
+                  exhaustion.</li>
+                <li><strong>Improved Responsiveness:</strong> Tasks are picked up faster from the queue.</li>
+                <li><strong>Separation of Concerns:</strong> Decouples task submission from thread management.</li>
+              </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="4">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.4 · Multithreading</span>
+<span class="qa-q__text">Explain the concept of: Concurrency Utilities (java.util.concurrent)</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<p class="note-para">This package introduced powerful, high-level concurrency constructs that are generally
+              preferred over low-level wait()/notify() or synchronized for complex scenarios, due to their ease of use,
+              robustness, and performance.26</p><ul class="note-list lvl-1">
+              <li>Lock Interface (e.g., ReentrantLock):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Problem with synchronized:</strong> Limited flexibility (must release lock in the same
+                  block, cannot interrupt a waiting thread, cannot try to acquire a lock without blocking, cannot
+                  acquire multiple locks in specific order).</li>
+                <li><strong>ReentrantLock:</strong> An explicit lock implementation that provides more flexibility than
+                  synchronized.</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>lock():</strong> Acquires the lock. Blocks if the lock is not available.</li>
+                  <li><strong>unlock():</strong> Releases the lock. Must be called in a finally block to ensure release
+                    even if exceptions occur.</li>
+                  <li><strong>tryLock():</strong> Attempts to acquire the lock without blocking.27</li>
+                  <li>tryLock(long timeout, TimeUnit unit): Attempts to acquire the lock within a specified timeout.28
+                  </li>
+                  <li><strong>lockInterruptibly():</strong> Acquires the lock unless the current thread is
+                    interrupted.29</li>
+                  <li><strong>Re-entrant:</strong> A thread can acquire the same lock multiple times.30</li>
+                </ul>
+                <li><strong>Condition Interface:</strong> Can be obtained from a Lock (lock.newCondition()).31 It's an
+                  alternative to wait()/notify() that provides more granular control over thread waiting and
+                  notification (e.g., multiple wait sets for a single lock).</li>
+                <li><strong>ReentrantReadWriteLock:</strong> Allows multiple readers to access a resource concurrently,
+                  but only one writer at a time.32 Ideal for read-heavy workloads.</li>
+              </ul>
+              <li>CountDownLatch:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> A synchronization aid that allows one or more threads to wait until a set
+                  of operations being performed in other threads completes.</li>
+                <li><strong>Mechanism:</strong> Initialized with a count. Threads call countDown() when their task is
+                  complete.33 A thread waiting on the latch calls await() and blocks until the count reaches zero.34
+                </li>
+                <li><strong>Use Case:</strong> Start multiple threads, do some concurrent work, and then wait for all of
+                  them to finish before proceeding.</li>
+              </ul>
+              <li>CyclicBarrier:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> A synchronization aid that allows a set of threads to wait for each other
+                  to reach a common barrier point.35</li>
+                <li><strong>Mechanism:</strong> Initialized with a number of parties. Threads call await() when they
+                  reach the barrier. All threads block until all parties have called await().</li>
+                <li><strong>Reusability:</strong> The barrier can be reused once all threads have passed it.36</li>
+                <li><strong>Use Case:</strong> Useful for scenarios where a group of threads needs to perform a series
+                  of operations in stages, with all threads needing to complete a stage before moving to the next.</li>
+              </ul>
+              <li>Semaphore:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Controls access to a limited number of resources.</li>
+                <li><strong>Mechanism:</strong> Initialized with a number of permits. Threads acquire a permit
+                  (acquire()) to access the resource and release it (release()) when done.37 If no permits are
+                  available, threads block.</li>
+                <li><strong>Use Case:</strong> Limiting the number of concurrent database connections, limiting
+                  concurrent requests to a specific service.</li>
+              </ul>
+              <li>BlockingQueue (e.g., ArrayBlockingQueue, LinkedBlockingQueue):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Queues that automatically handle synchronization when adding or removing
+                  elements.</li>
+                <li>Blocking Operations:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>put(E e):</strong> Waits if the queue is full.</li>
+                  <li><strong>take():</strong> Waits if the queue is empty.38</li>
+                </ul>
+                <li><strong>Non-blocking variants:</strong> offer(), poll().</li>
+                <li><strong>Use Case:</strong> The quintessential solution for the Producer-Consumer problem. Producers
+                  add items, consumers take items.</li>
+              </ul>
+              <li>Atomic Variables (e.g., AtomicInteger, AtomicLong, AtomicBoolean, AtomicReference):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Provide atomic operations on single variables without using explicit
+                  locks.</li>
+                <li><strong>Mechanism:</strong> Use low-level, hardware-supported compare-and-swap (CAS) operations.
+                </li>
+                <li><strong>Benefits:</strong> More performant and scalable than using synchronized for simple variable
+                  updates.</li>
+                <li><strong>Use Case:</strong> Atomic counters, flags, or references that need to be updated safely by
+                  multiple threads.</li>
+              </ul>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Problem with synchronized:</strong> Limited flexibility (must release lock in the same
+                  block, cannot interrupt a waiting thread, cannot try to acquire a lock without blocking, cannot
+                  acquire multiple locks in specific order).</li>
+                <li><strong>ReentrantLock:</strong> An explicit lock implementation that provides more flexibility than
+                  synchronized.</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>lock():</strong> Acquires the lock. Blocks if the lock is not available.</li>
+                  <li><strong>unlock():</strong> Releases the lock. Must be called in a finally block to ensure release
+                    even if exceptions occur.</li>
+                  <li><strong>tryLock():</strong> Attempts to acquire the lock without blocking.27</li>
+                  <li>tryLock(long timeout, TimeUnit unit): Attempts to acquire the lock within a specified timeout.28
+                  </li>
+                  <li><strong>lockInterruptibly():</strong> Acquires the lock unless the current thread is
+                    interrupted.29</li>
+                  <li><strong>Re-entrant:</strong> A thread can acquire the same lock multiple times.30</li>
+                </ul>
+                <li><strong>Condition Interface:</strong> Can be obtained from a Lock (lock.newCondition()).31 It's an
+                  alternative to wait()/notify() that provides more granular control over thread waiting and
+                  notification (e.g., multiple wait sets for a single lock).</li>
+                <li><strong>ReentrantReadWriteLock:</strong> Allows multiple readers to access a resource concurrently,
+                  but only one writer at a time.32 Ideal for read-heavy workloads.</li>
+              </ul><ul class="note-list lvl-3">
+                  <li><strong>lock():</strong> Acquires the lock. Blocks if the lock is not available.</li>
+                  <li><strong>unlock():</strong> Releases the lock. Must be called in a finally block to ensure release
+                    even if exceptions occur.</li>
+                  <li><strong>tryLock():</strong> Attempts to acquire the lock without blocking.27</li>
+                  <li>tryLock(long timeout, TimeUnit unit): Attempts to acquire the lock within a specified timeout.28
+                  </li>
+                  <li><strong>lockInterruptibly():</strong> Acquires the lock unless the current thread is
+                    interrupted.29</li>
+                  <li><strong>Re-entrant:</strong> A thread can acquire the same lock multiple times.30</li>
+                </ul><ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> A synchronization aid that allows one or more threads to wait until a set
+                  of operations being performed in other threads completes.</li>
+                <li><strong>Mechanism:</strong> Initialized with a count. Threads call countDown() when their task is
+                  complete.33 A thread waiting on the latch calls await() and blocks until the count reaches zero.34
+                </li>
+                <li><strong>Use Case:</strong> Start multiple threads, do some concurrent work, and then wait for all of
+                  them to finish before proceeding.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> A synchronization aid that allows a set of threads to wait for each other
+                  to reach a common barrier point.35</li>
+                <li><strong>Mechanism:</strong> Initialized with a number of parties. Threads call await() when they
+                  reach the barrier. All threads block until all parties have called await().</li>
+                <li><strong>Reusability:</strong> The barrier can be reused once all threads have passed it.36</li>
+                <li><strong>Use Case:</strong> Useful for scenarios where a group of threads needs to perform a series
+                  of operations in stages, with all threads needing to complete a stage before moving to the next.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Controls access to a limited number of resources.</li>
+                <li><strong>Mechanism:</strong> Initialized with a number of permits. Threads acquire a permit
+                  (acquire()) to access the resource and release it (release()) when done.37 If no permits are
+                  available, threads block.</li>
+                <li><strong>Use Case:</strong> Limiting the number of concurrent database connections, limiting
+                  concurrent requests to a specific service.</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Queues that automatically handle synchronization when adding or removing
+                  elements.</li>
+                <li>Blocking Operations:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>put(E e):</strong> Waits if the queue is full.</li>
+                  <li><strong>take():</strong> Waits if the queue is empty.38</li>
+                </ul>
+                <li><strong>Non-blocking variants:</strong> offer(), poll().</li>
+                <li><strong>Use Case:</strong> The quintessential solution for the Producer-Consumer problem. Producers
+                  add items, consumers take items.</li>
+              </ul><ul class="note-list lvl-3">
+                  <li><strong>put(E e):</strong> Waits if the queue is full.</li>
+                  <li><strong>take():</strong> Waits if the queue is empty.38</li>
+                </ul><ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Provide atomic operations on single variables without using explicit
+                  locks.</li>
+                <li><strong>Mechanism:</strong> Use low-level, hardware-supported compare-and-swap (CAS) operations.
+                </li>
+                <li><strong>Benefits:</strong> More performant and scalable than using synchronized for simple variable
+                  updates.</li>
+                <li><strong>Use Case:</strong> Atomic counters, flags, or references that need to be updated safely by
+                  multiple threads.</li>
+              </ul>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="4">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.4 · Multithreading</span>
+<span class="qa-q__text">Explain the concept of: Deadlock</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+<ul class="note-list lvl-1">
+              <li><strong>What it is:</strong> A situation where two or more threads are blocked indefinitely, each
+                waiting for the other to release a resource that it needs.39</li>
+              <li>Conditions for Deadlock (Coffman Conditions - all four must be met):</li>
+            </ul><p class="note-para">1. Mutual Exclusion: At least one resource must be held in a non-sharable mode (e.g.,
+            </p><p class="note-para">a lock).</p><p class="note-para">2. Hold and Wait: A thread holding at least one resource is waiting to acquire</p><p class="note-para">additional resources held by other threads.40</p><p class="note-para">3. No Preemption: Resources cannot be forcibly taken from a thread; they must be</p><p class="note-para">released voluntarily.41</p><p class="note-para">4. Circular Wait: A set of threads T1, T2, ..., Tn exists such that T1 is waiting for a
+            </p><p class="note-para">resource held by T2, T2 is waiting for a resource held by T3, and so on, with Tn</p><p class="note-para">waiting for a resource held by T1.</p><ul class="note-list lvl-1">
+              <li>Example (Classic Deadlock):</li>
+            </ul><ul class="note-list lvl-1">
+              <li>How to Prevent Deadlock:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Break Circular Wait:</strong> The most common strategy. Establish a consistent ordering of
+                  resource acquisition. If Thread 1 acquires Lock A then Lock B, Thread 2 should also acquire Lock A
+                  then Lock B, never Lock B then Lock A.</li>
+                <li><strong>Avoid Hold and Wait:</strong> Acquire all necessary resources at once, or release all held
+                  resources if additional ones cannot be acquired.</li>
+                <li><strong>Allow Preemption:</strong> If a thread cannot acquire a resource, it releases the ones it
+                  holds and retries.</li>
+                <li><strong>Avoid Mutual Exclusion (if possible):</strong> Use concurrent data structures that don't
+                  require explicit locking (e.g., ConcurrentHashMap).</li>
+              </ul>
+              <li>How to Detect Deadlock:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Thread Dumps:</strong> Analyze thread dumps (jstack &lt;pid&gt;). They will show threads in
+                  BLOCKED state, often with waiting for monitor entry on specific locks and holding lock on others.</li>
+                <li><strong>Monitoring Tools:</strong> Profilers or APM (Application Performance Monitoring) tools can
+                  detect deadlocks.42</li>
+              </ul>
+              <li><strong>How to Resolve Deadlock:</strong> Usually involves fixing the code to prevent one of the four
+                conditions from being met, most commonly by ensuring a consistent lock acquisition order.</li>
+            </ul><ul class="note-list lvl-2">
+                <li><strong>Break Circular Wait:</strong> The most common strategy. Establish a consistent ordering of
+                  resource acquisition. If Thread 1 acquires Lock A then Lock B, Thread 2 should also acquire Lock A
+                  then Lock B, never Lock B then Lock A.</li>
+                <li><strong>Avoid Hold and Wait:</strong> Acquire all necessary resources at once, or release all held
+                  resources if additional ones cannot be acquired.</li>
+                <li><strong>Allow Preemption:</strong> If a thread cannot acquire a resource, it releases the ones it
+                  holds and retries.</li>
+                <li><strong>Avoid Mutual Exclusion (if possible):</strong> Use concurrent data structures that don't
+                  require explicit locking (e.g., ConcurrentHashMap).</li>
+              </ul><ul class="note-list lvl-2">
+                <li><strong>Thread Dumps:</strong> Analyze thread dumps (jstack &lt;pid&gt;). They will show threads in
+                  BLOCKED state, often with waiting for monitor entry on specific locks and holding lock on others.</li>
+                <li><strong>Monitoring Tools:</strong> Profilers or APM (Application Performance Monitoring) tools can
+                  detect deadlocks.42</li>
+              </ul><p class="note-para">Multithreading and Concurrency are vast and complex topics. For a 3-year experienced
+              developer, the expectation is to not just know the basics, but also to understand the trade-offs of
+              different synchronization mechanisms, when to use the java.util.concurrent utilities, and how to identify
+              and prevent common concurrency issues like deadlocks. Practice writing concurrent code and debugging it to
+              solidify your understanding. Got it! Let's dive deep into "5. Spring Boot &amp; Microservices". This is a
+              crucial area for a Java developer with 3 years of experience, as Spring Boot is the de-facto standard for
+              building modern Java applications, especially in the context of microservices.</p>
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="4">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.4 · Multithreading</span>
+<span class="qa-q__text">Guess the output: ExecutorService Shutdown
+
+```java
+ExecutorService executor = Executors.newFixedThreadPool(1);
+executor.submit(() -> System.out.print("Task "));
+executor.shutdownNow();
+executor.submit(() -> System.out.print("Task2 "));
+```</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+Output: `RejectedExecutionException` is thrown.
+
+After `shutdown()` or `shutdownNow()` is called on an `ExecutorService`, it enters a shutdown state and cannot accept any new tasks. The second `submit()` call is immediately rejected.
+</div>
+</div>
+</div>
+<div class="qa-card" data-chapter="4">
+<button class="qa-q" onclick="toggleQA(this)">
+<span class="tag-chip small">Ch.4 · Multithreading</span>
+<span class="qa-q__text">Guess the output: Thread.start() vs Thread.run()
+
+```java
+Thread t = new Thread(() -> {
+    System.out.print(Thread.currentThread().getName() + " ");
+});
+t.run();
+t.start();
+```</span>
+<svg class="chev" height="16" viewBox="0 0 24 24" width="16">
+<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="qa-a">
+<div class="full-answer">
+Output: `main Thread-0 ` (Assuming default thread names)
+
+Calling `t.run()` executes the run method synchronously on the *current* thread (which is `main`). Calling `t.start()` actually creates a new OS-level thread and executes the run method inside that new thread (`Thread-0`).
+</div>
 </div>
 </div>
 <div class="qa-card" data-chapter="5">

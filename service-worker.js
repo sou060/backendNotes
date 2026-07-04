@@ -11,6 +11,7 @@ const ASSETS_TO_CACHE = [
   'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js',
+  'https://cdn.jsdelivr.net/npm/mermaid@10.4.0/dist/mermaid.min.js',
   ...Array.from({length: 25}, (_, i) => `./notes/chapter-${i + 1}.html`)
 ];
 
