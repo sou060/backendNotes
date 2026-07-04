@@ -158,6 +158,23 @@ a {
   border-radius: 8px;
 }
 
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+  z-index: 40;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.sidebar.open ~ .sidebar-overlay {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .brand {
   padding: 0 20px 18px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
