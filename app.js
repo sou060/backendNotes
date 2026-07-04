@@ -550,6 +550,8 @@ window.loadChapter = async function (ci) {
       });
     }
 
+    enhanceCodeCards(container);
+
     // Inject review buttons
     injectReviewButtons();
 
@@ -597,6 +599,10 @@ window.goToChapter = function (ci) {
   openChapterNav(ci);
 };
 
+document.addEventListener("DOMContentLoaded", () => {
+  enhanceCodeCards(document);
+});
+
 function toggleChapter(ci) {
   const nav = document.querySelector('.nav-chapter[data-chapter="' + ci + '"]');
   nav.classList.toggle("open");
@@ -632,15 +638,126 @@ document.addEventListener("click", function (e) {
   }
 });
 
-// ---- Copy code ----
+// ---- Code blocks ----
+function inferCodeLanguage(codeEl, card) {
+  const fromClass = Array.from(codeEl.classList || []).find((cls) =>
+    cls.startsWith("language-"),
+  );
+  if (fromClass) return fromClass.replace("language-", "");
+  return card.dataset.language || codeEl.dataset.language || "text";
+}
+
+function inferCodeFilename(codeText, codeEl, card) {
+  const fromAttr =
+    card.dataset.file || codeEl.dataset.file || card.getAttribute("data-file");
+  if (fromAttr) return fromAttr;
+  const match = codeText.match(
+    /(?:\/\/|#|\/\*)\s*(?:file|filename)\s*[:=]\s*([A-Za-z0-9._-]+)/i,
+  );
+  return match ? match[1] : "";
+}
+
+function buildEnhancedCodeMarkup(codeEl, rawCode) {
+  const rawLines = rawCode.replace(/\r\n/g, "\n").split("\n");
+  const highlightedLines = codeEl.innerHTML.split("\n");
+
+  return rawLines
+    .map((line, index) => {
+      const isHighlighted =
+        /(?:^|\s)(highlight|important|note|focus)(?:\s|$)/i.test(line);
+      const content = highlightedLines[index] || "&nbsp;";
+      return `<span class="code-line${isHighlighted ? " code-line--highlight" : ""}"><span class="code-line__gutter">${index + 1}</span><span class="code-line__content">${content || "&nbsp;"}</span></span>`;
+    })
+    .join("\n");
+}
+
+function enhanceCodeCards(root = document) {
+  root
+    .querySelectorAll(".code-card:not([data-code-enhanced='true'])")
+    .forEach((card) => {
+      const codeEl = card.querySelector("code");
+      const preEl = card.querySelector("pre");
+      const bar = card.querySelector(".code-card__bar");
+      if (!codeEl || !preEl || !bar) return;
+
+      card.setAttribute("data-code-enhanced", "true");
+      const rawCode = codeEl.textContent.replace(/\r\n/g, "\n");
+      card.dataset.rawCode = rawCode;
+
+      const language = inferCodeLanguage(codeEl, card);
+      const filename = inferCodeFilename(rawCode, codeEl, card);
+      const lines = rawCode.split("\n");
+      const shouldCollapse = lines.length > 16 || rawCode.length > 2200;
+
+      const langBadge = bar.querySelector(".code-lang");
+      if (langBadge) {
+        langBadge.textContent = language.toUpperCase();
+        langBadge.setAttribute("title", `Language: ${language}`);
+      }
+
+      if (filename) {
+        let fileBadge = bar.querySelector(".code-file");
+        if (!fileBadge) {
+          fileBadge = document.createElement("span");
+          fileBadge.className = "code-file";
+          bar.insertBefore(fileBadge, bar.lastElementChild);
+        }
+        fileBadge.textContent = filename;
+      }
+
+      if (!bar.querySelector(".code-card__actions")) {
+        const actions = document.createElement("div");
+        actions.className = "code-card__actions";
+        actions.appendChild(
+          bar.querySelector(".copy-btn") || document.createElement("button"),
+        );
+        bar.appendChild(actions);
+      }
+
+      if (!bar.querySelector(".code-toggle")) {
+        const toggleBtn = document.createElement("button");
+        toggleBtn.type = "button";
+        toggleBtn.className = "code-toggle";
+        toggleBtn.textContent = shouldCollapse ? "Expand" : "Collapse";
+        toggleBtn.addEventListener("click", () =>
+          toggleCodeCollapse(toggleBtn),
+        );
+        bar.querySelector(".code-card__actions").appendChild(toggleBtn);
+      }
+
+      if (window.hljs) {
+        hljs.highlightElement(codeEl);
+      }
+
+      codeEl.innerHTML = buildEnhancedCodeMarkup(codeEl, rawCode);
+      if (shouldCollapse) {
+        card.classList.add("is-collapsed");
+        const toggleBtn = bar.querySelector(".code-toggle");
+        if (toggleBtn) toggleBtn.textContent = "Expand";
+      }
+    });
+}
+
 function copyCode(btn) {
-  const code = btn.closest(".code-card").querySelector("code").innerText;
+  const card = btn.closest(".code-card");
+  const code =
+    card?.dataset.rawCode || card?.querySelector("code")?.innerText || "";
   navigator.clipboard.writeText(code).then(() => {
     const old = btn.textContent;
     btn.textContent = "Copied";
     setTimeout(() => (btn.textContent = old), 1400);
   });
 }
+
+function toggleCodeCollapse(btn) {
+  const card = btn.closest(".code-card");
+  const isCollapsed = card.classList.toggle("is-collapsed");
+  btn.textContent = isCollapsed ? "Expand" : "Collapse";
+  btn.setAttribute("aria-expanded", String(!isCollapsed));
+}
+
+window.copyCode = copyCode;
+window.toggleCodeCollapse = toggleCodeCollapse;
 
 let flashcardProgress = JSON.parse(
   localStorage.getItem("backend-notes-flashcard-progress") || "{}",
