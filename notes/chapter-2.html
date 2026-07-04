@@ -282,38 +282,44 @@ v3.honk(); // Output: Silent electric car hum! (Runtime decision based on Electr
               </ul>
               <li>Abstract Class vs. Interface (Key Differences):</li>
             </ul>
-            <p class="note-para">Feature Abstract Class Interface</p>
-            <p class="note-para">Keyword abstract class interface</p>
-            <p class="note-para">Instantiation Cannot be instantiated directly Cannot be instantiated directly</p>
-            <p class="note-para">Abstract All methods were implicitly public</p>
-            <p class="note-para">Can have zero or more</p>
-            <p class="note-para">Methods abstract before Java 8.</p>
-            <p class="note-para">From Java 8, can have default and</p>
-            <p class="note-para">static methods.</p>
-            <p class="note-para">From Java 9, can have private</p>
-            <p class="note-para">methods.</p>
-            <p class="note-para">Only default and static methods</p>
-            <p class="note-para">Concrete Can have concrete methods (with</p>
-            <p class="note-para">(and private in Java 9) can have</p>
-            <p class="note-para">Methods body)</p>
-            <p class="note-para">bodies.</p>
-            <p class="note-para">Only public static final variables</p>
-            <p class="note-para">Variables Can have instance and static variables</p>
-            <p class="note-para">(constants)</p>
-            <p class="note-para">Constructors Can have constructors Cannot have constructors</p>
-            <p class="note-para">Feature Abstract Class Interface</p>
-            <p class="note-para">A class implements multiple</p>
-            <p class="note-para">Inheritance A class extends one abstract class.</p>
-            <p class="note-para">interfaces.</p>
-            <p class="note-para">Defines a contract for behavior.</p>
-            <p class="note-para">Defines a template for subclasses with</p>
-            <p class="note-para">Good for "can-do" relationships</p>
-            <p class="note-para">some common implementation. Good</p>
-            <p class="note-para">Purpose or specifying common</p>
-            <p class="note-para">for "is-a" relationships where some</p>
-            <p class="note-para">functionalities across unrelated</p>
-            <p class="note-para">common behavior is shared.</p>
-            <p class="note-para">classes.</p>
+            <div class="table-wrap" style="margin-top: 1rem; margin-bottom: 2rem;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Aspect</th>
+                    <th>Abstract Class</th>
+                    <th>Interface</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Methods</strong></td>
+                    <td>Can have abstract + concrete methods</td>
+                    <td>All abstract by default (Java 8+ allows default/static)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Fields</strong></td>
+                    <td>Instance variables allowed</td>
+                    <td>Only public static final constants</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Constructors</strong></td>
+                    <td>Can have a constructor</td>
+                    <td>Cannot have a constructor</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Inheritance</strong></td>
+                    <td>Single inheritance only (extends)</td>
+                    <td>A class can implement multiple interfaces</td>
+                  </tr>
+                  <tr>
+                    <td><strong>When to use</strong></td>
+                    <td>Shared base state/behavior among related classes</td>
+                    <td>Contract for unrelated classes to implement</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <ul class="note-list lvl-1">
               <li>When to Use Which:</li>
               <ul class="note-list lvl-2">
