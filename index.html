@@ -2629,14 +2629,178 @@ System.out.println(doSomething());</code></pre>
 <li><strong>Declarative Style:</strong> Allows you to express what you want to do (e.g., filter, map,
                   collect) rather than how (iterating manually).</li>
 <li><strong>Non-terminal (Intermediate) Operations:</strong> Return a new stream. They are lazy and
-                  don't process the data until a terminal operation is called. Examples: filter(), map(), flatMap(),
-                  sorted(), distinct(), peek().</li>
-<li><strong>Terminal Operations:</strong> Produce a result or a side-effect, and close the stream.
-                  Examples: forEach(), collect(), reduce(), count(), min(), max(), anyMatch(), allMatch(), noneMatch(),
-                  findFirst(), findAny().</li>
-<li>Source -&gt; Zero or more Intermediate Operations -&gt; One Terminal Operation</li>
+                  don't process the data until a terminal operation is called.</li>
+<li><strong>Terminal Operations:</strong> Produce a result or a side-effect, and close the stream.</li>
+<li><strong>Pipeline:</strong> Source &rarr; Zero or more Intermediate Operations &rarr; One Terminal Operation</li>
 <li>No modification of original data source. Streams are designed to be immutable.</li>
 </ul>
+<h4 style="margin: 18px 0 8px; color: var(--navy); font-size: 14px;">Intermediate (Non-terminal) Operations</h4>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>filter(Predicate&lt;T&gt;)</code></td>
+<td>Returns a stream containing only elements that match the given predicate.</td>
+</tr>
+<tr>
+<td><code>map(Function&lt;T, R&gt;)</code></td>
+<td>Transforms each element into another element using the given function (one-to-one mapping).</td>
+</tr>
+<tr>
+<td><code>flatMap(Function&lt;T, Stream&lt;R&gt;&gt;)</code></td>
+<td>Maps each element to a stream, then flattens all resulting streams into a single stream (one-to-many).</td>
+</tr>
+<tr>
+<td><code>mapToInt(ToIntFunction&lt;T&gt;)</code></td>
+<td>Converts elements to an IntStream, avoiding boxing. Also: <code>mapToLong()</code>, <code>mapToDouble()</code>.</td>
+</tr>
+<tr>
+<td><code>distinct()</code></td>
+<td>Removes duplicate elements (uses <code>equals()</code>). Stateful operation.</td>
+</tr>
+<tr>
+<td><code>sorted()</code></td>
+<td>Sorts elements in natural order. Overload: <code>sorted(Comparator&lt;T&gt;)</code> for custom ordering.</td>
+</tr>
+<tr>
+<td><code>peek(Consumer&lt;T&gt;)</code></td>
+<td>Performs an action on each element without modifying the stream. Intended for debugging only.</td>
+</tr>
+<tr>
+<td><code>limit(long n)</code></td>
+<td>Truncates the stream to contain no more than <code>n</code> elements. Short-circuiting.</td>
+</tr>
+<tr>
+<td><code>skip(long n)</code></td>
+<td>Discards the first <code>n</code> elements of the stream.</td>
+</tr>
+<tr>
+<td><code>takeWhile(Predicate&lt;T&gt;)</code></td>
+<td>Takes elements while the predicate is true, stops at the first false (Java 9+).</td>
+</tr>
+<tr>
+<td><code>dropWhile(Predicate&lt;T&gt;)</code></td>
+<td>Drops elements while the predicate is true, keeps the rest (Java 9+).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 style="margin: 18px 0 8px; color: var(--navy); font-size: 14px;">Terminal Operations</h4>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>forEach(Consumer&lt;T&gt;)</code></td>
+<td>Performs an action for each element. Does not guarantee order in parallel streams. Use <code>forEachOrdered()</code> for ordered processing.</td>
+</tr>
+<tr>
+<td><code>collect(Collector&lt;T, A, R&gt;)</code></td>
+<td>Accumulates elements into a mutable container (List, Set, Map) using a Collector. E.g., <code>Collectors.toList()</code>, <code>toSet()</code>, <code>toMap()</code>, <code>joining()</code>, <code>groupingBy()</code>, <code>partitioningBy()</code>.</td>
+</tr>
+<tr>
+<td><code>reduce(BinaryOperator&lt;T&gt;)</code></td>
+<td>Combines all elements into a single result using an accumulator. Overloads accept an identity value.</td>
+</tr>
+<tr>
+<td><code>count()</code></td>
+<td>Returns the number of elements in the stream as a <code>long</code>.</td>
+</tr>
+<tr>
+<td><code>min(Comparator&lt;T&gt;)</code></td>
+<td>Returns an <code>Optional&lt;T&gt;</code> containing the minimum element according to the comparator.</td>
+</tr>
+<tr>
+<td><code>max(Comparator&lt;T&gt;)</code></td>
+<td>Returns an <code>Optional&lt;T&gt;</code> containing the maximum element according to the comparator.</td>
+</tr>
+<tr>
+<td><code>findFirst()</code></td>
+<td>Returns an <code>Optional&lt;T&gt;</code> with the first element. Useful after filtering.</td>
+</tr>
+<tr>
+<td><code>findAny()</code></td>
+<td>Returns an <code>Optional&lt;T&gt;</code> with any element. Better performance in parallel streams.</td>
+</tr>
+<tr>
+<td><code>anyMatch(Predicate&lt;T&gt;)</code></td>
+<td>Returns <code>true</code> if at least one element matches. Short-circuiting.</td>
+</tr>
+<tr>
+<td><code>allMatch(Predicate&lt;T&gt;)</code></td>
+<td>Returns <code>true</code> if all elements match. Short-circuiting.</td>
+</tr>
+<tr>
+<td><code>noneMatch(Predicate&lt;T&gt;)</code></td>
+<td>Returns <code>true</code> if no elements match. Short-circuiting.</td>
+</tr>
+<tr>
+<td><code>toArray()</code></td>
+<td>Collects elements into an array. Use <code>toArray(String[]::new)</code> for a typed array.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 style="margin: 18px 0 8px; color: var(--navy); font-size: 14px;">Key Collectors (used with collect())</h4>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Collector</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Collectors.toList()</code></td>
+<td>Collects elements into a <code>List</code>.</td>
+</tr>
+<tr>
+<td><code>Collectors.toSet()</code></td>
+<td>Collects elements into a <code>Set</code>, removing duplicates.</td>
+</tr>
+<tr>
+<td><code>Collectors.toMap(keyMapper, valueMapper)</code></td>
+<td>Collects into a <code>Map</code>. Use merge function overload for duplicate keys.</td>
+</tr>
+<tr>
+<td><code>Collectors.joining(delimiter)</code></td>
+<td>Concatenates strings with a delimiter. Overloads for prefix and suffix.</td>
+</tr>
+<tr>
+<td><code>Collectors.groupingBy(classifier)</code></td>
+<td>Groups elements into a <code>Map&lt;K, List&lt;T&gt;&gt;</code>. Accepts downstream collector.</td>
+</tr>
+<tr>
+<td><code>Collectors.partitioningBy(predicate)</code></td>
+<td>Splits elements into two groups: <code>true</code> and <code>false</code>.</td>
+</tr>
+<tr>
+<td><code>Collectors.counting()</code></td>
+<td>Counts the number of elements. Often used as a downstream collector.</td>
+</tr>
+<tr>
+<td><code>Collectors.summarizingInt/Long/Double()</code></td>
+<td>Returns summary statistics (count, sum, min, average, max).</td>
+</tr>
+<tr>
+<td><code>Collectors.reducing()</code></td>
+<td>General-purpose reduction as a collector. Useful as a downstream collector.</td>
+</tr>
+</tbody>
+</table>
+</div>
 <li>Default Methods in Interfaces:</li>
 <ul class="note-list lvl-2">
 <li><strong>What they are:</strong> Methods with an implementation provided directly within an
