@@ -1,8 +1,9 @@
-const CACHE_NAME = 'backend-notes-v7';
+const CACHE_NAME = 'backend-notes-v8';
 const ASSETS_TO_CACHE = [
   './',
-    './manifest.json',
-  './data.json',
+  './index.html',
+  './manifest.json',
+  './icon-512.png',
   'https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css'
 ];
