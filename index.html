@@ -2953,19 +2953,43 @@ System.out.println(doSomething());</code></pre>
                 </li>
                 <li>Lambda expressions are instances of functional interfaces.</li>
               </ul>
-              <li>Stream API:</li>
-              <ul class="note-list lvl-2">
-                <li><strong>What it is:</strong> A sequence of elements that supports sequential and parallel aggregate
-                  operations.</li>
-                <li><strong>Declarative Style:</strong> Allows you to express what you want to do (e.g., filter, map,
-                  collect) rather than how (iterating manually).</li>
-                <li><strong>Non-terminal (Intermediate) Operations:</strong> Return a new stream. They are lazy and
-                  don't process the data until a terminal operation is called.</li>
-                <li><strong>Terminal Operations:</strong> Produce a result or a side-effect, and close the stream.</li>
-                <li><strong>Pipeline:</strong> Source &rarr; Zero or more Intermediate Operations &rarr; One Terminal
-                  Operation</li>
-                <li>No modification of original data source. Streams are designed to be immutable.</li>
-              </ul>
+              <li>Stream API:
+              <div class="table-wrap" style="margin-top: 10px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Concept</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>What it is</strong></td>
+                      <td>A sequence of elements that supports sequential and parallel aggregate operations.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Declarative Style</strong></td>
+                      <td>Allows you to express what you want to do (e.g., filter, map, collect) rather than how (iterating manually).</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Intermediate Operations</strong></td>
+                      <td>Return a new stream. They are lazy and don't process the data until a terminal operation is called. Examples: <code>filter()</code>, <code>map()</code>, <code>flatMap()</code>, <code>sorted()</code>, <code>distinct()</code>, <code>peek()</code>.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Terminal Operations</strong></td>
+                      <td>Produce a result or a side-effect, and close the stream. Examples: <code>forEach()</code>, <code>collect()</code>, <code>reduce()</code>, <code>count()</code>, <code>min()</code>, <code>max()</code>, <code>anyMatch()</code>, <code>allMatch()</code>, <code>noneMatch()</code>, <code>findFirst()</code>, <code>findAny()</code>.</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Pipeline</strong></td>
+                      <td>Source &rarr; Zero or more Intermediate Operations &rarr; One Terminal Operation</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Immutability</strong></td>
+                      <td>No modification of original data source. Streams are designed to be immutable.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
               <h4 style="margin: 18px 0 8px; color: var(--navy); font-size: 14px;">Intermediate (Non-terminal)
                 Operations</h4>
               <div class="table-wrap">
@@ -3149,6 +3173,7 @@ System.out.println(doSomething());</code></pre>
                   </tbody>
                 </table>
               </div>
+              </li>
               <li>Default Methods in Interfaces:</li>
               <ul class="note-list lvl-2">
                 <li><strong>What they are:</strong> Methods with an implementation provided directly within an
