@@ -785,25 +785,7 @@
   };
 
   // ---- Auto-count hero stats from DOM ----
-  function autoCountStats() {
-    const chapters = document.querySelectorAll('.chapter').length;
-    const topics = document.querySelectorAll('.note-section').length;
-    const codeExamples = document.querySelectorAll('#view-notes .code-card').length;
-    const tables = document.querySelectorAll('#view-tables .comp-table').length;
-    const diagrams = document.querySelectorAll('#view-diagrams .diagram-card, #view-diagrams svg').length;
-    const qa = document.querySelectorAll('.qa-card').length;
 
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('stat-chapters', chapters);
-    set('stat-topics', topics);
-    set('stat-code', codeExamples);
-    set('stat-tables', tables);
-    if (diagrams > 0) set('stat-diagrams', diagrams);
-    set('stat-qa', qa);
-
-    const pill = document.getElementById('progress-pill');
-    if (pill) pill.textContent = `${chapters} chapters · ${topics} topics · ${codeExamples} code examples`;
-  }
 
   // ---- Init Phase 1 features ----
   document.addEventListener('DOMContentLoaded', function () {
@@ -818,7 +800,6 @@
     }
     
     injectReviewButtons();
-    autoCountStats();
     // Delay load to ensure QA cards are rated and STAR cards are seeded
     setTimeout(() => {
       loadSavedData();

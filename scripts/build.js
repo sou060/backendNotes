@@ -100,21 +100,40 @@ console.log('Loading template...');
 let template = fs.readFileSync(templatePath, 'utf-8');
 const $ = cheerio.load(template);
 
+let totalChapters = 0;
+let totalTopics = 0;
+let totalCode = 0;
+let totalTables = 0;
+
 $('.nav-chapter').each((i, el) => {
   const ch = $(el).attr('data-chapter');
   if (ch) {
     const chPath = path.join(notesDirPath, `chapter-${ch}.html`);
     if (fs.existsSync(chPath)) {
+      totalChapters++;
       const chHtml = fs.readFileSync(chPath, 'utf-8');
       const ch$ = cheerio.load(chHtml);
-      const total = ch$('.note-section').length;
-      $(el).attr('data-total-sections', total);
+      const topics = ch$('.note-section').length;
+      totalTopics += topics;
+      totalCode += ch$('.code-card').length;
+      totalTables += ch$('.comp-table').length;
+      $(el).attr('data-total-sections', topics);
     }
   }
 });
 
+const totalDiagrams = $('.diagram-card, svg').length;
+const totalQA = qaData.length;
+
 template = $.html();
 template = template.replace('<!-- INJECT_QA_CARDS -->', cardsHtml);
+template = template.replace('<!-- INJECT_STATS_PILL -->', `${totalChapters} chapters &middot; ${totalTopics} topics &middot; ${totalCode} code examples`);
+template = template.replace('<!-- INJECT_STAT_CHAPTERS -->', totalChapters);
+template = template.replace('<!-- INJECT_STAT_TOPICS -->', totalTopics);
+template = template.replace('<!-- INJECT_STAT_CODE -->', totalCode);
+template = template.replace('<!-- INJECT_STAT_TABLES -->', totalTables);
+template = template.replace('<!-- INJECT_STAT_DIAGRAMS -->', totalDiagrams);
+template = template.replace('<!-- INJECT_STAT_QA -->', totalQA);
 
 console.log('Writing index.html...');
 fs.writeFileSync(outputPath, template);
