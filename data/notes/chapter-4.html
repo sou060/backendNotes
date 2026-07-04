@@ -1,0 +1,528 @@
+<article class="chapter" data-chapter="4" id="ch4">
+          <div class="chapter-ghost">4</div>
+          <header class="chapter-head"><span class="chapter-tag">Chapter 4</span>
+            <h2>Multithreading and Concurrency: Building Concurrent Applications</h2>
+          </header>
+          <p class="note-para">Multithreading allows a program to execute multiple parts of its code concurrently within
+            a single process. Each independent part of execution is called a thread. Concurrency is the ability of
+            different parts of a program or system to execute independently or in parallel.</p>
+          <section class="note-section" id="ch4-sec1">
+            <h3><span class="secnum">4.1.</span>Thread Basics</h3>
+            <ul class="note-list lvl-1">
+              <li>What is a Thread?</li>
+              <ul class="note-list lvl-2">
+                <li>The smallest unit of execution within a process.1</li>
+                <li>A single process can have multiple threads.2</li>
+                <li>Threads share the same memory space (heap) of the process, but each has its own call stack and PC
+                  (Program Counter) register.3</li>
+                <li>Lightweight compared to processes (faster context switching).4</li>
+              </ul>
+              <li>Advantages of Multithreading:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Responsiveness:</strong> UI applications remain responsive while long-running tasks execute
+                  in the background.</li>
+                <li><strong>Resource Utilization:</strong> Efficiently utilizes CPU (especially multi-core processors)
+                  by allowing tasks to run in parallel.5</li>
+                <li><strong>Faster Execution:</strong> Completes tasks quicker by dividing them among multiple threads.6
+                </li>
+                <li><strong>Better Resource Sharing:</strong> Threads within the same process can easily share data.7
+                </li>
+              </ul>
+              <li>Disadvantages of Multithreading:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Complexity:</strong> Harder to design, debug, and test concurrent applications due to race
+                  conditions, deadlocks, etc.</li>
+                <li><strong>Overhead:</strong> Context switching between threads incurs some overhead.</li>
+                <li><strong>Resource Contention:</strong> Multiple threads accessing shared resources can lead to data
+                  corruption or inconsistent states.8</li>
+              </ul>
+              <li><strong>Creating Threads:</strong> In Java, there are two primary ways to create and run threads:9
+              </li>
+            </ul>
+            <p class="note-para">1. Extending the Thread Class:</p>
+            <ul class="note-list lvl-3">
+              <li>Create a class that extends java.lang.Thread.</li>
+              <li>Override the run() method with the code that the thread will execute.</li>
+              <li>Create an instance of your class and call its start() method (which in turn calls run() in a new
+                thread).</li>
+              <li><strong>Limitation:</strong> Java does not support multiple inheritance, so your class cannot extend
+                any other class if you choose this approach.</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class MyThread extends Thread {
+  @Override
+  public void run() {
+    System.out.println("Thread extending Thread class is running: " +
+Thread.currentThread().getName());
+  }
+}
+public class ThreadCreationDemo {
+  public static void main(String[] args) {
+    MyThread thread1 = new MyThread();
+    thread1.start(); // Starts a new thread, calls run()
+  }
+}
+          2. Implementing the Runnable Interface: (Recommended approach)</code></pre>
+            </div>
+            <ul class="note-list lvl-3">
+              <li>Create a class that implements java.lang.Runnable.</li>
+              <li>Override the run() method.</li>
+              <li>Create an instance of your Runnable class.</li>
+              <li>Create a Thread object, passing your Runnable instance to its constructor.</li>
+              <li>Call the start() method on the Thread object.</li>
+              <li><strong>Advantage:</strong> Your class can still extend another class while implementing Runnable,
+                offering more flexibility. This separates the task (what to run) from the thread (how to run it).</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class MyRunnable implements Runnable {
+  @Override
+  public void run() {
+    System.out.println("Thread implementing Runnable is running: " +
+Thread.currentThread().getName());
+  }
+}
+public class RunnableCreationDemo {
+  public static void main(String[] args) {
+    MyRunnable myRunnable = new MyRunnable();
+    Thread thread2 = new Thread(myRunnable, "WorkerThread-1"); // Give thread a name
+    thread2.start();
+  }
+}
+          3. Implementing Callable and Future (Java 5+):</code></pre>
+            </div>
+            <ul class="note-list lvl-3">
+              <li><strong>Purpose:</strong> Runnable's run() method cannot return a value or throw checked exceptions.
+                Callable solves this.</li>
+              <li>Callable's call() method returns a result and can throw exceptions.10</li>
+              <li>Future represents the result of an asynchronous computation.11 It provides methods to check if the
+                computation is complete, wait for its completion, and retrieve the result.12</li>
+              <li>Requires an ExecutorService to execute Callable tasks.13</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">import java.util.concurrent.*;
+class MyCallable implements Callable&lt;Integer&gt; {
+  private int number;
+  public MyCallable(int number) {
+    this.number = number;
+  }
+  @Override
+  public Integer call() throws Exception {
+    System.out.println("Callable task " + number + " running in thread: " +
+Thread.currentThread().getName());
+    Thread.sleep(1000); // Simulate work
+    return number * number;
+  }
+}
+public class CallableFutureDemo {
+  public static void main(String[] args) throws InterruptedException, ExecutionException {
+    ExecutorService executor = Executors.newFixedThreadPool(2); // Create a thread pool
+    Future&lt;Integer&gt; future1 = executor.submit(new MyCallable(5));
+    Future&lt;Integer&gt; future2 = executor.submit(new MyCallable(10));
+    System.out.println("Result of task 1: " + future1.get()); // get() blocks until result is available
+    System.out.println("Result of task 2: " + future2.get());
+    executor.shutdown(); // Shut down the executor
+  }
+}</code></pre>
+            </div>
+            <ul class="note-list lvl-1">
+              <li><strong>Thread Lifecycle:</strong> A thread goes through various states from its creation to its
+                termination.</li>
+              <ul class="note-list lvl-2">
+                <li><strong>NEW:</strong> A thread that has been created but not yet started (i.e., start() method not
+                  called).</li>
+                <li><strong>RUNNABLE:</strong> A thread that is executing or ready to execute. It's waiting for its turn
+                  on the CPU. It includes both "Running" and "Ready" states.</li>
+                <li><strong>BLOCKED:</strong> A thread that is waiting for a monitor lock (e.g., waiting to enter a
+                  synchronized block/method) to access a shared resource.14</li>
+                <li><strong>WAITING:</strong> A thread that is indefinitely waiting for another thread to perform a
+                  particular action (e.g., calling Object.wait(), Thread.join(), LockSupport.park()). It will not return
+                  to the runnable state until another thread explicitly wakes it up.</li>
+                <li>TIMED_WAITING: A thread that is waiting for another thread to perform an action for a specified
+                  waiting time (e.g., Thread.sleep(long millis), Object.wait(long millis), Thread.join(long millis),
+                  LockSupport.parkNanos(), LockSupport.parkUntil()). It will return to the runnable state after the time
+                  expires or if woken up.</li>
+                <li><strong>TERMINATED:</strong> A thread that has finished its execution (its run() method has
+                  completed or thrown an uncaught exception).</li>
+              </ul>
+            </ul>
+          </section>
+          <section class="note-section" id="ch4-sec2">
+            <h3><span class="secnum">4.2.</span>Synchronization</h3>
+            <p class="note-para">The process of controlling access to shared resources by multiple threads to prevent
+              race conditions and ensure data consistency.15</p>
+            <ul class="note-list lvl-1">
+              <li><strong>Race Condition:</strong> Occurs when multiple threads try to access and modify a shared
+                resource simultaneously, and the final outcome depends on the unpredictable order of execution of these
+                threads.16</li>
+              <li>How to achieve Synchronization:</li>
+            </ul>
+            <p class="note-para">1. synchronized Keyword:</p>
+            <ul class="note-list lvl-3">
+              <li>synchronized method:</li>
+            </ul>
+            <p class="note-para">▪ When applied to an instance method, it acquires the lock on the</p>
+            <p class="note-para">object itself (i.e., this object) before executing the method. Only one</p>
+            <p class="note-para">synchronized method of an object can be executed at a time by any</p>
+            <p class="note-para">thread.</p>
+            <p class="note-para">▪ When applied to a static method, it acquires the lock on the class</p>
+            <p class="note-para">object (ClassName.class). Only one static synchronized method of a</p>
+            <p class="note-para">class can be executed at a time by any thread.</p>
+            <p class="note-para">▪ Java</p>
+            <p class="note-para">▪ class Counter {</p>
+            <p class="note-para">▪ private int count = 0;</p>
+            <p class="note-para">▪ public synchronized void increment() { // Synchronized method</p>
+            <p class="note-para">▪ count++;</p>
+            <p class="note-para">▪ }</p>
+            <p class="note-para">▪ public synchronized int getCount() {</p>
+            <p class="note-para">▪ return count;</p>
+            <p class="note-para">▪ }</p>
+            <p class="note-para">▪ }</p>
+            <ul class="note-list lvl-3">
+              <li>synchronized block:</li>
+            </ul>
+            <p class="note-para">▪ Acquires a lock on a specified object (the monitor).</p>
+            <p class="note-para">▪ Allows for more fine-grained control than synchronized methods.</p>
+            <p class="note-para">You can synchronize only the critical section of code.</p>
+            <p class="note-para">▪ Java</p>
+            <p class="note-para">▪ class SharedResource {</p>
+            <p class="note-para">▪ private int data = 0;</p>
+            <p class="note-para">▪ private final Object lock = new Object(); // A dedicated lock</p>
+            <p class="note-para">object</p>
+            <p class="note-para">▪</p>
+            <p class="note-para">▪ public void increment() {</p>
+            <p class="note-para">▪ synchronized (lock) { // Synchronized block on 'lock' object</p>
+            <p class="note-para">▪ data++;</p>
+            <p class="note-para">▪ }</p>
+            <p class="note-para">▪ }</p>
+            <p class="note-para">▪ public void updateData(int newValue) {</p>
+            <p class="note-para">▪ synchronized (this) { // Synchronized on 'this' object</p>
+            <p class="note-para">▪ this.data = newValue;</p>
+            <p class="note-para">▪ }</p>
+            <p class="note-para">▪ }</p>
+            <p class="note-para">▪ }</p>
+            <ul class="note-list lvl-3">
+              <li>Key points about synchronized:</li>
+            </ul>
+            <p class="note-para">▪ Re-entrant: A thread that has acquired a lock can re-enter any</p>
+            <p class="note-para">synchronized block or method that is guarded by the same lock.</p>
+            <p class="note-para">▪ Intrinsic Lock (Monitor Lock): Every Java object has an intrinsic lock</p>
+            <p class="note-para">associated with it.</p>
+            <p class="note-para">2. volatile Keyword:</p>
+            <ul class="note-list lvl-3">
+              <li><strong>Purpose:</strong> Ensures visibility of changes to variables across threads. It prevents
+                compilers/CPUs from caching variables locally and ensures that any write to a volatile variable happens
+                before any subsequent read of that variable by another thread.</li>
+              <li><strong>Does NOT guarantee atomicity:</strong> volatile only ensures visibility, not that operations
+                like i++ (which are read-modify-write) are atomic. For atomicity, you need synchronization or Atomic
+                classes.</li>
+              <li><strong>Use Case:</strong> When one thread writes to a variable and other threads only read that
+                variable, and you need to ensure readers see the latest value. (e.g., a flag to stop a thread).</li>
+            </ul>
+            <pre><code class="language-java">class VolatileExample {
+    private volatile boolean running = true;
+
+    public void start() {
+        new Thread(() -&gt; {
+            while (running) {
+                // Do work
+            }
+            System.out.println("Thread stopped.");
+        }).start();
+    }
+
+    public void stop() {
+        running = false; // Change will be immediately visible to other thread
+    }
+}</code></pre>
+            <p class="note-para">3. wait(), notify(), notifyAll() Methods:</p>
+            <ul class="note-list lvl-3">
+              <li><strong>From Object class:</strong> These methods are used for inter-thread communication and must be
+                called from within a synchronized block/method, on the object whose intrinsic lock is held.</li>
+              <li><strong>wait():</strong> Causes the current thread to release the lock on the object and go into a
+                WAITING or TIMED_WAITING state until another thread invokes notify() or notifyAll() on the same object,
+                or the specified timeout expires.</li>
+              <li><strong>notify():</strong> Wakes up a single thread that is waiting on this object's monitor.17 Which
+                thread gets woken up is non-deterministic.</li>
+              <li><strong>notifyAll():</strong> Wakes up all threads that are waiting on this object's monitor.</li>
+              <li><strong>Typical Use Case:</strong> Producer-Consumer problem.</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class Message {
+  private String msg;
+  private boolean isEmpty = true;
+  public synchronized String take() { // Consumer method
+    while (isEmpty) {
+      try {
+        wait(); // Wait if no message
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+    isEmpty = true;
+    notifyAll(); // Notify producer that it can put another message
+    return msg;
+  }
+  public synchronized void put(String msg) { // Producer method
+    while (!isEmpty) {
+      try {
+        wait(); // Wait if message is not consumed
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+    this.msg = msg;
+    isEmpty = false;
+    notifyAll(); // Notify consumer that message is available
+  }
+}</code></pre>
+            </div>
+          </section>
+          <section class="note-section" id="ch4-sec3">
+            <h3><span class="secnum">4.3.</span>Thread Pools (ExecutorService)</h3>
+            <ul class="note-list lvl-1">
+              <li><strong>Problem:</strong> Creating a new thread for every task is expensive in terms of resource
+                consumption (memory, CPU cycles for context switching).</li>
+              <li><strong>Solution:</strong> Thread pools manage a pool of worker threads. Tasks are submitted to the
+                pool, and the pool's threads execute them.</li>
+              <li><strong>ExecutorService (Interface):</strong> The main interface for executing tasks asynchronously.18
+              </li>
+              <li><strong>Executors (Utility Class):</strong> Provides static factory methods to create common
+                ExecutorService configurations.19</li>
+              <ul class="note-list lvl-2">
+                <li><strong>newFixedThreadPool(int nThreads):</strong> Creates a thread pool with a fixed number of
+                  threads.20 If more tasks are submitted than threads, they wait in a queue.</li>
+                <li><strong>newCachedThreadPool():</strong> Creates a thread pool that creates new threads as needed,
+                  but reuses existing ones when they become available.21 Good for applications with many short-lived
+                  tasks.</li>
+                <li><strong>newSingleThreadExecutor():</strong> Creates a single-threaded executor.22 Ensures tasks are
+                  executed sequentially.</li>
+                <li><strong>newScheduledThreadPool(int corePoolSize):</strong> Creates a thread pool that can schedule
+                  commands to run after a given delay, or to execute periodically.23</li>
+              </ul>
+              <li><strong>Lifecycle:</strong> ExecutorService needs to be explicitly shut down using shutdown() (waits
+                for current tasks to complete) or shutdownNow() (attempts to stop all running tasks immediately).24</li>
+              <li>Benefits:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Reduced Overhead:</strong> Reuses threads, avoiding the overhead of creating/destroying
+                  threads.25</li>
+                <li><strong>Resource Management:</strong> Limits the number of concurrent threads, preventing resource
+                  exhaustion.</li>
+                <li><strong>Improved Responsiveness:</strong> Tasks are picked up faster from the queue.</li>
+                <li><strong>Separation of Concerns:</strong> Decouples task submission from thread management.</li>
+              </ul>
+              <li>Example (See CallableFutureDemo above for basic usage).</li>
+            </ul>
+            <div class="diagram-card" data-tag="Multithreading">
+              <div class="diagram-card__head"><span class="tag-chip">Multithreading</span>
+                <h3>Thread Lifecycle</h3>
+              </div>
+              <div class="diagram-svg">
+                <svg font-family="Inter, sans-serif" viewBox="0 0 780 260" xmlns="http://www.w3.org/2000/svg">
+                  <rect fill="#EAF0FB" height="50" rx="10" stroke="#0B1F3A" stroke-width="1.5" width="130" x="20" y="100"></rect>
+                  <text fill="#0B1F3A" font-size="12.5" font-weight="700" text-anchor="middle" x="85" y="130">New</text>
+                  <rect fill="#FDF3E3" height="50" rx="10" stroke="#C98A1D" stroke-width="1.5" width="130" x="200" y="100"></rect>
+                  <text fill="#0B1F3A" font-size="12.5" font-weight="700" text-anchor="middle" x="265" y="130">Runnable</text>
+                  <rect fill="#EAF3F3" height="50" rx="10" stroke="#0E7C7B" stroke-width="1.5" width="150" x="380" y="30"></rect>
+                  <text fill="#0B1F3A" font-size="12.5" font-weight="700" text-anchor="middle" x="455" y="60">Running</text>
+                  <rect fill="#FBEAF0" height="50" rx="10" stroke="#A8305B" stroke-width="1.5" width="150" x="380" y="170"></rect>
+                  <text fill="#0B1F3A" font-size="12.5" font-weight="700" text-anchor="middle" x="455" y="195">Blocked /
+                    Waiting</text>
+                  <text fill="#33405A" font-size="9.5" text-anchor="middle" x="455" y="211">timed_waiting</text>
+                  <rect fill="#0B1F3A" height="50" rx="10" width="150" x="610" y="100"></rect>
+                  <text fill="#F7F5EF" font-size="12.5" font-weight="700" text-anchor="middle" x="685" y="130">Terminated</text>
+                  <line marker-end="url(#a2)" stroke="#0B1F3A" stroke-width="1.5" x1="150" x2="200" y1="125" y2="125">
+                  </line>
+                  <line marker-end="url(#a2)" stroke="#0B1F3A" stroke-width="1.5" x1="330" x2="380" y1="115" y2="70">
+                  </line>
+                  <text fill="#6B7280" font-size="9.5" x="330" y="90">scheduler picks it</text>
+                  <line marker-end="url(#a2)" stroke="#0B1F3A" stroke-width="1.5" x1="455" x2="455" y1="80" y2="170">
+                  </line>
+                  <text fill="#6B7280" font-size="9.5" x="465" y="125">wait() / I-O</text>
+                  <line marker-end="url(#a2)" stroke="#0B1F3A" stroke-width="1.5" x1="455" x2="330" y1="170" y2="128">
+                  </line>
+                  <text fill="#6B7280" font-size="9.5" x="380" y="160">notify()</text>
+                  <line marker-end="url(#a2)" stroke="#0B1F3A" stroke-width="1.5" x1="530" x2="610" y1="55" y2="110">
+                  </line>
+                  <text fill="#6B7280" font-size="9.5" x="540" y="80">run() completes</text>
+                  <defs>
+                    <marker id="a2" markerHeight="8" markerWidth="8" orient="auto" refX="4" refY="4">
+                      <path d="M0,0 L8,4 L0,8 Z" fill="#0B1F3A"></path>
+                    </marker>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+          </section>
+          <section class="note-section" id="ch4-sec4">
+            <h3><span class="secnum">4.4.</span>Concurrency Utilities (java.util.concurrent)</h3>
+            <p class="note-para">This package introduced powerful, high-level concurrency constructs that are generally
+              preferred over low-level wait()/notify() or synchronized for complex scenarios, due to their ease of use,
+              robustness, and performance.26</p>
+            <ul class="note-list lvl-1">
+              <li>Lock Interface (e.g., ReentrantLock):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Problem with synchronized:</strong> Limited flexibility (must release lock in the same
+                  block, cannot interrupt a waiting thread, cannot try to acquire a lock without blocking, cannot
+                  acquire multiple locks in specific order).</li>
+                <li><strong>ReentrantLock:</strong> An explicit lock implementation that provides more flexibility than
+                  synchronized.</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>lock():</strong> Acquires the lock. Blocks if the lock is not available.</li>
+                  <li><strong>unlock():</strong> Releases the lock. Must be called in a finally block to ensure release
+                    even if exceptions occur.</li>
+                  <li><strong>tryLock():</strong> Attempts to acquire the lock without blocking.27</li>
+                  <li>tryLock(long timeout, TimeUnit unit): Attempts to acquire the lock within a specified timeout.28
+                  </li>
+                  <li><strong>lockInterruptibly():</strong> Acquires the lock unless the current thread is
+                    interrupted.29</li>
+                  <li><strong>Re-entrant:</strong> A thread can acquire the same lock multiple times.30</li>
+                </ul>
+                <li><strong>Condition Interface:</strong> Can be obtained from a Lock (lock.newCondition()).31 It's an
+                  alternative to wait()/notify() that provides more granular control over thread waiting and
+                  notification (e.g., multiple wait sets for a single lock).</li>
+                <li><strong>ReentrantReadWriteLock:</strong> Allows multiple readers to access a resource concurrently,
+                  but only one writer at a time.32 Ideal for read-heavy workloads.</li>
+              </ul>
+              <li>CountDownLatch:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> A synchronization aid that allows one or more threads to wait until a set
+                  of operations being performed in other threads completes.</li>
+                <li><strong>Mechanism:</strong> Initialized with a count. Threads call countDown() when their task is
+                  complete.33 A thread waiting on the latch calls await() and blocks until the count reaches zero.34
+                </li>
+                <li><strong>Use Case:</strong> Start multiple threads, do some concurrent work, and then wait for all of
+                  them to finish before proceeding.</li>
+              </ul>
+              <li>CyclicBarrier:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> A synchronization aid that allows a set of threads to wait for each other
+                  to reach a common barrier point.35</li>
+                <li><strong>Mechanism:</strong> Initialized with a number of parties. Threads call await() when they
+                  reach the barrier. All threads block until all parties have called await().</li>
+                <li><strong>Reusability:</strong> The barrier can be reused once all threads have passed it.36</li>
+                <li><strong>Use Case:</strong> Useful for scenarios where a group of threads needs to perform a series
+                  of operations in stages, with all threads needing to complete a stage before moving to the next.</li>
+              </ul>
+              <li>Semaphore:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Controls access to a limited number of resources.</li>
+                <li><strong>Mechanism:</strong> Initialized with a number of permits. Threads acquire a permit
+                  (acquire()) to access the resource and release it (release()) when done.37 If no permits are
+                  available, threads block.</li>
+                <li><strong>Use Case:</strong> Limiting the number of concurrent database connections, limiting
+                  concurrent requests to a specific service.</li>
+              </ul>
+              <li>BlockingQueue (e.g., ArrayBlockingQueue, LinkedBlockingQueue):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Queues that automatically handle synchronization when adding or removing
+                  elements.</li>
+                <li>Blocking Operations:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>put(E e):</strong> Waits if the queue is full.</li>
+                  <li><strong>take():</strong> Waits if the queue is empty.38</li>
+                </ul>
+                <li><strong>Non-blocking variants:</strong> offer(), poll().</li>
+                <li><strong>Use Case:</strong> The quintessential solution for the Producer-Consumer problem. Producers
+                  add items, consumers take items.</li>
+              </ul>
+              <li>Atomic Variables (e.g., AtomicInteger, AtomicLong, AtomicBoolean, AtomicReference):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Provide atomic operations on single variables without using explicit
+                  locks.</li>
+                <li><strong>Mechanism:</strong> Use low-level, hardware-supported compare-and-swap (CAS) operations.
+                </li>
+                <li><strong>Benefits:</strong> More performant and scalable than using synchronized for simple variable
+                  updates.</li>
+                <li><strong>Use Case:</strong> Atomic counters, flags, or references that need to be updated safely by
+                  multiple threads.</li>
+              </ul>
+            </ul>
+          </section>
+          <section class="note-section" id="ch4-sec5">
+            <h3><span class="secnum">4.5.</span>Deadlock</h3>
+            <ul class="note-list lvl-1">
+              <li><strong>What it is:</strong> A situation where two or more threads are blocked indefinitely, each
+                waiting for the other to release a resource that it needs.39</li>
+              <li>Conditions for Deadlock (Coffman Conditions - all four must be met):</li>
+            </ul>
+            <p class="note-para">1. Mutual Exclusion: At least one resource must be held in a non-sharable mode (e.g.,
+            </p>
+            <p class="note-para">a lock).</p>
+            <p class="note-para">2. Hold and Wait: A thread holding at least one resource is waiting to acquire</p>
+            <p class="note-para">additional resources held by other threads.40</p>
+            <p class="note-para">3. No Preemption: Resources cannot be forcibly taken from a thread; they must be</p>
+            <p class="note-para">released voluntarily.41</p>
+            <p class="note-para">4. Circular Wait: A set of threads T1, T2, ..., Tn exists such that T1 is waiting for a
+            </p>
+            <p class="note-para">resource held by T2, T2 is waiting for a resource held by T3, and so on, with Tn</p>
+            <p class="note-para">waiting for a resource held by T1.</p>
+            <ul class="note-list lvl-1">
+              <li>Example (Classic Deadlock):</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">public class DeadlockExample {
+  private static Object lock1 = new Object();
+  private static Object lock2 = new Object();
+  public static void main(String[] args) {
+    // Thread 1: Tries to acquire lock1, then lock2
+    new Thread(() -&gt; {
+      synchronized (lock1) {
+        System.out.println("Thread 1: Acquired lock1");
+        try { Thread.sleep(100); } catch (InterruptedException e) {}
+        System.out.println("Thread 1: Waiting for lock2...");
+        synchronized (lock2) { // Tries to acquire lock2 while holding lock1
+          System.out.println("Thread 1: Acquired lock2");
+        }
+      }
+    }, "Thread-1").start();
+    // Thread 2: Tries to acquire lock2, then lock1
+    new Thread(() -&gt; {
+      synchronized (lock2) {
+        System.out.println("Thread 2: Acquired lock2");
+        try { Thread.sleep(100); } catch (InterruptedException e) {}
+        System.out.println("Thread 2: Waiting for lock1...");
+        synchronized (lock1) { // Tries to acquire lock1 while holding lock2
+          System.out.println("Thread 2: Acquired lock1");
+        }
+      }
+    }, "Thread-2").start();
+  }
+}</code></pre>
+            </div>
+            <ul class="note-list lvl-1">
+              <li>How to Prevent Deadlock:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Break Circular Wait:</strong> The most common strategy. Establish a consistent ordering of
+                  resource acquisition. If Thread 1 acquires Lock A then Lock B, Thread 2 should also acquire Lock A
+                  then Lock B, never Lock B then Lock A.</li>
+                <li><strong>Avoid Hold and Wait:</strong> Acquire all necessary resources at once, or release all held
+                  resources if additional ones cannot be acquired.</li>
+                <li><strong>Allow Preemption:</strong> If a thread cannot acquire a resource, it releases the ones it
+                  holds and retries.</li>
+                <li><strong>Avoid Mutual Exclusion (if possible):</strong> Use concurrent data structures that don't
+                  require explicit locking (e.g., ConcurrentHashMap).</li>
+              </ul>
+              <li>How to Detect Deadlock:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Thread Dumps:</strong> Analyze thread dumps (jstack &lt;pid&gt;). They will show threads in
+                  BLOCKED state, often with waiting for monitor entry on specific locks and holding lock on others.</li>
+                <li><strong>Monitoring Tools:</strong> Profilers or APM (Application Performance Monitoring) tools can
+                  detect deadlocks.42</li>
+              </ul>
+              <li><strong>How to Resolve Deadlock:</strong> Usually involves fixing the code to prevent one of the four
+                conditions from being met, most commonly by ensuring a consistent lock acquisition order.</li>
+            </ul>
+            <p class="note-para">Multithreading and Concurrency are vast and complex topics. For a 3-year experienced
+              developer, the expectation is to not just know the basics, but also to understand the trade-offs of
+              different synchronization mechanisms, when to use the java.util.concurrent utilities, and how to identify
+              and prevent common concurrency issues like deadlocks. Practice writing concurrent code and debugging it to
+              solidify your understanding. Got it! Let's dive deep into "5. Spring Boot &amp; Microservices". This is a
+              crucial area for a Java developer with 3 years of experience, as Spring Boot is the de-facto standard for
+              building modern Java applications, especially in the context of microservices.</p>
+          </section>
+        </article>

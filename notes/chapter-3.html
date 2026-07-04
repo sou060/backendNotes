@@ -1,0 +1,651 @@
+<article class="chapter" data-chapter="3" id="ch3">
+          <div class="chapter-ghost">3</div>
+          <header class="chapter-head"><span class="chapter-tag">Chapter 3</span>
+            <h2>Collections Framework: Managing Groups of Objects</h2>
+          </header>
+          <p class="note-para">The Java Collections Framework (JCF) is a set of interfaces and classes that represent
+            groups of objects as a single unit. It provides a unified architecture for storing and manipulating
+            collections of objects.</p>
+          <section class="note-section" id="ch3-sec1">
+            <h3><span class="secnum">3.1.</span>Hierarchy</h3>
+            <p class="note-para">Understanding the hierarchy is key to understanding the relationships and shared
+              behaviors among different collection types.</p>
+            <ul class="note-list lvl-1">
+              <li>Iterable&lt;E&gt; (Top-level Interface):</li>
+              <ul class="note-list lvl-2">
+                <li>The root of the collection hierarchy.</li>
+                <li>Defines the iterator() method, which returns an Iterator&lt;E&gt;.</li>
+                <li>Enables the use of the enhanced for-each loop.</li>
+              </ul>
+              <li>Collection&lt;E&gt; (Root Interface of all Collections):</li>
+              <ul class="note-list lvl-2">
+                <li>Extends Iterable&lt;E&gt;.</li>
+                <li>Represents a group of objects.</li>
+                <li><strong>Defines common behaviors for all collections:</strong> add(), remove(), contains(), size(),
+                  isEmpty(), toArray(), clear(), etc.</li>
+                <li><strong>Sub-interfaces:</strong> List, Set, Queue.</li>
+              </ul>
+              <li>List&lt;E&gt; (Interface):</li>
+              <ul class="note-list lvl-2">
+                <li>Extends Collection&lt;E&gt;.</li>
+                <li>Represents an ordered collection (elements have a specific sequence).</li>
+                <li>Allows duplicate elements.</li>
+                <li>Elements can be accessed by their integer index (0-based).</li>
+                <li>Provides methods like get(int index), set(int index, E element), add(int index, E element),
+                  remove(int index), indexOf(), lastIndexOf(), subList().</li>
+                <li><strong>Common Implementations:</strong> ArrayList, LinkedList, Vector (legacy), Stack (legacy).
+                </li>
+              </ul>
+              <li>Set&lt;E&gt; (Interface):</li>
+              <ul class="note-list lvl-2">
+                <li>Extends Collection&lt;E&gt;.</li>
+                <li>Represents a collection that contains no duplicate elements.</li>
+                <li>Does not guarantee order (except for LinkedHashSet which maintains insertion order, and TreeSet
+                  which maintains sorted order).</li>
+                <li>The add() method returns true if the element was added (i.e., it was not a duplicate) and false
+                  otherwise.</li>
+                <li><strong>Common Implementations:</strong> HashSet, LinkedHashSet, TreeSet.</li>
+              </ul>
+              <li>Queue&lt;E&gt; (Interface):</li>
+              <ul class="note-list lvl-2">
+                <li>Extends Collection&lt;E&gt;.</li>
+                <li>Represents a collection designed for holding elements prior to processing.</li>
+                <li>Typically orders elements in a FIFO (First-In, First-Out) manner, but other orderings are possible
+                  (e.g., PriorityQueue).</li>
+                <li>Provides specific methods for adding (offer), removing (poll, remove), and inspecting (peek,
+                  element) elements from the "head" of the queue.</li>
+                <li><strong>Common Implementations:</strong> LinkedList (implements Queue), PriorityQueue, ArrayDeque.
+                </li>
+              </ul>
+              <li>Map&lt;K, V&gt; (Interface):</li>
+              <ul class="note-list lvl-2">
+                <li>Does NOT extend Collection&lt;E&gt;. It's a separate hierarchy.</li>
+                <li>Represents a collection of key-value pairs.</li>
+                <li>Each key is unique; a key maps to at most one value.</li>
+                <li>Keys and values can be null (depending on implementation).</li>
+                <li>Provides methods like put(K key, V value), get(Object key), remove(Object key), containsKey(),
+                  containsValue(), keySet(), values(), entrySet().</li>
+                <li><strong>Common Implementations:</strong> HashMap, LinkedHashMap, TreeMap, Hashtable (legacy).</li>
+              </ul>
+            </ul>
+            <div class="diagram-card" data-tag="Collections">
+              <div class="diagram-card__head"><span class="tag-chip">Collections</span>
+                <h3>Collections Framework Hierarchy</h3>
+              </div>
+              <div class="diagram-svg">
+                <svg font-family="Inter, sans-serif" viewBox="0 0 780 420" xmlns="http://www.w3.org/2000/svg">
+                  <rect fill="#0B1F3A" height="42" rx="8" width="140" x="320" y="10"></rect>
+                  <text fill="#F7F5EF" font-size="13" font-weight="700" text-anchor="middle" x="390" y="36">Collection</text>
+                  <rect fill="#EAF3F3" height="42" rx="8" stroke="#0E7C7B" stroke-width="1.5" width="140" x="60" y="100"></rect>
+                  <text fill="#0B1F3A" font-size="12.5" font-weight="700" text-anchor="middle" x="130" y="126">List</text>
+                  <rect fill="#FDF3E3" height="42" rx="8" stroke="#C98A1D" stroke-width="1.5" width="140" x="320" y="100"></rect>
+                  <text fill="#0B1F3A" font-size="12.5" font-weight="700" text-anchor="middle" x="390" y="126">Set</text>
+                  <rect fill="#EAF0FB" height="42" rx="8" stroke="#0B1F3A" stroke-width="1.5" width="140" x="580" y="100"></rect>
+                  <text fill="#0B1F3A" font-size="12.5" font-weight="700" text-anchor="middle" x="650" y="126">Queue</text>
+                  <line stroke="#94A3B8" stroke-width="1.5" x1="390" x2="130" y1="52" y2="100"></line>
+                  <line stroke="#94A3B8" stroke-width="1.5" x1="390" x2="390" y1="52" y2="100"></line>
+                  <line stroke="#94A3B8" stroke-width="1.5" x1="390" x2="650" y1="52" y2="100"></line>
+                  <rect fill="#fff" height="38" rx="7" stroke="#0E7C7B" width="120" x="20" y="190"></rect>
+                  <text fill="#33405A" font-size="11.5" text-anchor="middle" x="80" y="214">ArrayList</text>
+                  <rect fill="#fff" height="38" rx="7" stroke="#0E7C7B" width="120" x="150" y="190"></rect>
+                  <text fill="#33405A" font-size="11.5" text-anchor="middle" x="210" y="214">LinkedList</text>
+                  <rect fill="#fff" height="38" rx="7" stroke="#0E7C7B" width="120" x="280" y="190"></rect>
+                  <text fill="#33405A" font-size="11.5" text-anchor="middle" x="340" y="214">Vector</text>
+                  <rect fill="#fff" height="38" rx="7" stroke="#C98A1D" width="120" x="330" y="190"></rect>
+                  <text fill="#33405A" font-size="11.5" text-anchor="middle" x="390" y="214">HashSet</text>
+                  <rect fill="#fff" height="38" rx="7" stroke="#C98A1D" width="120" x="460" y="190"></rect>
+                  <text fill="#33405A" font-size="11.5" text-anchor="middle" x="520" y="214">LinkedHashSet</text>
+                  <rect fill="#fff" height="38" rx="7" stroke="#C98A1D" width="120" x="590" y="190"></rect>
+                  <text fill="#33405A" font-size="11.5" text-anchor="middle" x="650" y="214">TreeSet</text>
+                  <line stroke="#94A3B8" x1="130" x2="80" y1="142" y2="190"></line>
+                  <line stroke="#94A3B8" x1="130" x2="210" y1="142" y2="190"></line>
+                  <line stroke="#94A3B8" x1="130" x2="340" y1="142" y2="190"></line>
+                  <line stroke="#94A3B8" x1="390" x2="390" y1="142" y2="190"></line>
+                  <line stroke="#94A3B8" x1="390" x2="520" y1="142" y2="190"></line>
+                  <line stroke="#94A3B8" x1="390" x2="650" y1="142" y2="190"></line>
+                  <rect fill="#0B1F3A" height="42" rx="8" width="160" x="300" y="290"></rect>
+                  <text fill="#F7F5EF" font-size="13" font-weight="700" text-anchor="middle" x="380" y="316">Map
+                    (separate
+                    root)</text>
+                  <rect fill="#fff" height="38" rx="7" stroke="#0B1F3A" width="140" x="180" y="360"></rect>
+                  <text fill="#33405A" font-size="11.5" text-anchor="middle" x="250" y="384">HashMap</text>
+                  <rect fill="#fff" height="38" rx="7" stroke="#0B1F3A" width="140" x="340" y="360"></rect>
+                  <text fill="#33405A" font-size="11.5" text-anchor="middle" x="410" y="384">LinkedHashMap</text>
+                  <rect fill="#fff" height="38" rx="7" stroke="#0B1F3A" width="140" x="500" y="360"></rect>
+                  <text fill="#33405A" font-size="11.5" text-anchor="middle" x="570" y="384">TreeMap</text>
+                  <line stroke="#94A3B8" x1="380" x2="250" y1="332" y2="360"></line>
+                  <line stroke="#94A3B8" x1="380" x2="410" y1="332" y2="360"></line>
+                  <line stroke="#94A3B8" x1="380" x2="570" y1="332" y2="360"></line>
+                  <text fill="#6B7280" font-size="10.5" font-style="italic" x="620" y="305">Map does not extend
+                    Collection</text>
+                </svg>
+              </div>
+            </div>
+          </section>
+          <section class="note-section" id="ch3-sec2">
+            <h3><span class="secnum">3.2.</span>List Implementations</h3>
+            <ul class="note-list lvl-1">
+              <li>ArrayList:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Resizable array.</li>
+                <li><strong>Order:</strong> Maintains insertion order.</li>
+                <li><strong>Duplicates:</strong> Allows duplicates.</li>
+                <li><strong>Nulls:</strong> Allows null elements.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>get(index):</strong> O(1) - constant time, very fast due to direct index access.</li>
+                  <li><strong>add(element) (at end):</strong> Amortized O(1) - usually fast, but can be O(N) if resizing
+                    is needed (doubles its capacity).</li>
+                  <li>add(index, element) (in middle): O(N) - requires shifting elements.</li>
+                  <li><strong>remove(index):</strong> O(N) - requires shifting elements.</li>
+                  <li><strong>Iteration:</strong> Fast using for loop or enhanced for-each loop.</li>
+                </ul>
+                <li><strong>Use Case:</strong> When you need frequent random access to elements and fewer
+                  insertions/deletions in the middle.</li>
+              </ul>
+              <li>LinkedList:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Doubly-linked list.</li>
+                <li><strong>Order:</strong> Maintains insertion order.</li>
+                <li><strong>Duplicates:</strong> Allows duplicates.</li>
+                <li><strong>Nulls:</strong> Allows null elements.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>get(index):</strong> O(N) - requires traversing from head or tail.</li>
+                  <li><strong>add(element) (at end/start):</strong> O(1).</li>
+                  <li>add(index, element) (in middle): O(N) to find the index, then O(1) for insertion. Better than
+                    ArrayList if the current node is already known.</li>
+                  <li><strong>remove(index):</strong> O(N) to find the index, then O(1) for removal.</li>
+                  <li><strong>Iteration:</strong> Slower than ArrayList for direct index access, but fast using an
+                    Iterator.</li>
+                </ul>
+                <li><strong>Use Case:</strong> When you need frequent insertions and deletions at the ends or in the
+                  middle, and less frequent random access. Also implements Queue and Deque interfaces, making it
+                  suitable for queues, stacks, and double-ended queues.</li>
+              </ul>
+              <li>Vector (Legacy):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Resizable array, similar to ArrayList.</li>
+                <li><strong>Thread-Safety:</strong> Synchronized (thread-safe). All its methods are synchronized, which
+                  comes with performance overhead.</li>
+                <li><strong>Performance:</strong> Similar to ArrayList but slower due to synchronization. Capacity
+                  increments by doubling by default.</li>
+                <li><strong>Use Case:</strong> Rarely used in modern Java code unless thread-safety is strictly required
+                  for all operations on a single list instance, and Collections.synchronizedList() or
+                  CopyOnWriteArrayList are not viable. Generally, ArrayList with explicit synchronization or concurrent
+                  collections are preferred.</li>
+              </ul>
+              <li>Stack (Legacy):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Extends Vector.</li>
+                <li><strong>Concept:</strong> LIFO (Last-In, First-Out) data structure.</li>
+                <li><strong>Methods:</strong> push() (add), pop() (remove and return top), peek() (return top without
+                  removing), empty(), search().</li>
+                <li><strong>Thread-Safety:</strong> Synchronized (due to Vector inheritance).</li>
+                <li><strong>Use Case:</strong> Should be avoided. For LIFO stack functionality, use ArrayDeque which is
+                  more efficient and provides better performance, or LinkedList as a Deque.</li>
+              </ul>
+            </ul>
+          </section>
+          <section class="note-section" id="ch3-sec3">
+            <h3><span class="secnum">3.3.</span>Set Implementations</h3>
+            <ul class="note-list lvl-1">
+              <li>HashSet:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Uses a HashMap internally to store its elements (elements
+                  are stored as keys in the underlying HashMap, with a dummy value).</li>
+                <li><strong>Order:</strong> No guaranteed order. Order can change over time.</li>
+                <li><strong>Duplicates:</strong> Stores only unique elements.</li>
+                <li><strong>Nulls:</strong> Allows one null element.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>add(), remove(), contains(): O(1) on average (constant time), assuming good hash function
+                    distribution. In worst case (many collisions), can degrade to O(N).</li>
+                </ul>
+                <li><strong>Important:</strong> Relies on hashCode() and equals() methods of the stored objects for
+                  uniqueness. If you override equals(), you must override hashCode().</li>
+                <li><strong>Use Case:</strong> When you need to store unique elements and the order doesn't matter, and
+                  you need fast lookups.</li>
+              </ul>
+              <li>LinkedHashSet:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Uses a LinkedHashMap internally. Combines hashing with a
+                  doubly-linked list.</li>
+                <li><strong>Order:</strong> Maintains insertion order (the order in which elements were added).</li>
+                <li><strong>Duplicates:</strong> Stores only unique elements.</li>
+                <li><strong>Nulls:</strong> Allows one null element.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li><strong>Performance:</strong> Slightly slower than HashSet for insertions and deletions due to
+                  maintaining the linked list, but still O(1) on average. Iteration is faster than HashSet because it
+                  follows the insertion order link.</li>
+                <li><strong>Use Case:</strong> When you need unique elements and also want to preserve the order of
+                  insertion.</li>
+              </ul>
+              <li>TreeSet:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Uses a TreeMap internally (backed by a Red-Black tree, a
+                  self-balancing binary search tree).</li>
+                <li><strong>Order:</strong> Stores elements in sorted (natural) order or by a custom Comparator.</li>
+                <li><strong>Duplicates:</strong> Stores only unique elements.</li>
+                <li><strong>Nulls:</strong> Does NOT allow null elements (throws NullPointerException on add if the set
+                  is not empty or on first element if Comparator is used that cannot handle null).</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>add(), remove(), contains(): O(log N) - logarithmic time, efficient for large sets.</li>
+                </ul>
+                <li><strong>Important:</strong> Elements must implement Comparable interface (for natural ordering) or
+                  you must provide a Comparator in the TreeSet constructor.</li>
+                <li><strong>Use Case:</strong> When you need to store unique elements in a sorted order.</li>
+              </ul>
+            </ul>
+            <div class="comp-card" data-tag="Collections">
+              <div class="comp-card__head"><span class="tag-chip">Collections</span>
+                <h3>ArrayList vs LinkedList</h3>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Aspect</th>
+                      <th>ArrayList</th>
+                      <th>LinkedList</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Backing structure</td>
+                      <td>Dynamic array</td>
+                      <td>Doubly linked list</td>
+                    </tr>
+                    <tr>
+                      <td>Random access (get)</td>
+                      <td>O(1)</td>
+                      <td>O(n)</td>
+                    </tr>
+                    <tr>
+                      <td>Insert/delete at middle</td>
+                      <td>O(n) — shifts elements</td>
+                      <td>O(1) once node is found</td>
+                    </tr>
+                    <tr>
+                      <td>Memory overhead</td>
+                      <td>Lower</td>
+                      <td>Higher (node pointers)</td>
+                    </tr>
+                    <tr>
+                      <td>Best for</td>
+                      <td>Frequent reads, rare inserts</td>
+                      <td>Frequent inserts/deletes</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+          <section class="note-section" id="ch3-sec4">
+            <h3><span class="secnum">3.4.</span>Map Implementations</h3>
+            <ul class="note-list lvl-1">
+              <li>HashMap:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Array of linked lists (or Red-Black trees in Java 8+ for
+                  large buckets).</li>
+                <li><strong>Order:</strong> No guaranteed order. Order can change over time.</li>
+                <li><strong>Keys/Values:</strong> Allows one null key and multiple null values.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>put(), get(), remove(): O(1) on average (constant time), assuming good hash function for keys. In
+                    worst case (many collisions), can degrade to O(N).</li>
+                </ul>
+                <li><strong>Important:</strong> Relies on hashCode() and equals() methods of the keys for uniqueness and
+                  retrieval.</li>
+                <li><strong>Use Case:</strong> Most commonly used Map implementation when order is not important and you
+                  need fast key-based lookups.</li>
+              </ul>
+              <li>LinkedHashMap:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> HashMap + doubly-linked list running through its entries.
+                </li>
+                <li><strong>Order:</strong> Maintains insertion order by default. Can also be configured for access
+                  order (elements move to the end of the list when accessed, useful for LRU caches).</li>
+                <li><strong>Keys/Values:</strong> Allows one null key and multiple null values.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li><strong>Performance:</strong> Slightly slower than HashMap for additions and deletions due to
+                  maintaining the linked list, but still O(1) on average. Iteration is faster than HashMap because it
+                  follows the insertion/access order.</li>
+                <li><strong>Use Case:</strong> When you need a map that preserves the order of key-value pair insertion
+                  (or access).</li>
+              </ul>
+              <li>TreeMap:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Red-Black tree.</li>
+                <li><strong>Order:</strong> Stores entries in sorted order based on the keys (natural order or custom
+                  Comparator).</li>
+                <li><strong>Keys/Values:</strong> Does NOT allow null keys (throws NullPointerException). Allows
+                  multiple null values.</li>
+                <li><strong>Thread-Safety:</strong> Not thread-safe.</li>
+                <li>Performance:</li>
+                <ul class="note-list lvl-3">
+                  <li>put(), get(), remove(): O(log N).</li>
+                </ul>
+                <li><strong>Important:</strong> Keys must implement Comparable or you must provide a Comparator.</li>
+                <li><strong>Use Case:</strong> When you need a map where keys are stored in a sorted order, or when you
+                  need to perform range queries (e.g., subMap()).</li>
+              </ul>
+              <li>Hashtable (Legacy):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Internal Data Structure:</strong> Array of linked lists, similar to HashMap.</li>
+                <li><strong>Order:</strong> No guaranteed order.</li>
+                <li><strong>Keys/Values:</strong> Does NOT allow null keys or null values. Throws NullPointerException.
+                </li>
+                <li><strong>Thread-Safety:</strong> Synchronized (thread-safe). All its methods are synchronized.</li>
+                <li><strong>Performance:</strong> Slower than HashMap due to synchronization overhead.</li>
+                <li><strong>Use Case:</strong> Largely superseded by ConcurrentHashMap for concurrent access or HashMap
+                  with external synchronization if needed.</li>
+              </ul>
+            </ul>
+            <div class="diagram-card" data-tag="Collections">
+              <div class="diagram-card__head"><span class="tag-chip">Collections</span>
+                <h3>HashMap Internal Working</h3>
+              </div>
+              <div class="diagram-svg">
+                <svg font-family="Inter, sans-serif" viewBox="0 0 780 260" xmlns="http://www.w3.org/2000/svg">
+                  <text fill="#0B1F3A" font-size="13" font-weight="700" x="30" y="30">key.hashCode() → hash()
+                    → bucket index (hash % capacity)</text>
+                  <g>
+                    <rect fill="#fff" height="34" stroke="#0B1F3A" width="60" x="30" y="55"></rect>
+                    <text fill="#33405A" font-size="11" text-anchor="middle" x="60" y="77">[0]</text>
+                    <rect fill="#fff" height="34" stroke="#0B1F3A" width="60" x="30" y="89"></rect>
+                    <text fill="#33405A" font-size="11" text-anchor="middle" x="60" y="111">[1]</text>
+                    <rect fill="#EAF3F3" height="34" stroke="#0E7C7B" stroke-width="2" width="60" x="30" y="123"></rect>
+                    <text fill="#0B1F3A" font-size="11" font-weight="700" text-anchor="middle" x="60" y="145">[2]</text>
+                    <rect fill="#fff" height="34" stroke="#0B1F3A" width="60" x="30" y="157"></rect>
+                    <text fill="#33405A" font-size="11" text-anchor="middle" x="60" y="179">[3]</text>
+                  </g>
+                  <line marker-end="url(#a5)" stroke="#0E7C7B" stroke-width="1.5" x1="90" x2="150" y1="140" y2="140">
+                  </line>
+                  <rect fill="#fff" height="36" rx="6" stroke="#0E7C7B" width="130" x="155" y="122"></rect>
+                  <text fill="#33405A" font-size="10.5" text-anchor="middle" x="220" y="145">"apple" → 3</text>
+                  <line marker-end="url(#a5)" stroke="#0E7C7B" stroke-width="1.5" x1="285" x2="325" y1="140" y2="140">
+                  </line>
+                  <rect fill="#fff" height="36" rx="6" stroke="#0E7C7B" stroke-dasharray="3 3" width="130" x="330" y="122"></rect>
+                  <text fill="#33405A" font-size="10.5" text-anchor="middle" x="395" y="145">"grape" → 7</text>
+                  <text fill="#A8305B" font-size="9.5" font-style="italic" text-anchor="middle" x="395" y="107">collision
+                    → linked node</text>
+                  <text fill="#6B7280" font-size="11" x="30" y="225">If a bucket's chain grows past 8 entries, Java 8+
+                    converts it to a</text>
+                  <text fill="#6B7280" font-size="11" x="30" y="242">red-black tree, turning worst-case O(n) lookup into
+                    O(log n).</text>
+                  <defs>
+                    <marker id="a5" markerHeight="8" markerWidth="8" orient="auto" refX="4" refY="4">
+                      <path d="M0,0 L8,4 L0,8 Z" fill="#0E7C7B"></path>
+                    </marker>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+            <div class="comp-card" data-tag="Collections">
+              <div class="comp-card__head"><span class="tag-chip">Collections</span>
+                <h3>HashMap vs Hashtable vs ConcurrentHashMap</h3>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Aspect</th>
+                      <th>HashMap</th>
+                      <th>Hashtable</th>
+                      <th>ConcurrentHashMap</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Thread-safe</td>
+                      <td>No</td>
+                      <td>Yes (fully synchronized)</td>
+                      <td>Yes (segment/bucket-level locking)</td>
+                    </tr>
+                    <tr>
+                      <td>Null keys/values</td>
+                      <td>1 null key, many null values</td>
+                      <td>Not allowed</td>
+                      <td>Not allowed</td>
+                    </tr>
+                    <tr>
+                      <td>Performance</td>
+                      <td>Fast (no locking)</td>
+                      <td>Slow (whole-map lock)</td>
+                      <td>Fast (fine-grained locking)</td>
+                    </tr>
+                    <tr>
+                      <td>Introduced</td>
+                      <td>Java 1.2</td>
+                      <td>Java 1.0 (legacy)</td>
+                      <td>Java 1.5 (java.util.concurrent)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+          <section class="note-section" id="ch3-sec5">
+            <h3><span class="secnum">3.5.</span>Concurrency in Collections</h3>
+            <p class="note-para">Thread-safety is a major concern when collections are accessed by multiple threads.</p>
+            <ul class="note-list lvl-1">
+              <li>Problem with non-thread-safe collections (ArrayList, HashMap, etc.) in multi-threaded environments:
+              </li>
+              <ul class="note-list lvl-2">
+                <li><strong>Race Conditions:</strong> Multiple threads trying to modify the collection simultaneously
+                  can lead to inconsistent state.</li>
+                <li><strong>ConcurrentModificationException:</strong> If one thread iterates over a collection while
+                  another thread modifies it (add/remove), the iterator can become invalid, leading to this runtime
+                  exception.</li>
+              </ul>
+              <li>Solutions for Thread-Safe Collections:</li>
+            </ul>
+            <p class="note-para">1. Collections.synchronizedList(), Collections.synchronizedSet(),</p>
+            <p class="note-para">Collections.synchronizedMap():</p>
+            <ul class="note-list lvl-3">
+              <li><strong>How it works:</strong> These are static factory methods that return a synchronized (wrapper)
+                view of a non-synchronized collection. They internally wrap the methods of the underlying collection
+                with synchronized blocks.</li>
+              <li><strong>Example:</strong> List&lt;String&gt; synchronizedList = Collections.synchronizedList(new
+                ArrayList&lt;&gt;());</li>
+              <li>Drawbacks:</li>
+            </ul>
+            <p class="note-para">▪ Performance: Can be slow due to single lock for the entire collection</p>
+            <p class="note-para">(high contention).</p>
+            <p class="note-para">▪ External Synchronization for Iteration: You still need to manually</p>
+            <p class="note-para">synchronize externally when iterating over these collections to</p>
+            <p class="note-para">prevent ConcurrentModificationException.</p>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">synchronized (synchronizedList) {
+  for (String item : synchronizedList) {
+    // ...
+  }
+}
+                          ▪ Generally not recommended for high concurrency scenarios.
+          2. java.util.concurrent package (Concurrent Collections):</code></pre>
+            </div>
+            <ul class="note-list lvl-3">
+              <li>Provides highly optimized, scalable, and thread-safe alternatives. These are generally preferred for
+                concurrent applications.</li>
+              <li>ConcurrentHashMap:</li>
+            </ul>
+            <p class="note-para">▪ How it works: Uses a more fine-grained locking mechanism</p>
+            <p class="note-para">(segment locking or node-level locking depending on Java version)</p>
+            <p class="note-para">instead of a single global lock. This allows multiple threads to read</p>
+            <p class="note-para">and write concurrently to different parts of the map without</p>
+            <p class="note-para">blocking each other.</p>
+            <p class="note-para">▪ Performance: Much better concurrency than Hashtable or</p>
+            <p class="note-para">Collections.synchronizedMap().</p>
+            <p class="note-para">▪ Nulls: Does not allow null keys or values.</p>
+            <p class="note-para">▪ Iteration: Iterators are weakly consistent (fail-safe). They reflect the</p>
+            <p class="note-para">state of the map at the time the iterator was created and will not</p>
+            <p class="note-para">throw ConcurrentModificationException if the map is modified</p>
+            <p class="note-para">concurrently.</p>
+            <p class="note-para">▪ Use Case: Primary choice for thread-safe maps in high-concurrency</p>
+            <p class="note-para">environments.</p>
+            <ul class="note-list lvl-3">
+              <li>CopyOnWriteArrayList and CopyOnWriteArraySet:</li>
+            </ul>
+            <p class="note-para">▪ How they work: When a modifying operation (add, set, remove) is</p>
+            <p class="note-para">performed, a new copy of the underlying array is created. Reads</p>
+            <p class="note-para">operate on the old, unmodified array.</p>
+            <p class="note-para">▪ Performance: Excellent for concurrent read operations. Very poor</p>
+            <p class="note-para">for frequent write operations due to the overhead of copying the</p>
+            <p class="note-para">entire array.</p>
+            <p class="note-para">▪ Use Case: When reads vastly outnumber writes. E.g., maintaining a</p>
+            <p class="note-para">list of listeners in an event system. Iterators also fail-safe.</p>
+            <ul class="note-list lvl-3">
+              <li>BlockingQueue Interfaces (e.g., ArrayBlockingQueue, LinkedBlockingQueue):</li>
+            </ul>
+            <p class="note-para">▪ Concept: Queues that support operations that wait for the queue to</p>
+            <p class="note-para">become non-empty when retrieving an element, and wait for space</p>
+            <p class="note-para">to become available when storing an element.</p>
+            <p class="note-para">▪ Use Case: Producer-Consumer patterns, thread pools.</p>
+            <ul class="note-list lvl-1">
+              <li>Fail-Fast vs. Fail-Safe Iterators:</li>
+              <ul class="note-list lvl-2">
+                <li>Fail-Fast Iterators:</li>
+                <ul class="note-list lvl-3">
+                  <li>Implemented by most non-concurrent collections (ArrayList, HashMap, HashSet, etc.).</li>
+                  <li>They try to detect concurrent modifications (modifications to the underlying collection by any
+                    other means than the iterator's own remove() method) and throw a ConcurrentModificationException
+                    immediately.</li>
+                  <li>They are designed to "fail fast" to indicate potential bugs in multi-threaded code.</li>
+                </ul>
+                <li>Fail-Safe Iterators:</li>
+                <ul class="note-list lvl-3">
+                  <li>Implemented by concurrent collections (ConcurrentHashMap, CopyOnWriteArrayList, etc.).</li>
+                  <li>They operate on a clone or snapshot of the collection at the time the iterator was created.</li>
+                  <li>They do not throw ConcurrentModificationException if the original collection is modified
+                    concurrently.</li>
+                  <li>The trade-off is that they might not reflect the very latest state of the collection.</li>
+                </ul>
+              </ul>
+            </ul>
+          </section>
+          <section class="note-section" id="ch3-sec6">
+            <h3><span class="secnum">3.6.</span>Comparable vs. Comparator</h3>
+            <p class="note-para">These interfaces are used for custom sorting of objects.</p>
+            <ul class="note-list lvl-1">
+              <li>Comparable&lt;T&gt; (Natural Ordering):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Interface:</strong> public interface Comparable&lt;T&gt; { int compareTo(T o); }</li>
+                <li><strong>Purpose:</strong> Defines the natural or default sorting order for objects of a class.</li>
+                <li><strong>Implementation:</strong> The class whose objects you want to sort must implement this
+                  interface.</li>
+                <li>compareTo() method:</li>
+                <ul class="note-list lvl-3">
+                  <li>Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or
+                    greater than the specified object.</li>
+                  <li>obj1.compareTo(obj2):</li>
+                </ul>
+              </ul>
+            </ul>
+            <p class="note-para">▪ &lt; 0 if obj1 comes before obj2</p>
+            <p class="note-para">▪ == 0 if obj1 is equal to obj2</p>
+            <p class="note-para">▪ &gt; 0 if obj1 comes after obj2</p>
+            <ul class="note-list lvl-2">
+              <li><strong>Usage:</strong> Used by Collections.sort(List) for lists, and TreeSet/TreeMap constructors.
+              </li>
+            </ul>
+            <ul class="note-list lvl-1">
+              <li>Comparator&lt;T&gt; (Custom/External Ordering):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Interface:</strong> public interface Comparator&lt;T&gt; { int compare(T o1, T o2); boolean
+                  equals(Object obj); // Default method from Object }</li>
+                <li><strong>Purpose:</strong> Defines an alternative or custom sorting order for objects. Useful when:
+                </li>
+                <ul class="note-list lvl-3">
+                  <li>You don't want to modify the original class.</li>
+                  <li>You need multiple ways to sort the same objects (e.g., sort Employee by name, id, salary).</li>
+                  <li>The objects do not implement Comparable.</li>
+                </ul>
+                <li><strong>Implementation:</strong> You create a separate class that implements Comparator or use a
+                  lambda expression (Java 8+).</li>
+                <li>compare() method:</li>
+                <ul class="note-list lvl-3">
+                  <li>Returns a negative integer, zero, or a positive integer as the first argument is less than, equal
+                    to, or greater than the second.</li>
+                  <li>comparator.compare(obj1, obj2): Same return value logic as compareTo().</li>
+                </ul>
+                <li><strong>Usage:</strong> Used by Collections.sort(List, Comparator), Arrays.sort(array, Comparator),
+                  and TreeSet/TreeMap constructors that take a Comparator argument.</li>
+                <li><strong>Java 8+:</strong> Often implemented using lambda expressions for conciseness: (o1, o2) -&gt;
+                  o1.getName().compareTo(o2.getName())</li>
+              </ul>
+              <li>Example:</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">import java.util.*;
+class Person implements Comparable&lt;Person&gt; { // Implements Comparable for natural ordering by</code></pre>
+            </div>
+            <p class="note-para">age</p>
+            <p class="note-para">String name;</p>
+            <p class="note-para">int age;</p>
+            <p class="note-para">public Person(String name, int age) {</p>
+            <p class="note-para">this.name = name;</p>
+            <p class="note-para">this.age = age;</p>
+            <p class="note-para">}</p>
+            <p class="note-para">@Override</p>
+            <p class="note-para">public int compareTo(Person other) {</p>
+            <p class="note-para">return Integer.compare(this.age, other.age); // Natural order: sort by age</p>
+            <p class="note-para">}</p>
+            <p class="note-para">@Override</p>
+            <p class="note-para">public String toString() {</p>
+            <p class="note-para">return "Person{" + "name='" + name + '\'' + ", age=" + age + '}';</p>
+            <p class="note-para">}</p>
+            <p class="note-para">} public class SortingDemo {</p>
+            <p class="note-para">public static void main(String[] args) {</p>
+            <p class="note-para">List&lt;Person&gt; people = new ArrayList&lt;&gt;();</p>
+            <p class="note-para">people.add(new Person("Alice", 30));</p>
+            <p class="note-para">people.add(new Person("Charlie", 25));</p>
+            <p class="note-para">people.add(new Person("Bob", 35));</p>
+            <p class="note-para">// 1. Sort using natural ordering (Comparable)</p>
+            <p class="note-para">Collections.sort(people); // Requires Person to implement Comparable</p>
+            <p class="note-para">System.out.println("Sorted by Age (Natural Order):");</p>
+            <p class="note-para">people.forEach(System.out::println);</p>
+            <p class="note-para">// Output: Charlie (25), Alice (30), Bob (35)</p>
+            <p class="note-para">// 2. Sort using a custom Comparator (by Name)</p>
+            <p class="note-para">Comparator&lt;Person&gt; nameComparator = (p1, p2) -&gt; p1.name.compareTo(p2.name);
+            </p>
+            <p class="note-para">Collections.sort(people, nameComparator);</p>
+            <p class="note-para">System.out.println("\nSorted by Name (Custom Comparator):");</p>
+            <p class="note-para">people.forEach(System.out::println);</p>
+            <p class="note-para">// Output: Alice (30), Bob (35), Charlie (25)</p>
+            <p class="note-para">// 3. Using a TreeSet (natural order)</p>
+            <p class="note-para">TreeSet&lt;Person&gt; sortedPeopleByAge = new TreeSet&lt;&gt;();</p>
+            <p class="note-para">sortedPeopleByAge.add(new Person("David", 40));</p>
+            <p class="note-para">sortedPeopleByAge.add(new Person("Eve", 20));</p>
+            <p class="note-para">sortedPeopleByAge.add(new Person("Frank", 30));</p>
+            <p class="note-para">System.out.println("\nTreeSet (Sorted by Age):");</p>
+            <p class="note-para">sortedPeopleByAge.forEach(System.out::println);</p>
+            <p class="note-para">// 4. Using a TreeMap (custom comparator for keys)</p>
+            <p class="note-para">Map&lt;Person, String&gt; personMap = new TreeMap&lt;&gt;(nameComparator); // TreeMap
+              uses</p>
+            <p class="note-para">Comparator</p>
+            <p class="note-para">personMap.put(new Person("Zara", 28), "Developer");</p>
+            <p class="note-para">personMap.put(new Person("Yara", 32), "Manager");</p>
+            <p class="note-para">personMap.put(new Person("Xavier", 25), "Analyst");</p>
+            <p class="note-para">System.out.println("\nTreeMap (Sorted by Name):");</p>
+            <p class="note-para">personMap.forEach((person, role) -&gt; System.out.println(person + " -&gt; " + role));
+            </p>
+            <p class="note-para">}</p>
+            <p class="note-para">} The Collections Framework is vast, but focusing on these core interfaces and their
+              most common implementations, their performance characteristics, and thread-safety concerns will make you
+              well- prepared for interview questions. Be ready to discuss specific scenarios for when to use ArrayList
+              vs. LinkedList, HashMap vs. TreeMap, and HashMap vs. ConcurrentHashMap. Got it. Let's delve into "4.
+              Multithreading and Concurrency" in detail. This is a crucial topic for a 3- year experienced Java
+              developer, as it directly relates to building high-performance, responsive, and scalable applications.
+              Interviewers will often ask about thread creation, synchronization, common concurrency problems, and the
+              java.util.concurrent package.</p>
+          </section>
+        </article>

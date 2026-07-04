@@ -1,0 +1,1035 @@
+<article class="chapter" data-chapter="2" id="ch2">
+          <div class="chapter-ghost">2</div>
+          <header class="chapter-head"><span class="chapter-tag">Chapter 2</span>
+            <h2>Object-Oriented Programming (OOP): The Foundation of Java Design</h2>
+          </header>
+          <p class="note-para">OOP is a programming paradigm based on the concept of "objects," which can contain data
+            and code: data in the form of fields (attributes or properties), and code in the form of procedures
+            (methods). The primary goal of OOP is to increase the flexibility and maintainability of programs.</p>
+          <section class="note-section" id="ch2-sec1">
+            <h3><span class="secnum">2.1.</span>Four Pillars of OOPs</h3>
+            <p class="note-para">These are the core principles that define object-oriented programming. You should be
+              able to explain each thoroughly, provide real-world analogies, and demonstrate them with code. a.
+              Encapsulation</p>
+            <ul class="note-list lvl-1">
+              <li><strong>Concept:</strong> The binding of data (attributes/fields) and the methods that operate on that
+                data into a single unit (a class), and keeping them safe from outside interference and misuse. It's
+                about "data hiding" or "information hiding."</li>
+              <li>How it's achieved in Java:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Declaring instance variables as private:</strong> This prevents direct access from outside
+                  the class.</li>
+                <li><strong>Providing public getter and setter methods:</strong> These "accessor" and "mutator" methods
+                  are the controlled ways to read and modify the private data. You can add validation logic within
+                  setters.</li>
+              </ul>
+              <li>Benefits:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Data Security:</strong> Protects data from unauthorized access.</li>
+                <li><strong>Flexibility/Maintainability:</strong> Allows changes to the internal implementation of a
+                  class without affecting external code that uses it (as long as the public interface, i.e.,
+                  getters/setters, remains consistent).</li>
+                <li><strong>Modularity:</strong> Makes classes self-contained and easier to reuse.</li>
+                <li><strong>Control over Data:</strong> You can enforce business rules or validation logic when data is
+                  set.</li>
+              </ul>
+              <li>Example:</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class BankAccount {
+  private String accountNumber; // Encapsulated data
+  private double balance; // Encapsulated data
+  public BankAccount(String accountNumber, double initialBalance) {
+    this.accountNumber = accountNumber;
+    if (initialBalance &gt;= 0) { // Validation in constructor
+      this.balance = initialBalance;
+    } else {
+      this.balance = 0; // Or throw an exception
+    }
+  }
+  // Public getter for account number (read-only)
+  public String getAccountNumber() {
+    return accountNumber;
+  }
+  // Public getter for balance
+  public double getBalance() {
+    return balance;
+  }
+  // Public setter/mutator for deposit with validation
+  public void deposit(double amount) {
+    if (amount &gt; 0) {
+      this.balance += amount;
+      System.out.println("Deposited " + amount + ". New balance: " + this.balance);
+    } else {
+      System.out.println("Deposit amount must be positive.");
+    }
+  }
+  // Public setter/mutator for withdrawal with validation
+  public void withdraw(double amount) {
+    if (amount &gt; 0 &amp;&amp; this.balance &gt;= amount) {
+      this.balance -= amount;
+      System.out.println("Withdrew " + amount + ". New balance: " + this.balance);
+    } else {
+      System.out.println("Invalid withdrawal amount or insufficient balance.");
+    }
+  }
+}
+public class EncapsulationDemo {
+  public static void main(String[] args) {
+    BankAccount myAccount = new BankAccount("123456789", 1000.0);
+    // Cannot directly access myAccount.balance = -500; due to private access
+    System.out.println("Account Number: " + myAccount.getAccountNumber());
+    System.out.println("Current Balance: " + myAccount.getBalance());
+    myAccount.deposit(500);
+    myAccount.withdraw(200);
+    myAccount.withdraw(2000); // Will fail due to validation
+  }
+}</code></pre>
+            </div>
+            <p class="note-para">b. Inheritance</p>
+            <ul class="note-list lvl-1">
+              <li><strong>Concept:</strong> The mechanism by which one class acquires the properties (fields) and
+                behaviors (methods) of another class. It represents an "is-a" relationship (e.g., "A Car is-a Vehicle").
+              </li>
+              <li>Keywords:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>extends:</strong> Used by a class to inherit from another class.</li>
+                <li><strong>implements:</strong> Used by a class to implement an interface.</li>
+              </ul>
+              <li>Types of Inheritance (in terms of class hierarchy):</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Single Inheritance:</strong> A class inherits from only one direct parent class. (Java
+                  supports this for classes).</li>
+                <li><strong>Multilevel Inheritance:</strong> A class inherits from a class, which in turn inherits from
+                  another class (e.g., A -&gt; B -&gt; C).</li>
+                <li><strong>Hierarchical Inheritance:</strong> Multiple classes inherit from a single parent class.</li>
+                <li><strong>Multiple Inheritance:</strong> A class inheriting from multiple direct parent classes. Java
+                  does NOT support multiple inheritance for classes to avoid the "diamond problem" (ambiguity if parent
+                  classes have methods with same signature).</li>
+                <li><strong>Hybrid Inheritance:</strong> A mix of two or more types of inheritance.</li>
+              </ul>
+              <li>Benefits:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Code Reusability:</strong> Child classes don't need to rewrite code already present in the
+                  parent.</li>
+                <li><strong>Extensibility:</strong> New functionalities can be added by extending existing classes.</li>
+                <li><strong>Polymorphism:</strong> A key enabler for runtime polymorphism.</li>
+              </ul>
+              <li>Example:</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class Vehicle { // Parent class (Superclass)
+  String brand;
+  public Vehicle(String brand) {
+    this.brand = brand;
+  }
+  public void honk() {
+    System.out.println("Vehicle sound!");
+  }
+  public void displayBrand() {
+    System.out.println("Brand: " + brand);
+  }
+}
+class Car extends Vehicle { // Child class (Subclass) inherits from Vehicle
+  String model;
+  public Car(String brand, String model) {
+    super(brand); // Calls the parent class constructor
+    this.model = model;
+  }
+  // Method Overriding (runtime polymorphism)
+  @Override
+  public void honk() {
+    System.out.println("Car horn!");
+  }
+  public void drive() {
+    System.out.println(brand + " " + model + " is driving.");
+  }
+}
+class ElectricCar extends Car { // Multilevel inheritance
+  boolean autonomous;
+  public ElectricCar(String brand, String model, boolean autonomous) {
+    super(brand, model);
+    this.autonomous = autonomous;
+  }
+  @Override
+  public void honk() {
+    System.out.println("Silent electric car hum!");
+  }
+  public void charge() {
+    System.out.println(brand + " " + model + " is charging.");
+  }
+}
+public class InheritanceDemo {
+  public static void main(String[] args) {
+    Car myCar = new Car("Toyota", "Camry");
+    myCar.displayBrand();
+    myCar.honk(); // Calls Car's honk() due to overriding
+    myCar.drive();
+    ElectricCar tesla = new ElectricCar("Tesla", "Model S", true);
+    tesla.displayBrand(); // Inherited from Vehicle
+    tesla.honk(); // Calls ElectricCar's honk()
+    tesla.charge();
+  }
+}</code></pre>
+            </div>
+            <p class="note-para">c. Polymorphism</p>
+            <ul class="note-list lvl-1">
+              <li><strong>Concept:</strong> "Many forms." It refers to the ability of an object to take on many forms or
+                the ability of a variable to refer to objects of different types at different times. In Java, it
+                primarily means that a single interface can be used for different underlying forms (data types).</li>
+              <li>Types of Polymorphism in Java:</li>
+            </ul>
+            <p class="note-para">1. Compile-time Polymorphism (Static Polymorphism / Method Overloading):</p>
+            <ul class="note-list lvl-3">
+              <li><strong>Concept:</strong> Occurs when there are multiple methods in the same class with the same name
+                but different method signatures (different number of parameters, different types of parameters, or
+                different order of parameters).</li>
+              <li>The compiler decides which method to call based on the arguments passed at compile time.</li>
+              <li>Example:</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class Calculator {
+  public int add(int a, int b) {
+    return a + b;
+  }
+  public double add(double a, double b) { // Overloaded method
+    return a + b;
+  }
+  public int add(int a, int b, int c) { // Overloaded method
+    return a + b + c;
+  }
+}
+// Usage:
+Calculator calc = new Calculator();
+calc.add(5, 10); // Calls int version
+calc.add(5.0, 10.0); // Calls double version
+calc.add(1, 2, 3); // Calls three-int version
+          2. Runtime Polymorphism (Dynamic Polymorphism / Method Overriding):</code></pre>
+            </div>
+            <ul class="note-list lvl-3">
+              <li><strong>Concept:</strong> Occurs when a subclass provides a specific implementation for a method that
+                is already defined in its superclass. The method signature (name, return type, parameters) must be
+                exactly the same.</li>
+              <li>The decision of which method to call is made at runtime based on the actual object type, not the
+                reference type. This is also known as "Dynamic Method Dispatch."</li>
+              <li>Rules for Overriding:</li>
+            </ul>
+            <p class="note-para">▪ Method must have the same name, same parameters, and same</p>
+            <p class="note-para">return type.</p>
+            <p class="note-para">▪ Access modifier cannot be more restrictive than the overridden</p>
+            <p class="note-para">method.</p>
+            <p class="note-para">▪ final or static methods cannot be overridden.</p>
+            <p class="note-para">▪ Constructors cannot be overridden.</p>
+            <ul class="note-list lvl-3">
+              <li>Example (refer to Vehicle and Car example in Inheritance):</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">Vehicle v1 = new Vehicle("Generic");
+Vehicle v2 = new Car("Honda", "Civic"); // Polymorphic reference
+Vehicle v3 = new ElectricCar("BMW", "iX", false); // Polymorphic reference
+v1.honk(); // Output: Vehicle sound!
+v2.honk(); // Output: Car horn! (Runtime decision based on actual object Car)
+v3.honk(); // Output: Silent electric car hum! (Runtime decision based on ElectricCar)</code></pre>
+            </div>
+            <ul class="note-list lvl-1">
+              <li>Benefits:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Flexibility:</strong> A single interface (method name) can be used to perform different
+                  actions depending on the object.</li>
+                <li><strong>Code Reusability:</strong> Write generic code that can work with objects of different types,
+                  as long as they share a common supertype.</li>
+                <li><strong>Maintainability:</strong> Easier to add new types without modifying existing code, just
+                  extend the base class and override.</li>
+              </ul>
+            </ul>
+            <p class="note-para">d. Abstraction</p>
+            <ul class="note-list lvl-1">
+              <li><strong>Concept:</strong> The process of hiding the implementation details and showing only the
+                essential features of an object to the outside world. It's about "what" an object does, not "how" it
+                does it.</li>
+              <li>How it's achieved in Java:</li>
+              <ul class="note-list lvl-2">
+                <li>Abstract Classes:</li>
+                <ul class="note-list lvl-3">
+                  <li>A class declared with the abstract keyword.</li>
+                  <li>Cannot be instantiated (you cannot create objects of an abstract class).</li>
+                  <li>Can have both abstract methods (methods without an implementation, marked abstract) and concrete
+                    (non-abstract) methods.</li>
+                  <li>Can have constructors (which are called by subclass constructors via super()).</li>
+                  <li>Can have instance variables and static variables.</li>
+                  <li>A subclass of an abstract class must either implement all its abstract methods or also be declared
+                    abstract.</li>
+                  <li>Represents a partial implementation, serving as a base for specific subclasses.</li>
+                </ul>
+                <li>Interfaces:</li>
+                <ul class="note-list lvl-3">
+                  <li>A blueprint of a class. All methods in an interface are implicitly public abstract (before Java
+                    8).</li>
+                  <li>Can only declare constants (implicitly public static final) and abstract methods.</li>
+                  <li>Cannot have constructors.</li>
+                  <li>Before Java 8, interfaces could only have abstract methods. From Java 8, they can have default and
+                    static methods with implementations. From Java 9, they can also have private methods.</li>
+                  <li>A class implements an interface using the implements keyword and must provide implementations for
+                    all its abstract methods (unless the implementing class is abstract itself).</li>
+                  <li><strong>Represents a contract:</strong> any class implementing the interface guarantees to provide
+                    the specified behaviors.</li>
+                  <li>Java supports multiple inheritance of interfaces (a class can implement multiple interfaces).</li>
+                </ul>
+              </ul>
+              <li>Abstract Class vs. Interface (Key Differences):</li>
+            </ul>
+            <p class="note-para">Feature Abstract Class Interface</p>
+            <p class="note-para">Keyword abstract class interface</p>
+            <p class="note-para">Instantiation Cannot be instantiated directly Cannot be instantiated directly</p>
+            <p class="note-para">Abstract All methods were implicitly public</p>
+            <p class="note-para">Can have zero or more</p>
+            <p class="note-para">Methods abstract before Java 8.</p>
+            <p class="note-para">From Java 8, can have default and</p>
+            <p class="note-para">static methods.</p>
+            <p class="note-para">From Java 9, can have private</p>
+            <p class="note-para">methods.</p>
+            <p class="note-para">Only default and static methods</p>
+            <p class="note-para">Concrete Can have concrete methods (with</p>
+            <p class="note-para">(and private in Java 9) can have</p>
+            <p class="note-para">Methods body)</p>
+            <p class="note-para">bodies.</p>
+            <p class="note-para">Only public static final variables</p>
+            <p class="note-para">Variables Can have instance and static variables</p>
+            <p class="note-para">(constants)</p>
+            <p class="note-para">Constructors Can have constructors Cannot have constructors</p>
+            <p class="note-para">Feature Abstract Class Interface</p>
+            <p class="note-para">A class implements multiple</p>
+            <p class="note-para">Inheritance A class extends one abstract class.</p>
+            <p class="note-para">interfaces.</p>
+            <p class="note-para">Defines a contract for behavior.</p>
+            <p class="note-para">Defines a template for subclasses with</p>
+            <p class="note-para">Good for "can-do" relationships</p>
+            <p class="note-para">some common implementation. Good</p>
+            <p class="note-para">Purpose or specifying common</p>
+            <p class="note-para">for "is-a" relationships where some</p>
+            <p class="note-para">functionalities across unrelated</p>
+            <p class="note-para">common behavior is shared.</p>
+            <p class="note-para">classes.</p>
+            <ul class="note-list lvl-1">
+              <li>When to Use Which:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Abstract Class:</strong> Use when you want to provide a base class with some common
+                  functionality implemented, but also enforce that subclasses implement specific methods. Ideal when you
+                  have a strong "is-a" relationship and want to share code.</li>
+                <li><strong>Interface:</strong> Use when you want to define a contract that multiple unrelated classes
+                  can adhere to. Ideal for defining capabilities or behaviors that can be shared across different class
+                  hierarchies.</li>
+              </ul>
+              <li>Example (Abstraction):</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">// Abstract Class
+abstract class Shape {
+  String name;
+  public Shape(String name) {
+    this.name = name;
+  }
+  // Abstract method - must be implemented by subclasses
+  public abstract double calculateArea();
+  // Concrete method - has an implementation
+  public void displayInfo() {
+    System.out.println("This is a " + name + " shape.");
+  }
+}
+class Circle extends Shape {
+  double radius;
+  public Circle(String name, double radius) {
+    super(name);
+    this.radius = radius;
+  }
+  @Override
+  public double calculateArea() {
+    return Math.PI * radius * radius;
+  }
+}
+class Rectangle extends Shape {
+  double length;
+  double width;
+  public Rectangle(String name, double length, double width) {
+    super(name);
+    this.length = length;
+    this.width = width;
+  }
+  @Override
+  public double calculateArea() {
+    return length * width;
+  }
+}
+// Interface
+interface Drawable {
+  void draw(); // Abstract method (implicitly public abstract)
+  default void setColor(String color) { // Default method (Java 8+)
+    System.out.println("Setting color to " + color);
+  }
+}
+class Triangle implements Drawable {
+  @Override
+  public void draw() {
+    System.out.println("Drawing a triangle.");
+  }
+}
+public class AbstractionDemo {
+  public static void main(String[] args) {
+    // Shape myShape = new Shape("Generic"); // Compile-time error: Cannot instantiate abstract
+class
+    Circle circle = new Circle("My Circle", 5.0);
+    circle.displayInfo();
+    System.out.println("Circle Area: " + circle.calculateArea());
+    Rectangle rectangle = new Rectangle("My Rectangle", 4.0, 6.0);
+    rectangle.displayInfo();
+    System.out.println("Rectangle Area: " + rectangle.calculateArea());
+    Triangle triangle = new Triangle();
+    triangle.draw();
+    triangle.setColor("Blue"); // Using default method from interface
+  }
+}</code></pre>
+            </div>
+            <div class="diagram-card" data-tag="OOP">
+              <div class="diagram-card__head"><span class="tag-chip">OOP</span>
+                <h3>OOP: The Four Pillars</h3>
+              </div>
+              <div class="diagram-svg">
+                <svg font-family="Inter, sans-serif" viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg">
+                  <g>
+                    <circle cx="130" cy="130" fill="#EAF3F3" r="82" stroke="#0E7C7B" stroke-width="2"></circle>
+                    <text fill="#0B1F3A" font-size="14" font-weight="700" text-anchor="middle" x="130" y="120">Encapsulation</text>
+                    <text fill="#33405A" font-size="10.5" text-anchor="middle" x="130" y="142">Bundle data +</text>
+                    <text fill="#33405A" font-size="10.5" text-anchor="middle" x="130" y="157">methods; hide
+                      state</text>
+                  </g>
+                  <g>
+                    <circle cx="320" cy="130" fill="#FDF3E3" r="82" stroke="#C98A1D" stroke-width="2"></circle>
+                    <text fill="#0B1F3A" font-size="14" font-weight="700" text-anchor="middle" x="320" y="120">Abstraction</text>
+                    <text fill="#33405A" font-size="10.5" text-anchor="middle" x="320" y="142">Show only what's</text>
+                    <text fill="#33405A" font-size="10.5" text-anchor="middle" x="320" y="157">needed, hide
+                      detail</text>
+                  </g>
+                  <g>
+                    <circle cx="510" cy="130" fill="#EAF0FB" r="82" stroke="#0B1F3A" stroke-width="2"></circle>
+                    <text fill="#0B1F3A" font-size="14" font-weight="700" text-anchor="middle" x="510" y="120">Inheritance</text>
+                    <text fill="#33405A" font-size="10.5" text-anchor="middle" x="510" y="142">Reuse behavior via</text>
+                    <text fill="#33405A" font-size="10.5" text-anchor="middle" x="510" y="157">parent-child
+                      classes</text>
+                  </g>
+                  <g>
+                    <circle cx="700" cy="130" fill="#FBEAF0" r="82" stroke="#A8305B" stroke-width="2"></circle>
+                    <text fill="#0B1F3A" font-size="14" font-weight="700" text-anchor="middle" x="695" y="120">Polymorphism</text>
+                    <text fill="#33405A" font-size="10.5" text-anchor="middle" x="695" y="142">One interface,</text>
+                    <text fill="#33405A" font-size="10.5" text-anchor="middle" x="695" y="157">many forms</text>
+                  </g>
+                  <text fill="#6B7280" font-size="12" text-anchor="middle" x="380" y="270">Together, these four
+                    principles
+                    are what make a language "object-oriented".</text>
+                </svg>
+              </div>
+            </div>
+          </section>
+          <section class="note-section" id="ch2-sec2">
+            <h3><span class="secnum">2.2.</span>Constructors</h3>
+            <ul class="note-list lvl-1">
+              <li><strong>Concept:</strong> A special type of method used to initialize objects. It's invoked
+                automatically when an object of a class is created using the new keyword.</li>
+              <li>Rules:</li>
+              <ul class="note-list lvl-2">
+                <li>Must have the same name as the class.</li>
+                <li>Has no return type (not even void).</li>
+                <li>Cannot be static, final, abstract, or synchronized.</li>
+              </ul>
+              <li>Types of Constructors:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Default Constructor:</strong> If you don't define any constructor, Java automatically
+                  provides a public, no-argument default constructor. It initializes instance variables to their default
+                  values.</li>
+                <li><strong>No-argument Constructor:</strong> A constructor explicitly defined by you that takes no
+                  arguments.</li>
+                <li><strong>Parameterized Constructor:</strong> A constructor that takes arguments. Used to initialize
+                  instance variables with specific values provided at object creation.</li>
+              </ul>
+              <li><strong>Constructor Overloading:</strong> A class can have multiple constructors with the same name
+                but different parameter lists (just like method overloading).</li>
+              <li>Constructor Chaining:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Using this():</strong> To call another constructor of the same class.</li>
+                <li><strong>Using super():</strong> To call a constructor of the parent class. super() or super(args)
+                  must be the first statement in a child class constructor.</li>
+              </ul>
+              <li>Example:</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class Dog {
+  String name;
+  int age;
+  // No-argument constructor
+  public Dog() {
+    this("Buddy", 3); // Calls the parameterized constructor
+    System.out.println("Dog object created with default values.");
+  }
+  // Parameterized constructor
+  public Dog(String name, int age) {
+    this.name = name;
+    this.age = age;
+    System.out.println("Dog object created: " + name + ", " + age + " years old.");
+  }
+  // Another overloaded constructor
+  public Dog(String name) {
+    this(name, 0); // Calls the parameterized constructor with default age
+    System.out.println("Dog object created with name only.");
+  }
+  public void bark() {
+    System.out.println(name + " says Woof!");
+  }
+}
+public class ConstructorDemo {
+  public static void main(String[] args) {
+    Dog dog1 = new Dog(); // Calls no-arg constructor
+    dog1.bark();
+    Dog dog2 = new Dog("Max", 5); // Calls parameterized constructor
+    dog2.bark();
+    Dog dog3 = new Dog("Lucy"); // Calls overloaded constructor
+    dog3.bark();
+  }
+}</code></pre>
+            </div>
+          </section>
+          <section class="note-section" id="ch2-sec3">
+            <h3><span class="secnum">2.3.</span>equals() and hashCode()</h3>
+            <p class="note-para">These methods (defined in java.lang.Object) are crucial when dealing with collections,
+              especially HashMap, HashSet, and Hashtable.</p>
+            <ul class="note-list lvl-1">
+              <li>equals() Method:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Used to compare two objects for equality of content (value equality), not
+                  just reference equality (==).</li>
+                <li><strong>Default Implementation:</strong> In the Object class, equals() behaves like == (compares
+                  memory addresses).</li>
+                <li><strong>Overriding:</strong> You should override equals() whenever you want to define what it means
+                  for two objects of your class to be logically equal, based on their content.</li>
+                <li>Contract (Important!): If you override equals(), you must also override hashCode() to maintain the
+                  general contract for the Object.hashCode() method.</li>
+              </ul>
+              <li>hashCode() Method:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Purpose:</strong> Returns an integer hash code value for the object. This hash code is
+                  primarily used by hash-based collections (HashMap, HashSet, Hashtable) to determine where to store and
+                  retrieve objects efficiently.</li>
+                <li><strong>Default Implementation:</strong> In Object class, hashCode() typically returns a unique
+                  integer for each object based on its memory address.</li>
+                <li>Contract:</li>
+              </ul>
+            </ul>
+            <p class="note-para">1. If two objects are equals() according to the equals() method, then calling the</p>
+            <p class="note-para">hashCode() method on each of the two objects must produce the same</p>
+            <p class="note-para">integer result.</p>
+            <p class="note-para">2. If two objects are not equals(), their hash codes do not have to be different.</p>
+            <p class="note-para">However, different hash codes for unequal objects can improve the</p>
+            <p class="note-para">performance of hash tables.</p>
+            <p class="note-para">3. The hashCode() result must be consistent: if the object's state (used in</p>
+            <p class="note-para">equals() comparisons) is not modified, hashCode() must return the same</p>
+            <p class="note-para">value.</p>
+            <ul class="note-list lvl-1">
+              <li>Why override both?</li>
+              <ul class="note-list lvl-2">
+                <li>If you override equals() but not hashCode(), and you put objects of your class into a HashSet or use
+                  them as keys in a HashMap:</li>
+                <ul class="note-list lvl-3">
+                  <li>HashSet might store two "equal" objects at different locations because their default hashCode()
+                    values (based on memory address) would be different, leading to duplicate "equal" objects in a set.
+                  </li>
+                  <li>HashMap might not be able to retrieve a value you stored because the key you use for retrieval
+                    (which is equals() to the original key) hashes to a different bucket.</li>
+                </ul>
+                <li>HashMap first checks hashCode() to narrow down the search to a specific bucket, then uses equals()
+                  to find the exact object within that bucket. If hashCode() values differ for equal objects, the second
+                  equals() check will never happen.</li>
+              </ul>
+              <li>Example (Overriding equals() and hashCode()):</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class Employee {
+  int id;
+  String name;
+  public Employee(int id, String name) {
+    this.id = id;
+    this.name = name;
+  }
+  // Overriding equals()
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true; // Same object reference
+    if (o == null || getClass() != o.getClass()) return false; // Null check, type check
+    Employee employee = (Employee) o; // Downcast
+    return id == employee.id &amp;&amp; // Compare 'id' for equality
+        name.equals(employee.name); // Compare 'name' for equality
+  }
+  // Overriding hashCode() - essential if equals() is overridden
+  @Override
+  public int hashCode() {
+    int result = id;
+    result = 31 * result + name.hashCode(); // Prime number (31) for better distribution
+    return result;
+  }
+  @Override
+  public String toString() {
+    return "Employee{id=" + id + ", name='" + name + "'}";
+  }
+}
+public class EqualsHashCodeDemo {
+  public static void main(String[] args) {
+    Employee emp1 = new Employee(1, "Alice");
+    Employee emp2 = new Employee(1, "Alice"); // Logically equal to emp1
+    Employee emp3 = new Employee(2, "Bob");
+    System.out.println("emp1 == emp2: " + (emp1 == emp2)); // false (different objects)
+    System.out.println("emp1.equals(emp2): " + emp1.equals(emp2)); // true (after override)
+    System.out.println("Hash Code of emp1: " + emp1.hashCode());
+    System.out.println("Hash Code of emp2: " + emp2.hashCode());
+    System.out.println("Hash Code of emp3: " + emp3.hashCode());
+    // Demonstrate in HashSet
+    java.util.Set&lt;Employee&gt; employeeSet = new java.util.HashSet&lt;&gt;();
+    employeeSet.add(emp1);
+    employeeSet.add(emp2); // This will NOT be added if equals/hashCode are correctly overridden
+    System.out.println("Size of employeeSet: " + employeeSet.size()); // Should be 1
+    System.out.println("Set contains emp1: " + employeeSet.contains(emp1)); // true
+    System.out.println("Set contains emp2: " + employeeSet.contains(emp2)); // true (finds emp1</code></pre>
+            </div>
+            <p class="note-para">via hash &amp; equals)</p>
+            <p class="note-para">}</p>
+            <p class="note-para">}</p>
+            <div class="comp-card" data-tag="OOP">
+              <div class="comp-card__head"><span class="tag-chip">OOP</span>
+                <h3>Abstract Class vs Interface</h3>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Aspect</th>
+                      <th>Abstract Class</th>
+                      <th>Interface</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Methods</td>
+                      <td>Can have abstract + concrete methods</td>
+                      <td>All abstract by default (Java 8+ allows default/static)</td>
+                      <td>—</td>
+                    </tr>
+                    <tr>
+                      <td>Fields</td>
+                      <td>Instance variables allowed</td>
+                      <td>Only public static final constants</td>
+                      <td>—</td>
+                    </tr>
+                    <tr>
+                      <td>Constructors</td>
+                      <td>Can have a constructor</td>
+                      <td>Cannot have a constructor</td>
+                      <td>—</td>
+                    </tr>
+                    <tr>
+                      <td>Inheritance</td>
+                      <td>Single inheritance only (extends)</td>
+                      <td>A class can implement multiple interfaces</td>
+                      <td>—</td>
+                    </tr>
+                    <tr>
+                      <td>When to use</td>
+                      <td>Shared base state/behavior among related classes</td>
+                      <td>Contract for unrelated classes to implement</td>
+                      <td>—</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+          <section class="note-section" id="ch2-sec4">
+            <h3><span class="secnum">2.4.</span>Composition vs. Inheritance</h3>
+            <p class="note-para">Two fundamental ways to establish relationships between classes.</p>
+            <ul class="note-list lvl-1">
+              <li>Inheritance (is-a relationship):</li>
+              <ul class="note-list lvl-2">
+                <li>As discussed, one class acquires properties and behaviors of another.</li>
+                <li><strong>Example:</strong> Car extends Vehicle (A Car is-a Vehicle).</li>
+                <li><strong>Pros:</strong> Code reuse, facilitates polymorphism.</li>
+                <li><strong>Cons:</strong> Tight coupling between parent and child classes, can lead to rigid
+                  hierarchies, "fragile base class problem" (changes in base class can break subclasses).</li>
+              </ul>
+              <li>Composition (has-a relationship):</li>
+              <ul class="note-list lvl-2">
+                <li>A class contains an object of another class as one of its fields (instance variables).</li>
+                <li>Instead of inheriting, you use an instance of another class to get its functionality.</li>
+                <li><strong>Example:</strong> Car has an Engine (A Car has-a Engine).</li>
+                <li>Pros:</li>
+                <ul class="note-list lvl-3">
+                  <li><strong>Loose Coupling:</strong> Classes are less dependent on each other.</li>
+                  <li><strong>Flexibility:</strong> You can change the component class at runtime or easily swap
+                    implementations.</li>
+                  <li><strong>High Reusability:</strong> The component class can be reused independently.</li>
+                  <li><strong>Better Maintainability:</strong> Changes in one class are less likely to impact others.
+                  </li>
+                </ul>
+                <li><strong>Cons:</strong> Can sometimes involve more initial setup (delegating calls).</li>
+              </ul>
+              <li>When to Prefer Composition over Inheritance:</li>
+              <ul class="note-list lvl-2">
+                <li>"Favor composition over inheritance" is a common design principle.</li>
+                <li>Use inheritance when there's a strong, clear "is-a" relationship and you want to leverage
+                  polymorphism and common base class implementations.</li>
+                <li>Use composition when a class has or uses another class's functionality, but isn't necessarily a
+                  specialized version of it. It offers greater flexibility and less coupling.</li>
+              </ul>
+              <li>Example:</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">// Composition Example: Car has an Engine
+class Engine {
+  public void start() {
+    System.out.println("Engine started.");
+  }
+  public void stop() {
+    System.out.println("Engine stopped.");
+  }
+}
+class VehicleComposition {
+  private Engine engine; // Vehicle has an Engine
+  public VehicleComposition() {
+    this.engine = new Engine(); // Engine is part of Vehicle
+  }
+  public void startVehicle() {
+    engine.start(); // Delegating the call
+    System.out.println("Vehicle started.");
+  }
+  public void stopVehicle() {
+    engine.stop();
+    System.out.println("Vehicle stopped.");
+  }
+}
+public class CompositionDemo {
+  public static void main(String[] args) {
+    VehicleComposition myVehicle = new VehicleComposition();
+    myVehicle.startVehicle();
+    myVehicle.stopVehicle();
+  }
+}</code></pre>
+            </div>
+          </section>
+          <section class="note-section" id="ch2-sec5">
+            <h3><span class="secnum">2.5.</span>Design Patterns (Basic knowledge for 3 years experience)</h3>
+            <p class="note-para">While a full deep dive into all design patterns isn't expected, knowing a few common
+              ones and their purpose demonstrates good design principles. a. Singleton Pattern</p>
+            <ul class="note-list lvl-1">
+              <li><strong>Purpose:</strong> Ensures that a class has only one instance and provides a global point of
+                access to that instance.</li>
+              <li><strong>Use Cases:</strong> Logging, configuration management, thread pools, database connection
+                pools, caching.</li>
+              <li>Implementation (Common ways):</li>
+            </ul>
+            <p class="note-para">1. Lazy Initialization (Thread-safe with synchronized method/block):</p>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class Logger {
+  private static Logger instance; // Lazily initialized
+  private Logger() {} // Private constructor to prevent external instantiation
+  public static synchronized Logger getInstance() { // Thread-safe method
+    if (instance == null) {
+      instance = new Logger();
+    }
+    return instance;
+  }
+  public void log(String message) {
+    System.out.println("Log: " + message);
+  }
+}
+          2. Eager Initialization (Thread-safe, simplest):</code></pre>
+            </div>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class Configuration {
+  private static Configuration instance = new Configuration(); // Instantiated at class load time
+  private Configuration() {}
+  public static Configuration getInstance() {
+    return instance;
+  }
+  public void loadConfig() {
+    System.out.println("Configuration loaded.");
+  }
+}
+          3. Double-Checked Locking (More performant thread-safe lazy):</code></pre>
+            </div>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class ConnectionPool {
+  private static volatile ConnectionPool instance; // volatile for visibility
+  private ConnectionPool() {}
+  public static ConnectionPool getInstance() {
+    if (instance == null) { // First check: no need to synchronize if already created
+      synchronized (ConnectionPool.class) { // Synchronize on class object
+        if (instance == null) { // Second check: only create if still null
+          instance = new ConnectionPool();
+        }
+      }
+    }
+    return instance;
+  }
+  public void getConnection() { /* ... */ }
+}
+          4. Static Inner Class (Bill Pugh Singleton - most common and recommended): This is
+              the most widely accepted approach as it combines lazy loading with thread safety
+              without explicit synchronization.</code></pre>
+            </div>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class MySingleton {
+  private MySingleton() {}
+  // Static inner class. Not loaded until getInstance() is called.
+  private static class SingletonHelper {
+    private static final MySingleton INSTANCE = new MySingleton();
+  }
+  public static MySingleton getInstance() {
+    return SingletonHelper.INSTANCE;
+  }
+  public void doSomething() {
+    System.out.println("Singleton is doing something.");
+  }
+}
+          5. Enum Singleton (Most robust, handles serialization and reflection attacks):</code></pre>
+            </div>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">public enum EnumSingleton {
+  INSTANCE; // The single instance
+  public void doSomething() {
+    System.out.println("Enum Singleton is doing something.");
+  }
+}
+// Usage: EnumSingleton.INSTANCE.doSomething();</code></pre>
+            </div>
+            <p class="note-para">b. Factory Method Pattern</p>
+            <ul class="note-list lvl-1">
+              <li><strong>Purpose:</strong> Provides an interface for creating objects in a superclass, but allows
+                subclasses to alter the type of objects that will be created. It's about "deferring instantiation to
+                subclasses."</li>
+              <li><strong>Use Cases:</strong> When a class cannot anticipate the type of objects it needs to create, or
+                when a class wants its subclasses to specify the objects to be created.1</li>
+              <li>Example:2</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">// Product Interface
+interface Notification {
+  void notifyUser();
+}
+// Concrete Products
+class EmailNotification implements Notification {
+  @Override
+  public void notifyUser() {
+    System.out.println("Sending an email notification.");
+  }
+}
+class SMSNotification implements Notification {
+  @Override
+  public void notifyUser() {
+    System.out.println("Sending an SMS notification.");
+  }
+}
+// Creator Abstract Class (or Interface) with Factory Method
+abstract class NotificationFactory {
+  public abstract Notification createNotification();
+}
+// Concrete Creators
+class EmailNotificationFactory extends NotificationFactory {
+  @Override
+  public Notification createNotification() {
+    return new EmailNotification();
+  }
+}
+class SMSNotificationFactory extends NotificationFactory {
+  @Override
+  public Notification createNotification() {
+    return new SMSNotification();
+  }
+}
+public class FactoryMethodDemo {
+  public static void main(String[] args) {
+    NotificationFactory emailFactory = new EmailNotificationFactory();
+    Notification email = emailFactory.createNotification();
+    email.notifyUser();
+    NotificationFactory smsFactory = new SMSNotificationFactory();
+    Notification sms = smsFactory.createNotification();
+    sms.notifyUser();
+  }
+}</code></pre>
+            </div>
+            <p class="note-para">c. Builder Pattern</p>
+            <ul class="note-list lvl-1">
+              <li><strong>Purpose:</strong> Constructs a complex object step by step. It separates the construction of a
+                complex object from its representation, so the same construction process can create different
+                representations.</li>
+              <li><strong>Use Cases:</strong> When an object has many optional parameters, or when its construction
+                involves multiple steps or requires various configurations. Avoids "telescoping constructors."</li>
+              <li>Example:</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">class Pizza {
+  private String dough;
+  private String sauce;
+  private String cheese;
+  private boolean pepperoni;
+  private boolean mushrooms;
+  // Private constructor - only accessible by the Builder
+  private Pizza(PizzaBuilder builder) {
+    this.dough = builder.dough;
+    this.sauce = builder.sauce;
+    this.cheese = builder.cheese;
+    this.pepperoni = builder.pepperoni;
+    this.mushrooms = builder.mushrooms;
+  }
+  @Override
+  public String toString() {
+    return "Pizza [dough=" + dough + ", sauce=" + sauce + ", cheese=" + cheese +
+        ", pepperoni=" + pepperoni + ", mushrooms=" + mushrooms + "]";
+  }
+  // Static nested Builder class
+  public static class PizzaBuilder {
+    private String dough;
+    private String sauce;
+    private String cheese;
+    private boolean pepperoni = false; // Default values
+    private boolean mushrooms = false; // Default values
+    public PizzaBuilder(String dough, String sauce, String cheese) {
+      this.dough = dough;
+      this.sauce = sauce;
+      this.cheese = cheese;
+    }
+    public PizzaBuilder addPepperoni(boolean pepperoni) {
+      this.pepperoni = pepperoni;
+      return this; // Return builder for method chaining
+    }
+    public PizzaBuilder addMushrooms(boolean mushrooms) {
+      this.mushrooms = mushrooms;
+      return this;
+    }
+    public Pizza build() {
+      return new Pizza(this); // Create Pizza object
+    }
+  }
+}
+public class BuilderPatternDemo {
+  public static void main(String[] args) {
+    Pizza veggiePizza = new Pizza.PizzaBuilder("Thin Crust", "Tomato", "Mozzarella")
+                  .addMushrooms(true)
+                  .build();
+    System.out.println(veggiePizza);
+    Pizza meatLovers = new Pizza.PizzaBuilder("Thick Crust", "BBQ", "Cheddar")
+                  .addPepperoni(true)
+                  .build();
+    System.out.println(meatLovers);
+  }
+}</code></pre>
+            </div>
+            <p class="note-para">d. Observer Pattern</p>
+            <ul class="note-list lvl-1">
+              <li><strong>Purpose:</strong> Defines a one-to-many dependency between objects so that when one object
+                changes state, all its dependents are notified and updated automatically.</li>
+              <li><strong>Use Cases:</strong> Event handling systems, real-time data updates (e.g., stock tickers), UI
+                components reacting to model changes.</li>
+              <li>Components:</li>
+              <ul class="note-list lvl-2">
+                <li><strong>Subject (Observable):</strong> The object that maintains a list of its dependents
+                  (observers) and notifies them of state changes.</li>
+                <li><strong>Observer:</strong> The object that wants to be notified of changes in the subject.</li>
+              </ul>
+              <li>Example (Conceptual, using Java's built-in Observer/Observable is deprecated but good for
+                understanding; often custom interfaces are used):</li>
+            </ul>
+            <div class="code-card">
+              <div class="code-card__bar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><code class="language-java">import java.util.ArrayList;
+import java.util.List;
+// Subject interface
+interface Subject {
+  void addObserver(Observer o);
+  void removeObserver(Observer o);
+  void notifyObservers(String message);
+}
+// Concrete Subject
+class NewsAgency implements Subject {
+  private List&lt;Observer&gt; observers = new ArrayList&lt;&gt;();
+  private String news;
+  public void setNews(String news) {
+    this.news = news;
+    notifyObservers(news); // Notify all subscribed observers
+  }
+  @Override
+  public void addObserver(Observer o) {
+    observers.add(o);
+  }
+  @Override
+  public void removeObserver(Observer o) {
+    observers.remove(o);
+  }
+  @Override
+  public void notifyObservers(String message) {
+    for (Observer observer : observers) {
+      observer.update(message);
+    }
+  }
+}
+// Observer interface
+interface Observer {
+  void update(String news);
+}
+// Concrete Observers
+class NewsChannel implements Observer {
+  private String channelName;
+  public NewsChannel(String channelName) {
+    this.channelName = channelName;
+  }
+  @Override
+  public void update(String news) {
+    System.out.println(channelName + " received news: " + news);
+  }
+}
+public class ObserverPatternDemo {
+  public static void main(String[] args) {
+    NewsAgency agency = new NewsAgency();
+    NewsChannel channel1 = new NewsChannel("Channel Alpha");
+    NewsChannel channel2 = new NewsChannel("Channel Beta");
+    NewsChannel channel3 = new NewsChannel("Channel Gamma");
+    agency.addObserver(channel1);
+    agency.addObserver(channel2);
+    agency.setNews("Breaking: New tech company launched!");
+    // Output:
+    // Channel Alpha received news: Breaking: New tech company launched!
+    // Channel Beta received news: Breaking: New tech company launched!
+    agency.removeObserver(channel1);
+    agency.addObserver(channel3);
+    agency.setNews("Market trends indicate growth.");
+    // Output:
+    // Channel Beta received news: Market trends indicate growth.
+    // Channel Gamma received news: Market trends indicate growth.
+  }
+}</code></pre>
+            </div>
+            <p class="note-para">Mastering these OOP concepts is fundamental. Be ready to explain them theoretically,
+              draw diagrams if needed, and write simple code demonstrating each principle. Good luck! Alright, let's
+              deep dive into "3. Collections Framework". This is an absolutely critical topic for any Java developer,
+              especially one with 3 years of experience. You'll use these classes daily, and interviewers often ask
+              about their internal workings, performance characteristics, and thread-safety aspects.</p>
+          </section>
+        </article>

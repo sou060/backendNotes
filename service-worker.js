@@ -1,11 +1,17 @@
-const CACHE_NAME = 'backend-notes-v8';
+const CACHE_NAME = 'backend-notes-v9';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './icon-512.png',
+  './styles.css',
+  './app.js',
+  './search-index.json',
   'https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css'
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js',
+  ...Array.from({length: 25}, (_, i) => `./notes/chapter-${i + 1}.html`)
 ];
 
 self.addEventListener('install', (event) => {
