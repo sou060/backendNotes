@@ -424,7 +424,7 @@
 
     .view {
       padding: 40px 44px 90px;
-      max-width: 900px;
+      max-width: 1200px;
       width: 100%;
       margin: 0 auto;
       flex: 1;
@@ -611,7 +611,6 @@
     .note-para {
       color: var(--ink);
       margin: 10px 0 14px;
-      max-width: 74ch;
     }
 
     ul.note-list {
@@ -899,7 +898,6 @@
       margin: 0 18px 16px;
       color: var(--ink-soft);
       font-size: 13.8px;
-      max-width: 70ch;
     }
 
     .verbal-answer {
@@ -1086,7 +1084,6 @@
 
     .page-head p {
       color: var(--ink-soft);
-      max-width: 62ch;
       margin: 0;
     }
 
