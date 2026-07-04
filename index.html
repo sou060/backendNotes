@@ -11,7 +11,7 @@
 <meta name="keywords" content="Java, Spring Boot, backend interview, microservices, Kafka, Docker, Kubernetes, SQL, JWT, Spring Security, study guide"/>
 <meta name="author" content="Sourav Mondal"/>
 
-<!-- Open Graph (LinkedIn, Facebook, WhatsApp) -->
+<!-- Open Graph -->
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://backendnotes-rose.vercel.app/"/>
 <meta property="og:title" content="Backend Notes — Java, Spring Boot & More"/>
@@ -21,7 +21,7 @@
 <meta property="og:image:height" content="512"/>
 <meta property="og:site_name" content="Backend Notes"/>
 
-<!-- Twitter / X Card -->
+<!-- Twitter Card -->
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:url" content="https://backendnotes-rose.vercel.app/"/>
 <meta name="twitter:title" content="Backend Notes — Java, Spring Boot & More"/>
@@ -1944,7 +1944,7 @@
 <button aria-label="Keyboard shortcuts" class="icon-btn" onclick="toggleKbdModal()" title="Keyboard shortcuts">
 <svg fill="none" height="16" viewbox="0 0 24 24" width="16"><rect height="14" rx="2" stroke="currentColor" stroke-width="1.8" width="20" x="2" y="4"></rect><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"></path></svg>
 </button>
-<div class="progress-pill" id="progress-pill">21 chapters · topics · code examples</div>
+<div class="progress-pill" id="progress-pill">12 chapters · 69 topics · 49 code examples</div>
 </div>
 </div>
 <!-- HOME VIEW -->
@@ -1957,9 +1957,9 @@
             syntax-highlighted code, side-by-side comparison tables, and diagrams for the concepts that are easier to
             see than read.</p>
 <div class="hero-stats">
-<div class="hero-stat"><b id="stat-chapters">21</b><span>Chapters</span></div>
-<div class="hero-stat"><b id="stat-topics">—</b><span>Topics covered</span></div>
-<div class="hero-stat"><b id="stat-code">—</b><span>Code examples</span></div>
+<div class="hero-stat"><b id="stat-chapters">15</b><span>Chapters</span></div>
+<div class="hero-stat"><b id="stat-topics">92</b><span>Topics covered</span></div>
+<div class="hero-stat"><b id="stat-code">53</b><span>Code examples</span></div>
 <div class="hero-stat"><b id="stat-tables">16</b><span>Comparison tables</span></div>
 <div class="hero-stat"><b id="stat-diagrams">8</b><span>Diagrams</span></div>
 <div class="hero-stat"><b id="stat-qa">49</b><span>Interview Q&amp;A</span></div>
@@ -2330,7 +2330,9 @@
         renderTables();
         renderDiagrams();
         renderTraps();
-        
+
+        // Count stats after all content is rendered into DOM
+        autoCountStats();
         setTimeout(buildSearchIndex, 500);
       } catch (err) {
         console.error("Failed to load data.json", err);
@@ -3104,7 +3106,7 @@
     // ---- Init Phase 1 features ----
     document.addEventListener('DOMContentLoaded', function() {
       injectReviewButtons();
-      autoCountStats();
+      // autoCountStats() is called inside loadAppData() after all content renders
       // Delay load to ensure QA cards are rated and STAR cards are seeded
       setTimeout(() => {
         loadSavedData();
