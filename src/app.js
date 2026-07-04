@@ -29,6 +29,30 @@
           hljs.highlightElement(block);
         });
       }
+
+      // Inject review buttons
+      injectReviewButtons();
+
+      // Restore saved reviewed states for this new chapter
+      const data = getStoredData();
+      if (data.reviewedSections) {
+        data.reviewedSections.forEach(secId => {
+          const btn = container.querySelector(`.section-review-btn[data-section="${secId}"]`);
+          if (btn) btn.classList.add('reviewed');
+        });
+      }
+
+      // Run mermaid if present
+      if (typeof mermaid !== 'undefined') {
+        mermaid.init(undefined, container.querySelectorAll('.mermaid'));
+      }
+
+      // Update progress
+      updateProgressBar();
+
+      // Save last viewed chapter
+      localStorage.setItem('backend-notes-last-chapter', ci);
+
     } catch(e) {
       container.innerHTML = `<div style="padding:40px;color:red;">Error loading chapter ${ci}</div>`;
     }
@@ -58,7 +82,7 @@
       e.preventDefault();
       showView('view-notes');
       const id = secLink.getAttribute('href').slice(1);
-      const chMatch = id.match(/ch(\\d+)/);
+      const chMatch = id.match(/ch(\d+)/);
       if (chMatch) {
          const ci = chMatch[1];
          loadChapter(ci).then(() => {
@@ -778,6 +802,10 @@
     const viewParam = urlParams.get('view');
     if (viewParam) {
       showView(`view-${viewParam}`);
+    } else {
+      // Auto-load last viewed chapter or chapter 1 for the default Notes view
+      const lastChapter = localStorage.getItem('backend-notes-last-chapter') || '1';
+      goToChapter(lastChapter);
     }
     
     injectReviewButtons();
