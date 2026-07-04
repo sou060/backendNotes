@@ -63,6 +63,12 @@
       // Update progress
       updateProgressBar();
 
+      // Observe for scroll spy
+      const newChapter = container.querySelector(`.chapter[data-chapter="${ci}"]`);
+      if (newChapter && window.chapterObserver) {
+        window.chapterObserver.observe(newChapter);
+      }
+
       // Save last viewed chapter
       localStorage.setItem('backend-notes-last-chapter', ci);
 
@@ -240,18 +246,16 @@
   }
 
   // ---- Scroll spy: highlight active chapter in sidebar while reading ----
-  const chapterEls = Array.from(document.querySelectorAll('.chapter'));
-  const io = new IntersectionObserver((entries) => {
+  window.chapterObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const ci = entry.target.dataset.chapter;
         document.querySelectorAll('.nav-chapter').forEach(n => n.classList.remove('active'));
         const nav = document.querySelector('.nav-chapter[data-chapter="' + ci + '"]');
-        if (nav) nav.classList.add('active');
+        if (nav) { nav.classList.add('open'); nav.classList.add('active'); }
       }
     });
   }, { rootMargin: '-10% 0px -70% 0px' });
-  chapterEls.forEach(el => io.observe(el));
 
   // ---- init ----
   document.addEventListener('DOMContentLoaded', function () {
