@@ -26,14 +26,12 @@
                 configuration, GPUs, or privileged containers. Autopilot is better for teams that want to focus on
                 applications rather than infrastructure.</li>
               <li><strong>How do you create a GKE cluster using gcloud CLI?</strong><br><br>First, set the project
-                and region with gcloud config set project <project-id> and gcloud config set compute/region <region>.
-                    Then create the cluster with gcloud container clusters create <cluster-name> --zone <zone>
-                        --num-nodes <count>. For Autopilot, use gcloud container clusters create-auto <cluster-name>
-                            --region <region>. After creation, fetch credentials with gcloud container clusters
-                              get-credentials <cluster-name> --zone <zone> so kubectl can interact with the cluster. You
-                                  can also specify machine type, network, subnet, release channel, and node labels as
-                                  ags.</zone></cluster-name></region></cluster-name></count>
-                      </zone></cluster-name></region></project-id></li>
+                and region with gcloud config set project &lt;project-id&gt; and gcloud config set compute/region &lt;region&gt;.
+                Then create the cluster with gcloud container clusters create &lt;cluster-name&gt; --zone &lt;zone&gt;
+                --num-nodes &lt;count&gt;. For Autopilot, use gcloud container clusters create-auto &lt;cluster-name&gt;
+                --region &lt;region&gt;. After creation, fetch credentials with gcloud container clusters
+                get-credentials &lt;cluster-name&gt; --zone &lt;zone&gt; so kubectl can interact with the cluster. You can also
+                specify machine type, network, subnet, release channel, and node labels as flags.</li>
               <li><strong>What are common gcloud commands used to manage GKE clusters?</strong><br><br>Common
                 commands include gcloud container clusters create to create a cluster, gcloud container clusters list to
                 list clusters, gcloud container clusters describe to inspect details, gcloud container clusters
@@ -54,7 +52,7 @@
                 used because databases require stable network identity and persistent storage. The StatefulSet defines a
                 volumeClaimTemplate so each replica gets its own PersistentVolumeClaim backed by a Google Cloud
                 persistent disk through a StorageClass. A headless Service provides stable DNS names for each Pod, such
-                as db- 0.db.default.svc.cluster.local. ConfigMaps can separate primary and replica configuration, and
+                as db-0.db.default.svc.cluster.local. ConfigMaps can separate primary and replica configuration, and
                 Secrets store credentials. Init containers can perform bootstrapping tasks like setting server IDs or
                 cloning data from a peer. Readiness and liveness probes are configured to verify the database is healthy
                 before traffic is sent or before Kubernetes restarts the Pod.</li>
@@ -67,11 +65,11 @@
                 for protocols and clustering mechanisms that rely on per-instance identity.</li>
               <li><strong>How do Kubernetes microservices discover each other using DNS?</strong><br><br>Kubernetes
                 runs an internal DNS service, usually CoreDNS, inside the cluster. Each Service receives a DNS name in
-                the format <service-name>.<namespace>.svc.cluster.local. Pods can resolve this name to the Service's
+                the format &lt;service-name&gt;.&lt;namespace&gt;.svc.cluster.local. Pods can resolve this name to the Service's
                     ClusterIP, and traffic is load-balanced across backend Pods. Headless Services return the individual
                     Pod IPs. For cross-namespace communication, the full DNS name including the namespace is used.
                     DNS-based discovery allows microservices to find dependencies without hard-coding IP addresses, and
-                    it works automatically as Pods are created, deleted, or rescheduled.</namespace></service-name></li>
+                    it works automatically as Pods are created, deleted, or rescheduled.</li>
               <li><strong>What is the difference between a ClusterIP, NodePort, and LoadBalancer
                   Service?</strong><br><br>ClusterIP exposes the Service only inside the cluster on an internal IP.
                 It is the default and is used for internal microservice communication. NodePort exposes the Service on a
@@ -82,18 +80,17 @@
                 termination, and cost sharing.</li>
               <li><strong>What is a Kubernetes Ingress, and how is it used in GKE?</strong><br><br>An Ingress is a
                 Kubernetes resource that exposes HTTP and HTTPS routes from outside the cluster to Services inside the
-                cluster. In GKE, an Ingress resource is ful lled by GKE Ingress Controller, which provisions a Google
+                cluster. In GKE, an Ingress resource is fulfilled by GKE Ingress Controller, which provisions a Google
                 Cloud HTTP load balancer. Ingress supports host-based and path-based routing, TLS termination using
                 Kubernetes Secrets, and backend health checks. For backend developers, Ingress is the entry point for
                 external API traffic. For DevOps engineers, it centralizes external access, SSL management, and routing
                 rules without creating multiple LoadBalancer Services.</li>
               <li><strong>How do you reserve a static IP for a GKE Ingress?</strong><br><br>You create a global
-                static IP in GCP with gcloud compute addresses create <name> --global, then reference it in the Ingress
-                  annotation networking.gke.io/static-ip: <name>. The IP must be in the same region as the load balancer
+                static IP in GCP with gcloud compute addresses create &lt;name&gt; --global, then reference it in the Ingress
+                  annotation networking.gke.io/static-ip: &lt;name&gt;. The IP must be in the same region as the load balancer
                     for regional Ingress, or global for global Ingress. This ensures the external IP does not change
                     when the Ingress is recreated. For production APIs and websites, a static IP is important because
-                    DNS records can point to it reliably.</name>
-                </name>
+                    DNS records can point to it reliably.
               </li>
               <li><strong>What is the difference between a ConfigMap and a Secret?</strong><br><br>ConfigMaps store
                 non-sensitive configuration data such as environment variables, command- line arguments, and
@@ -113,12 +110,12 @@
               <li><strong>How do you securely store and use secrets in GKE?</strong><br><br>The best approach is to
                 use Workload Identity to allow Pods to fetch secrets directly from Google Secret Manager at runtime.
                 Alternatively, I use an external secrets operator such as External Secrets Operator or Sealed Secrets
-                for GitOps work ows. Native Kubernetes Secrets can be used for simple cases, but they should be
+                for GitOps workflows. Native Kubernetes Secrets can be used for simple cases, but they should be
                 encrypted at rest in etcd, access should be restricted with RBAC, and they should be mounted as files
                 rather than environment variables when possible. I never store secrets in container images, ConfigMaps,
                 or Git repositories in plain text. Regular rotation and audit logging are also important.</li>
-              <li><strong>What is the typical CI/CD ow for deploying to GKE using GitHub
-                  Actions?</strong><br><br>The CI/CD ow usually has two stages. The continuous integration stage
+              <li><strong>What is the typical CI/CD flow for deploying to GKE using GitHub
+                  Actions?</strong><br><br>The CI/CD flow usually has two stages. The continuous integration stage
                 runs on every pull request or push to the main branch. It builds the application, runs tests, performs
                 code quality checks, and builds a Docker image. The image is tagged with the Git commit SHA and pushed
                 to Artifact Registry. The continuous delivery stage is triggered after a successful build. It updates
@@ -137,7 +134,7 @@
                 push-based CI/CD, a pipeline such as GitHub Actions builds the artifact and then pushes configuration
                 changes directly to the cluster using kubectl. The pipeline controls when deployments happen. In
                 pull-based CI/CD, the pipeline builds and pushes the image, then updates a Git repository. A controller
-                running in the cluster such as ArgoCD pulls the desired state from Git and applies it. Pull- based
+                running in the cluster such as ArgoCD pulls the desired state from Git and applies it. Pull-based
                 deployment is more secure because the cluster does not need long-lived external credentials to be
                 modified, and it supports automatic drift correction. Push-based deployment is simpler but can lead to
                 configuration drift if manual cluster changes occur.</li>
@@ -190,27 +187,21 @@
                 ingress controller to the backend, from backend to database, and DNS egress. Network policies reduce the
                 blast radius of a compromised Pod and enforce zero-trust communication within the cluster. They are
                 essential for multi-tenant or regulated environments.</li>
-              <li><strong>You are asked to create a production-ready GKE cluster. What gcloud commands and ags do you
+              <li><strong>You are asked to create a production-ready GKE cluster. What gcloud commands and flags do you
                   consider?</strong><br><br>I start by setting the project and region with gcloud config set project
-                <project> and gcloud config set compute/region <region>. I create a regional cluster for high
-                    availability using gcloud container clusters create <cluster> --region <region> --num-nodes 3
-                        --enable-autoscaling --min-nodes 2 --max-nodes 10 --release- channel regular
+                &lt;project&gt; and gcloud config set compute/region &lt;region&gt;. I create a regional cluster for high
+                    availability using gcloud container clusters create &lt;cluster&gt; --region &lt;region&gt; --num-nodes 3
+                        --enable-autoscaling --min-nodes 2 --max-nodes 10 --release-channel regular
                         --enable-network-policy --enable-vertical-pod-autoscaling. I enable Workload Identity with
-                        --workload-pool=<project>.svc.id.goog so Pods can use GCP IAM without service account keys. I
+                        --workload-pool=&lt;project&gt;.svc.id.goog so Pods can use GCP IAM without service account keys. I
                           choose a private cluster with authorized networks for the control plane if security requires
-                          it. I then run gcloud container clusters get-credentials <cluster> --region <region> to
+                          it. I then run gcloud container clusters get-credentials &lt;cluster&gt; --region &lt;region&gt; to
                               configure kubectl. For storage, I verify the default StorageClass and create a premium SSD
-                              class if needed. Real-time example: a ntech company needs a GKE cluster in us-central1. I
+                              class if needed. Real-time example: a fintech company needs a GKE cluster in us-central1. I
                               create a regional cluster with three zones, enable Workload Identity, Network Policy with
                               Calico, cluster autoscaling, and node auto-repair. I restrict control plane access to
                               corporate IP ranges. The cluster is ready for PCI-DSS scoped workloads after additional
-                              hardening.</region>
-                          </cluster>
-                        </project>
-                      </region>
-                    </cluster>
-                  </region>
-                </project>
+                              hardening.
               </li>
               <li><strong>A GKE cluster needs access to Google Cloud Storage without using service account keys. How do
                   you configure it?</strong><br><br>I use GKE Workload Identity. First, I create a Google Cloud
@@ -241,7 +232,7 @@
               <li><strong>A microservice in namespace A cannot reach a service in namespace B. What do you
                   check?</strong><br><br>I verify the Service exists in namespace B and has endpoints with kubectl
                 get svc -n b and kubectl get endpoints -n b. I check that the client is using the full DNS name
-                <service>.<namespace>.svc.cluster.local. I inspect labels to ensure the Service selector matches the
+                &lt;service&gt;.&lt;namespace&gt;.svc.cluster.local. I inspect labels to ensure the Service selector matches the
                     target Pods. I check NetworkPolicies in both namespaces to see if traffic is blocked. I run a debug
                     Pod in namespace A and test connectivity with curl or nslookup. If DNS fails, I check CoreDNS Pods
                     and ConfigMap. If NetworkPolicy is the issue, I add an allow rule from the source Pod selector to the
@@ -249,8 +240,7 @@
                     service in namespace payments. The order service uses only payment-service without the namespace. I
                     update the URL to payment- service.payments.svc.cluster.local. Additionally, a default-deny
                     NetworkPolicy in payments blocks cross-namespace traffic, so I add an allow policy for Pods labeled
-                    app: order- service from namespace orders on port 8080.</namespace>
-                </service>
+                    app: order- service from namespace orders on port 8080.
               </li>
               <li><strong>You need to expose a Spring Boot API on api.shop.com with HTTPS. What Kubernetes resources do
                   you create?</strong><br><br>I create a Deployment with the Spring Boot container, a Service of
@@ -313,12 +303,12 @@
                   change?</strong><br><br>If the ConfigMap is mounted as a volume, Kubernetes updates the files in
                 the running containers, but the application must watch or reload the files to use them. If the ConfigMap
                 is injected as environment variables, the values are set at Pod creation time and will not update until
-                the Pod restarts. To force a restart, I run kubectl rollout restart deployment/<name>. For applications
+                the Pod restarts. To force a restart, I run kubectl rollout restart deployment/&lt;name&gt;. For applications
                   that support hot reload, I implement a file watcher or periodic refresh. For most Java backend
-                  services, rolling restart is the simplest and most reliable method. Real-time example: a feature ag
+                  services, rolling restart is the simplest and most reliable method. Real-time example: a feature flag
                   stored in a ConfigMap is updated, but the Spring Boot application still uses the old value. I mount the
-                  ConfigMap as a volume and add a FileSystemWatcher that refreshes the ag on change. I also keep kubectl
-                  rollout restart as a fallback for ags that are loaded once at startup.</name>
+                  ConfigMap as a volume and add a FileSystemWatcher that refreshes the flag on change. I also keep kubectl
+                  rollout restart as a fallback for flags that are loaded once at startup.
               </li>
               <li><strong>A GKE Ingress returns 502 Bad Gateway for a healthy service. What do you
                   check?</strong><br><br>A 502 from a Google Cloud load balancer usually means the backend Pods are
@@ -365,9 +355,9 @@
                 the drift, syncs the cluster, and the Git commit history becomes the audit trail for all deployments.
               </li>
               <li><strong>A developer asks how to debug a failing Pod in GKE. What commands and tools do you
-                  recommend?</strong><br><br>I recommend a systematic approach. First, kubectl get pods -n <ns> to
-                  see the status. Second, kubectl describe pod <pod> -n <ns> to read events. Third, kubectl logs <pod>
-                        -n <ns> and kubectl logs --previous for crash forensics. Fourth, kubectl exec -it <pod> --
+                  recommend?</strong><br><br>I recommend a systematic approach. First, kubectl get pods -n &lt;ns&gt; to
+                  see the status. Second, kubectl describe pod &lt;pod&gt; -n &lt;ns&gt; to read events. Third, kubectl logs &lt;pod&gt;
+                        -n &lt;ns&gt; and kubectl logs --previous for crash forensics. Fourth, kubectl exec -it &lt;pod&gt; --
                             /bin/sh to inspect the running container if it is still alive. If the image is distroless, I
                             use a debug ephemeral container with kubectl debug. For networking issues, I run a debug Pod
                             with nicolaka/netshoot and test DNS, routing, and connectivity. I also check Google Cloud
@@ -375,16 +365,11 @@
                             a Pod shows CrashLoopBackOff. kubectl logs --previous shows a missing table error. I exec
                             into the database Pod, confirm the migration did not run, check the init container logs, and
                             find that the migration container used the wrong database host. I fix the ConfigMap and the
-                            application starts.</pod>
-                        </ns>
-                      </pod>
-                    </ns>
-                  </pod>
-                </ns>
+                            application starts.
               </li>
               <li><strong>A GKE Pod needs a GPU. How do you configure the node pool and workload?</strong><br><br>I
-                create a node pool with GPU-enabled machine types using gcloud container node- pools create <pool>
-                  --cluster <cluster> --accelerator type=<gpu- type="">,count=<count>. I install the NVIDIA driver
+                create a node pool with GPU-enabled machine types using gcloud container node- pools create &lt;pool&gt;
+                  --cluster &lt;cluster&gt; --accelerator type=&lt;gpu-type&gt;,count=&lt;count&gt;. I install the NVIDIA driver
                         daemonset, which GKE can deploy automatically with --enable-autoprovisioning or manually. I add
                         a nodeSelector or node a nity to the Pod to schedule it on GPU nodes, such as
                         cloud.google.com/gke-accelerator: nvidia-tesla- t4. I set resource limits for nvidia.com/gpu in
@@ -397,7 +382,7 @@
                 </pool>
               </li>
               <li><strong>A new release causes errors in production. How do you roll back in GKE?</strong><br><br>If
-                the release was a Deployment update, I run kubectl rollout undo deployment/<name> -n <ns> to revert to
+                the release was a Deployment update, I run kubectl rollout undo deployment/&lt;name&gt; -n &lt;ns&gt; to revert to
                     the previous revision. I verify the rollback with kubectl rollout status and monitor error rates and
                     latency. If the release was applied through GitOps, I revert the manifest change in Git and let
                     ArgoCD sync the cluster to the previous state. For critical services, I use a blue-green or canary
@@ -406,33 +391,32 @@
                     release again. Real-time example: a new version of the payment service has 5 percent error rate. I
                     run kubectl rollout undo deployment/payment-service -n prod, which restores the previous ReplicaSet.
                     Error rate returns to baseline within two minutes. I then inspect the new version's logs and find an
-                    incompatible database migration that ran in staging but not with the previous prod schema.</ns>
-                </name>
+                    incompatible database migration that ran in staging but not with the previous prod schema.
               </li>
               <li><strong>A GKE cluster must comply with a no-public-IP policy for control plane access. How do you
                   configure it?</strong><br><br>I create a private cluster with a private control plane endpoint
-                using gcloud container clusters create <cluster> --enable-private-nodes --enable-private-endpoint
-                  --master-ipv4-cidr <cidr>. With a private endpoint, the control plane is accessible only from
+                using gcloud container clusters create &lt;cluster&gt; --enable-private-nodes --enable-private-endpoint
+                  --master-ipv4-cidr &lt;cidr&gt;. With a private endpoint, the control plane is accessible only from
                     authorized networks or through a bastion host or Cloud Interconnect. I add authorized networks for
                     the CI/CD runner IP ranges and the corporate VPN. I also ensure nodes have no external IPs by using
                     -- create-subnetwork with private nodes. For workloads that need outbound internet access, I
                     configure Cloud NAT. This setup is common in regulated industries and prevents direct internet
                     exposure of the Kubernetes API server. Real-time example: a healthcare company requires a private
-                    GKE cluster. I create a private cluster with a /28 master CIDR, add authorized networks for the o ce
+                    GKE cluster. I create a private cluster with a /28 master CIDR, add authorized networks for the office
                     and CI runner, configure Cloud NAT for egress, and restrict worker nodes to private IPs only.
                     Security audits pass without public API exposure.</cidr>
                 </cluster>
               </li>
-              <li><strong>A microservice needs environment-specific feature ags. How do you manage them in
-                  GKE?</strong><br><br>I store feature ags in a ConfigMap per namespace, one for each environment.
+              <li><strong>A microservice needs environment-specific feature flags. How do you manage them in
+                  GKE?</strong><br><br>I store feature flags in a ConfigMap per namespace, one for each environment.
                 The Deployment mounts the ConfigMap as a file or injects values as environment variables. The application
-                reads the ag value and toggles behavior accordingly. For more advanced use cases, I use a feature ag
-                service such as LaunchDarkly, Split, or a custom ag API. When a ag changes, I either update the ConfigMap
-                and restart the Deployment, or use a ags API that supports dynamic updates. ConfigMaps work well for
-                static per-environment ags, while a ag service is better for user-targeted or gradual rollouts.
+                reads the flag value and toggles behavior accordingly. For more advanced use cases, I use a feature flag
+                service such as LaunchDarkly, Split, or a custom flag API. When a flag changes, I either update the ConfigMap
+                and restart the Deployment, or use a flags API that supports dynamic updates. ConfigMaps work well for
+                static per-environment flags, while a flag service is better for user-targeted or gradual rollouts.
                 Real-time example: an e-commerce service needs a new checkout UI in staging but not production. I add
-                feature.new-checkout=true to the staging ConfigMap and feature.new- checkout=false to the production Con
-                gMap. The same image runs in both environments, and behavior changes based on the mounted configuration.
+                feature.new-checkout=true to the staging ConfigMap and feature.new-checkout=false to the production ConfigMap.
+                The same image runs in both environments, and behavior changes based on the mounted configuration.
               </li>
               <li><strong>A GKE workload needs to handle traffic spikes automatically. How do you set up
                   autoscaling?</strong><br><br>I configure Horizontal Pod Autoscaler on the Deployment using CPU or
