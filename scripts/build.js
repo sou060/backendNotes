@@ -30,7 +30,7 @@ qaData.forEach(chapterData => {
     }
 
     const html = `<div class="qa-card" data-chapter="${chapter}">
-<button class="qa-q" onclick="toggleQA(this)">
+<button class="qa-q" aria-expanded="false" onclick="toggleQA(this)">
 <span class="tag-chip small">${tagChip}</span>
 <span class="qa-q__text">${card.question}</span>
 <svg class="chev" height="16" viewBox="0 0 24 24" width="16">
@@ -98,6 +98,22 @@ fs.writeFileSync(searchIndexPath, JSON.stringify(searchIndex));
 
 console.log('Loading template...');
 let template = fs.readFileSync(templatePath, 'utf-8');
+const $ = cheerio.load(template);
+
+$('.nav-chapter').each((i, el) => {
+  const ch = $(el).attr('data-chapter');
+  if (ch) {
+    const chPath = path.join(notesDirPath, `chapter-${ch}.html`);
+    if (fs.existsSync(chPath)) {
+      const chHtml = fs.readFileSync(chPath, 'utf-8');
+      const ch$ = cheerio.load(chHtml);
+      const total = ch$('.note-section').length;
+      $(el).attr('data-total-sections', total);
+    }
+  }
+});
+
+template = $.html();
 template = template.replace('<!-- INJECT_QA_CARDS -->', cardsHtml);
 
 console.log('Writing index.html...');

@@ -1738,3 +1738,34 @@
       }
     }
   
+/* Print / PDF Export Styles for Cram Sheet */
+@media print {
+  body {
+    background: #fff;
+    color: #0B1F3A;
+  }
+  .sidebar, .mobile-nav, .view-tabs {
+    display: none !important;
+  }
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  #view-cram {
+    display: block !important;
+  }
+  .view:not(#view-cram) {
+    display: none !important;
+  }
+  .page-head {
+    border-bottom: 2px solid #000;
+    margin-bottom: 20px;
+  }
+  .cram-topic {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 1px solid #ccc;
+    box-shadow: none;
+  }
+}

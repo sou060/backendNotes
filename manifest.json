@@ -13,5 +13,25 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Interview Q&A",
+      "short_name": "Q&A",
+      "description": "Practice flashcards and questions",
+      "url": "/?view=qa"
+    },
+    {
+      "name": "Cram Sheet",
+      "short_name": "Cram",
+      "description": "Quick review notes",
+      "url": "/?view=cram"
+    },
+    {
+      "name": "Mistakes Log",
+      "short_name": "Mistakes",
+      "description": "Review your mistakes",
+      "url": "/?view=mistakes"
+    }
   ]
 }

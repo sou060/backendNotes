@@ -86,8 +86,22 @@
 
   // ---- QA accordion ----
   function toggleQA(btn) {
-    btn.closest('.qa-card').classList.toggle('open');
+    const card = btn.closest('.qa-card');
+    const isExpanded = card.classList.toggle('open');
+    btn.setAttribute('aria-expanded', isExpanded);
   }
+  window.toggleQA = toggleQA;
+
+  // Keyboard navigation for Flashcards
+  document.addEventListener('keydown', function(e) {
+    if (!document.getElementById('flashcard-container')?.hidden) {
+      if (e.key === 'ArrowLeft') {
+        prevFlashcard();
+      } else if (e.key === 'ArrowRight') {
+        nextFlashcard();
+      }
+    }
+  });
 
   function toggleVerbalMode(isActive) {
     const qaList = document.getElementById('qa-list');
@@ -438,12 +452,8 @@
       }
     });
 
-    // Reviewed sections
-    data.reviewedSections = [];
-    document.querySelectorAll('.section-review-btn.reviewed').forEach(btn => {
-      data.reviewedSections.push(btn.dataset.section);
-    });
-
+    // Reviewed sections are managed by the button click directly
+    // to prevent un-loaded chapters from losing their state!
     setStoredData(data);
   }
 
@@ -536,7 +546,16 @@
       btn.textContent = 'Reviewed';
       btn.onclick = function () {
         btn.classList.toggle('reviewed');
-        saveAllData();
+        // Safely update reviewed sections without reading the DOM
+        const data = getStoredData();
+        data.reviewedSections = data.reviewedSections || [];
+        if (btn.classList.contains('reviewed')) {
+          if (!data.reviewedSections.includes(sec.id)) data.reviewedSections.push(sec.id);
+        } else {
+          data.reviewedSections = data.reviewedSections.filter(id => id !== sec.id);
+        }
+        setStoredData(data);
+        saveAllData(); // Save the rest
         updateProgressBar();
       };
       h3.appendChild(btn);
@@ -544,15 +563,49 @@
   }
 
   function updateProgressBar() {
-    const total = document.querySelectorAll('.section-review-btn').length;
-    const reviewed = document.querySelectorAll('.section-review-btn.reviewed').length;
-    const pct = total > 0 ? Math.round((reviewed / total) * 100) : 0;
-    const textEl = document.getElementById('progress-text');
-    const pctEl = document.getElementById('progress-pct');
-    const fillEl = document.getElementById('progress-fill');
-    if (textEl) textEl.textContent = `${reviewed} / ${total} sections reviewed`;
-    if (pctEl) pctEl.textContent = `${pct}%`;
-    if (fillEl) fillEl.style.width = `${pct}%`;
+    const data = getStoredData();
+    const totalSections = document.querySelectorAll('.section-review-btn').length;
+    let reviewedCount = data.reviewedSections ? data.reviewedSections.length : 0;
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    
+    // Update main progress bar
+    if (totalSections > 0) {
+        if (progressFill) progressFill.style.width = (reviewedCount / totalSections) * 100 + '%';
+        if (progressText) progressText.textContent = reviewedCount + ' / ' + totalSections + ' sections reviewed';
+    }
+
+    // Update per-chapter progress
+    updateChapterProgress(data.reviewedSections || []);
+  }
+
+  function updateChapterProgress(reviewedArray) {
+    document.querySelectorAll('.nav-chapter').forEach(nav => {
+      const total = parseInt(nav.dataset.totalSections || '0', 10);
+      if (total === 0) return;
+      
+      const chapterNum = nav.dataset.chapter;
+      // Count how many sections in this chapter are reviewed
+      // Section IDs are formatted like "ch1-sec1"
+      const reviewedInCh = reviewedArray.filter(id => id.startsWith(`ch${chapterNum}-`)).length;
+      
+      let indicator = nav.querySelector('.ch-progress');
+      if (!indicator) {
+        indicator = document.createElement('span');
+        indicator.className = 'ch-progress';
+        nav.querySelector('.nav-chapter__head').appendChild(indicator);
+      }
+      
+      indicator.textContent = `(${reviewedInCh}/${total})`;
+      
+      if (reviewedInCh === total) {
+        indicator.style.color = '#0E7C7B';
+        indicator.style.fontWeight = 'bold';
+      } else {
+        indicator.style.color = '#33405A';
+        indicator.style.fontWeight = 'normal';
+      }
+    });
   }
 
   // ---- Keyboard shortcuts ----
@@ -721,6 +774,12 @@
 
   // ---- Init Phase 1 features ----
   document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = urlParams.get('view');
+    if (viewParam) {
+      showView(`view-${viewParam}`);
+    }
+    
     injectReviewButtons();
     autoCountStats();
     // Delay load to ensure QA cards are rated and STAR cards are seeded
