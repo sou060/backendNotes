@@ -250,6 +250,7 @@
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const ci = entry.target.dataset.chapter;
+        window.currentChapterIndex = parseInt(ci) || 1;
         document.querySelectorAll('.nav-chapter').forEach(n => n.classList.remove('active'));
         const nav = document.querySelector('.nav-chapter[data-chapter="' + ci + '"]');
         if (nav) { nav.classList.add('open'); nav.classList.add('active'); }
@@ -674,7 +675,7 @@
     overlay.classList.toggle('open');
   }
 
-  let currentChapterIndex = 1;
+  window.currentChapterIndex = 1;
   document.addEventListener('keydown', function (e) {
     // Don't capture when typing in inputs
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
@@ -705,17 +706,16 @@
       case 'ArrowLeft':
         if (document.querySelector('#view-notes:not([hidden])')) {
           e.preventDefault();
-          const maxCh = document.querySelectorAll('.chapter').length;
-          currentChapterIndex = Math.max(1, currentChapterIndex - 1);
-          goToChapter(currentChapterIndex);
+          window.currentChapterIndex = Math.max(1, window.currentChapterIndex - 1);
+          goToChapter(window.currentChapterIndex);
         }
         break;
       case 'ArrowRight':
         if (document.querySelector('#view-notes:not([hidden])')) {
           e.preventDefault();
           const maxCh2 = document.querySelectorAll('.chapter').length;
-          currentChapterIndex = Math.min(maxCh2, currentChapterIndex + 1);
-          goToChapter(currentChapterIndex);
+          window.currentChapterIndex = Math.min(maxCh2, window.currentChapterIndex + 1);
+          goToChapter(window.currentChapterIndex);
         }
         break;
       case 'd':
@@ -727,17 +727,6 @@
         break;
     }
   });
-
-  // Update currentChapterIndex on scroll spy
-  const _origIO = io;
-  const io2 = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        currentChapterIndex = parseInt(entry.target.dataset.chapter) || 1;
-      }
-    });
-  }, { rootMargin: '-10% 0px -70% 0px' });
-  chapterEls.forEach(el => io2.observe(el));
 
   // ---- Data Export / Import ----
   function exportData() {
