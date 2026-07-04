@@ -1,9 +1,9 @@
 <article class="chapter" data-chapter="16" id="ch16">
           <div class="chapter-ghost">16</div>
           <header class="chapter-head"><span class="chapter-tag">Chapter 16</span>
-            <h2>API Gateway Filters, Centralized Con guration, Distributed Tracing, and Centralized Logging</h2>
+            <h2>API Gateway Filters, Centralized Configuration, Distributed Tracing, and Centralized Logging</h2>
           </header>
-          <p class="note-para">This chapter covers API Gateway Filters, Centralized Con guration, Distributed Tracing,
+          <p class="note-para">This chapter covers API Gateway Filters, Centralized Configuration, Distributed Tracing,
             and Centralized Logging. It includes 44 interview questions and scenarios.</p>
           <section class="note-section" id="ch16-sec1">
             <h3><span class="secnum">16.1.</span>Key Concepts</h3>
@@ -75,33 +75,33 @@
                 expired tokens cleanly, which can cause confusing errors for clients. The gateway should validate
                 authentication and forward identity, while services decide what the authenticated user is allowed to do.
               </li>
-              <li><strong>What is Spring Cloud Con g Server, and why is it used?</strong><br><br>Spring Cloud Con g
+              <li><strong>What is Spring Cloud Config  Server, and why is it used?</strong><br><br>Spring Cloud Config 
                 Server provides centralized externalized configuration for distributed systems. It serves configuration
                 properties from a backend store, usually a Git repository, to client applications at runtime. Each
                 microservice fetches its configuration by application name, profile, and label. Centralized
                 configuration makes it easier to manage environment-specific settings, track changes through version
                 control, and avoid embedding secrets or environment URLs in application packages. It is especially
                 useful in microservices where dozens of services need consistent and auditable configuration.</li>
-              <li><strong>How do you set up a Spring Cloud Con g Server backed by GitHub?</strong><br><br>You create
+              <li><strong>How do you set up a Spring Cloud Config  Server backed by GitHub?</strong><br><br>You create
                 a Spring Boot application, add @EnableConfigServer and the spring- cloud-config-server dependency, and
                 configure spring.cloud.config.server.git.uri to point to the Git repository. Optionally, set clone-
                 on-start: true so the server clones the repository at startup. The Git repository contains property
                 files named after client applications, such as order-service.properties or order-service- dev.yml. The
-                con g server exposes endpoints at /{application}/{profile}/{label}, for example
+                Config  server exposes endpoints at /{application}/{profile}/{label}, for example
                 http://localhost:8888/order-service/dev/main. Clients connect to the server using
                 spring.config.import=optional:configserver:http://localhost:8888/ and set spring.application.name to
                 match the file name.</li>
-              <li><strong>How does a Spring Cloud Con g client load configuration at startup?</strong><br><br>A con
-                g client connects to the Con g Server during bootstrap, before the Spring context nishes initializing.
+              <li><strong>How does a Spring Cloud Config  client load configuration at startup?</strong><br><br>A con
+                g client connects to the Config  Server during bootstrap, before the Spring context nishes initializing.
                 It uses spring.application.name to determine which files to fetch, and the active profile to select
                 environment-specific overrides. The configuration is merged with local application.properties or
-                application.yml, with remote properties taking precedence. If the Con g Server is unavailable, the
+                application.yml, with remote properties taking precedence. If the Config  Server is unavailable, the
                 client can fail, retry, or fall back depending on the optional setting in the import and failure
                 settings. Once loaded, the properties are available to @Value, @ConfigurationProperties, and the
                 Environment just like local properties.</li>
               <li><strong>What is @RefreshScope, and how does dynamic configuration refresh
                   work?</strong><br><br>@RefreshScope is a Spring Cloud annotation that marks a bean to be recreated
-                when a refresh event occurs. When configuration changes in the Con g Server repository, calling POST
+                when a refresh event occurs. When configuration changes in the Config  Server repository, calling POST
                 /actuator/refresh on a client triggers a refresh event. Spring recreates beans annotated with
                 @RefreshScope so they pick up the new property values without restarting the JVM. Only beans that use
                 the changed properties need the annotation; beans that do not need refresh should not use it to avoid
@@ -110,13 +110,13 @@
               <li><strong>How do you refresh configuration across all clients without restarting
                   them?</strong><br><br>To refresh all clients, you use Spring Cloud Bus combined with a message
                 broker such as RabbitMQ or Kafka. When a property changes, you call POST /actuator/busrefresh on one
-                client or the Con g Server, and the event is broadcast to all connected clients through the bus. Each
+                client or the Config  Server, and the event is broadcast to all connected clients through the bus. Each
                 client then refreshes its own @RefreshScope beans. Alternatively, you can configure a GitHub webhook to
-                notify the Con g Server's /monitor endpoint whenever the repository changes, and the server publishes a
+                notify the Config  Server's /monitor endpoint whenever the repository changes, and the server publishes a
                 refresh event to the bus. This push-based approach scales better than calling /actuator/refresh on every
                 instance manually.</li>
-              <li><strong>How does the Con g Server handle updates in the Git repository?</strong><br><br>By
-                default, the Con g Server clones or pulls the Git repository on each configuration request to ensure
+              <li><strong>How does the Config  Server handle updates in the Git repository?</strong><br><br>By
+                default, the Config  Server clones or pulls the Git repository on each configuration request to ensure
                 clients receive the latest values. The frequency can be controlled with the refreshRate property so the
                 server does not pull on every request. When using Spring Cloud Bus, the /monitor endpoint can be
                 triggered by a GitHub webhook on push events, forcing an immediate refresh across clients. The server
@@ -237,11 +237,11 @@
                 because anyone with log access can replay the token. I update the filter to iterate over headers,
                 replace any header in the deny list with [REDACTED], and add a review rule that any new logging filter
                 must be checked for sensitive data exposure before merge.</li>
-              <li><strong>A Spring Cloud Con g Server fails to start because it cannot clone the Git repository. How do
+              <li><strong>A Spring Cloud Config  Server fails to start because it cannot clone the Git repository. How do
                   you troubleshoot it?</strong><br><br>I check the spring.cloud.config.server.git.uri property for
                 typos or incorrect protocol. If the repository is private, I verify that credentials are supplied
                 through properties, environment variables, or SSH keys and not hard-coded in the source. I also check
-                network connectivity from the Con g Server to GitHub, including proxy settings and rewall rules. If
+                network connectivity from the Config  Server to GitHub, including proxy settings and rewall rules. If
                 clone-on-start is true, the server tries to clone at startup, so any authentication or network issue is
                 immediate. I set clone-on-start to false during troubleshooting to defer cloning, or I use a local file
                 backend for development. I also look at the stack trace for HTTPS certificate errors, which can happen
@@ -256,7 +256,7 @@
                 annotated with @RefreshScope. Only beans with @RefreshScope are recreated during a refresh event. If the
                 value is read into a static field or initialized in a constructor without re-reading after refresh, the
                 old value persists. Another cause is that the property file in Git was not matched by the client's
-                application name or profile, so the Con g Server never served the new value. I verify the Con g Server
+                application name or profile, so the Config  Server never served the new value. I verify the Config  Server
                 endpoint for the exact application/profile/label to confirm the value is returned. I also check that the
                 refresh actuator endpoint is exposed and that the call returned the changed property names. Real-time
                 example: the team changes feature.new-checkout.enabled from false to true in order-service-prod.yml and
@@ -266,7 +266,7 @@
                 rolling out widely.</li>
               <li><strong>A team wants to refresh configuration across 50 microservice instances without calling each
                   one. How do you design it?</strong><br><br>I use Spring Cloud Bus with RabbitMQ or Kafka as the
-                message broker. When configuration changes, I configure a GitHub webhook to call the Con g Server's
+                message broker. When configuration changes, I configure a GitHub webhook to call the Config  Server's
                 /monitor endpoint, or I manually call POST /actuator/busrefresh on one instance. The bus publishes a
                 refresh event that all connected clients consume, and each client refreshes its own @RefreshScope beans
                 automatically. This avoids the operational burden of calling every instance. I also ensure the message
@@ -316,18 +316,18 @@
                 save failed. Logstash has two grok filters, and both break when formats change. I standardize all
                 services on JSON output with the logstash-logback-encoder so every log entry has the same timestamp,
                 level, logger, message, traceId, and service fields, and dashboards become reliable.</li>
-              <li><strong>A Con g Client crashes on startup because the Con g Server is down. How do you make startup
-                  more resilient?</strong><br><br>I make the con g server import optional by using
+              <li><strong>A Config  Client crashes on startup because the Config  Server is down. How do you make startup
+                  more resilient?</strong><br><br>I make the Config  server import optional by using
                 spring.config.import=optional:configserver:http://localhost:8888/. With optional, the client starts
                 using local configuration if the server is unavailable. I also configure retry with
                 spring.cloud.config.fail-fast=false or a retry policy so the client attempts to connect multiple times
-                before failing. For non-optional configurations, I run the Con g Server in a high- availability setup
+                before failing. For non-optional configurations, I run the Config  Server in a high- availability setup
                 with multiple instances behind a load balancer. I also add health checks and readiness probes in
                 Kubernetes so pods are not marked ready until they can fetch configuration, preventing traffic from
-                reaching misconfigured instances. Real-time example: during a regional outage, the Con g Server in
+                reaching misconfigured instances. Real-time example: during a regional outage, the Config  Server in
                 us-east-1 becomes unreachable, and new pods in the order service fail to start. I change the import to
                 optional:configserver and include sensible defaults in application.yml so pods can start with degraded
-                con g. After the outage, I deploy a second Con g Server in us-west-2 and use a DNS failover so clients
+                con g. After the outage, I deploy a second Config  Server in us-west-2 and use a DNS failover so clients
                 always reach a healthy instance.</li>
               <li><strong>A gateway filter must add different headers depending on the route. Should you use a
                   GlobalFilter or a GatewayFilterFactory?</strong><br><br>A GatewayFilterFactory is the better
@@ -349,7 +349,7 @@
                 level immediately. This does not require a restart and is useful for troubleshooting. I secure the
                 endpoint so only authorized users can change log levels, and I document that these changes are temporary
                 because they are lost on restart unless persisted. For a more centralized approach, I combine this with
-                Spring Cloud Con g and /actuator/refresh so log level changes are managed through configuration.
+                Spring Cloud Config  and /actuator/refresh so log level changes are managed through configuration.
                 Real-time example: a support ticket reports intermittent failures in the payment service. The on-call
                 engineer temporarily sets com.example.payment.PaymentClient to DEBUG via the Actuator endpoint, captures
                 a few failing requests, identifies a malformed downstream response, and then reverts the level to INFO
@@ -379,17 +379,17 @@
                 sampling probability to 0.05 for high-traffic endpoints and 1.0 for critical payment ows. This reduces
                 volume by 95 percent while preserving visibility where it matters. I also add a queue between services
                 and Zipkin to absorb bursts.</li>
-              <li><strong>A Con g Server stores secrets in a Git repository in plain text. How do you secure
+              <li><strong>A Config  Server stores secrets in a Git repository in plain text. How do you secure
                   them?</strong><br><br>Storing secrets in plain text in Git is a serious risk. I use Spring Cloud
                 Con g's encryption and decryption features to store encrypted values, or I move secrets to a dedicated
-                secret store such as HashiCorp Vault, AWS Secrets Manager, or Azure Key Vault. Spring Cloud Con g
+                secret store such as HashiCorp Vault, AWS Secrets Manager, or Azure Key Vault. Spring Cloud Config 
                 supports composite backends, so it can fetch configuration from Git and secrets from Vault. Another
                 approach is to store secrets in environment variables provided by the deployment platform, while keeping
                 non-secret configuration in Git. I also review Git history for leaked secrets and rotate any exposed
                 credentials immediately. Real-time example: a security scan finds spring.datasource.password=prod-
                 password-123 in order-service-prod.yml. I rotate the password immediately, remove the value from Git
                 history, and configure a composite backend that fetches the database password from Vault while keeping
-                non-secret con g in Git. Developers now see ${vault://secret/order- service/db/password} instead of a
+                non-secret Config  in Git. Developers now see ${vault://secret/order- service/db/password} instead of a
                 plain password.</li>
               <li><strong>A Spring Cloud Gateway route with a custom filter returns 500 for a specific request. How do
                   you debug it?</strong><br><br>I enable debug logging for org.springframework.cloud.gateway and
@@ -413,15 +413,15 @@
                 local IST, a new service logs in UTC, and the gateway uses a custom format. When debugging an incident,
                 the team cannot sort events chronologically. I migrate all services to UTC ISO-8601 in JSON and add a
                 Logstash date filter that normalizes every incoming timestamp to @timestamp before indexing.</li>
-              <li><strong>A team wants to use Spring Cloud Con g but also needs local overrides per developer machine.
+              <li><strong>A team wants to use Spring Cloud Config  but also needs local overrides per developer machine.
                   How do you support both?</strong><br><br>I use the configuration loading order to my advantage.
-                Spring Cloud Con g provides shared and application-specific configuration, and local application.yml or
+                Spring Cloud Config  provides shared and application-specific configuration, and local application.yml or
                 environment variables can override remote values. I give developers a default remote configuration in
                 Git and allow them to create a local profile or use environment variables for personal overrides. I keep
-                the spring.config.import for the Con g Server but make it optional so developers can run offline. I also
+                the spring.config.import for the Config  Server but make it optional so developers can run offline. I also
                 use .gitignore for local override files and document the override precedence so developers understand
                 that local properties win over remote ones. Real-time example: developers want to use a local MySQL
-                container while the shared con g points to a cloud RDS instance. I add spring.datasource.url to
+                container while the shared Config  points to a cloud RDS instance. I add spring.datasource.url to
                 application-local.yml in each developer's project, ignored by Git, and tell them to run with
                 --spring.profiles.active=local. The shared application.yml still points to the cloud database for CI and
                 production.</li>

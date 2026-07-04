@@ -1,32 +1,38 @@
-const fs = require('fs');
-const path = require('path');
-const cheerio = require('cheerio');
+const fs = require("fs");
+const path = require("path");
+const cheerio = require("cheerio");
 
-const dataPath = path.join(__dirname, '../data/qa-cards.json');
-const notesDirPath = path.join(__dirname, '../data/notes');
-const templatePath = path.join(__dirname, '../src/template.html');
-const outputPath = path.join(__dirname, '../index.html');
-const searchIndexPath = path.join(__dirname, '../search-index.json');
+const dataPath = path.join(__dirname, "../data/qa-cards.json");
+const notesDirPath = path.join(__dirname, "../data/notes");
+const templatePath = path.join(__dirname, "../src/template.html");
+const outputPath = path.join(__dirname, "../index.html");
+const searchIndexPath = path.join(__dirname, "../search-index.json");
 
-console.log('Loading QA data...');
-const qaData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+console.log("Loading QA data...");
+const qaData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
 const searchIndex = [];
 
-console.log('Building HTML and generating QA search index...');
-let cardsHtml = '';
+console.log("Building HTML and generating QA search index...");
+let cardsHtml = "";
 
-qaData.forEach(chapterData => {
+qaData.forEach((chapterData) => {
   const chapter = chapterData.chapter;
   chapterData.cards.forEach((card, idx) => {
     // Generate the HTML for a single card
-    const trapHtml = card.followUpTrap ? `\n<div class="follow-up-trap">\n${card.followUpTrap}\n</div>` : '';
-    const verbalHtml = card.verbalAnswer ? `\n<p class="verbal-answer">${card.verbalAnswer}</p>` : '';
-    const fullAnswerHtml = card.fullAnswer ? `\n<div class="full-answer">\n${card.fullAnswer}\n</div>` : '';
-    
+    const trapHtml = card.followUpTrap
+      ? `\n<div class="follow-up-trap">\n${card.followUpTrap}\n</div>`
+      : "";
+    const verbalHtml = card.verbalAnswer
+      ? `\n<p class="verbal-answer">${card.verbalAnswer}</p>`
+      : "";
+    const fullAnswerHtml = card.fullAnswer
+      ? `\n<div class="full-answer">\n${card.fullAnswer}\n</div>`
+      : "";
+
     // Fallback if tag title doesn't exist
     let tagChip = `Ch.${chapter}`;
     if (chapterData.title) {
-      tagChip = chapterData.title.split(':')[0];
+      tagChip = chapterData.title.split(":")[0];
     }
 
     const html = `<div class="qa-card" data-chapter="${chapter}">
@@ -40,64 +46,69 @@ qaData.forEach(chapterData => {
 <div class="qa-a">${fullAnswerHtml}${verbalHtml}${trapHtml}
 </div>
 </div>`;
-    cardsHtml += html + '\n';
+    cardsHtml += html + "\n";
 
     // Index QA Card
     const qaContent = [
-      card.question || '', 
-      card.fullAnswer ? cheerio.load(card.fullAnswer).text() : '',
-      card.verbalAnswer || '',
-      card.followUpTrap ? cheerio.load(card.followUpTrap).text() : ''
-    ].join(' ').replace(/\s+/g, ' ').trim();
+      card.question || "",
+      card.fullAnswer ? cheerio.load(card.fullAnswer).text() : "",
+      card.verbalAnswer || "",
+      card.followUpTrap ? cheerio.load(card.followUpTrap).text() : "",
+    ]
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
 
     searchIndex.push({
       id: `qa-ch${chapter}-${idx}`,
       chapter: parseInt(chapter),
       title: `Q: ${card.question}`,
       text: qaContent,
-      type: 'qa'
+      type: "qa",
     });
   });
 });
 
-console.log('Generating Notes search index...');
-const noteFiles = fs.readdirSync(notesDirPath).filter(f => f.endsWith('.html'));
-noteFiles.forEach(file => {
-  const chapterId = file.replace('chapter-', '').replace('.html', '');
-  const html = fs.readFileSync(path.join(notesDirPath, file), 'utf-8');
+console.log("Generating Notes search index...");
+const noteFiles = fs
+  .readdirSync(notesDirPath)
+  .filter((f) => f.endsWith(".html"));
+noteFiles.forEach((file) => {
+  const chapterId = file.replace("chapter-", "").replace(".html", "");
+  const html = fs.readFileSync(path.join(notesDirPath, file), "utf-8");
   const $ = cheerio.load(html);
-  
+
   // We index each section inside a chapter (h3)
   // But a simple approach is to index paragraphs and table rows.
   // Let's index the entire chapter as a few chunks, or by section.
-  $('h3').each((i, el) => {
+  $("h3").each((i, el) => {
     const title = $(el).text().trim();
-    let content = '';
+    let content = "";
     let nextEl = $(el).next();
-    
-    while (nextEl.length && nextEl[0].tagName !== 'h3') {
-      content += ' ' + nextEl.text().trim();
+
+    while (nextEl.length && nextEl[0].tagName !== "h3") {
+      content += " " + nextEl.text().trim();
       nextEl = nextEl.next();
     }
-    
-    content = content.replace(/\s+/g, ' ').trim();
+
+    content = content.replace(/\s+/g, " ").trim();
     if (content.length > 0) {
       searchIndex.push({
         id: `note-ch${chapterId}-sec${i}`,
         chapter: parseInt(chapterId),
         title: title,
         text: content,
-        type: 'note'
+        type: "note",
       });
     }
   });
 });
 
-console.log('Writing search-index.json...');
+console.log("Writing search-index.json...");
 fs.writeFileSync(searchIndexPath, JSON.stringify(searchIndex));
 
-console.log('Loading template...');
-let template = fs.readFileSync(templatePath, 'utf-8');
+console.log("Loading template...");
+let template = fs.readFileSync(templatePath, "utf-8");
 const $ = cheerio.load(template);
 
 let totalChapters = 0;
@@ -105,50 +116,59 @@ let totalTopics = 0;
 let totalCode = 0;
 let totalTables = 0;
 
-$('.nav-chapter').each((i, el) => {
-  const ch = $(el).attr('data-chapter');
+$(".nav-chapter").each((i, el) => {
+  const ch = $(el).attr("data-chapter");
   if (ch) {
     const chPath = path.join(notesDirPath, `chapter-${ch}.html`);
     if (fs.existsSync(chPath)) {
       totalChapters++;
-      const chHtml = fs.readFileSync(chPath, 'utf-8');
+      const chHtml = fs.readFileSync(chPath, "utf-8");
       const ch$ = cheerio.load(chHtml);
-      const topics = ch$('.note-section').length;
+      const topics = ch$(".note-section").length;
       totalTopics += topics;
-      totalCode += ch$('.code-card').length;
-      totalTables += ch$('.comp-table').length;
-      $(el).attr('data-total-sections', topics);
+      totalCode += ch$(".code-card").length;
+      totalTables += ch$("table").length;
+      $(el).attr("data-total-sections", topics);
     }
   }
 });
 
-const totalDiagrams = $('.diagram-card, svg').length;
+const totalDiagrams = $(".diagram-card, svg").length;
 const totalQA = qaData.length;
 
 template = $.html();
-template = template.replace('<!-- INJECT_QA_CARDS -->', cardsHtml);
-template = template.replace('<!-- INJECT_STATS_PILL -->', `${totalChapters} chapters &middot; ${totalTopics} topics &middot; ${totalCode} code examples`);
-template = template.replace('<!-- INJECT_STAT_CHAPTERS -->', totalChapters);
-template = template.replace('<!-- INJECT_STAT_TOPICS -->', totalTopics);
-template = template.replace('<!-- INJECT_STAT_CODE -->', totalCode);
-template = template.replace('<!-- INJECT_STAT_TABLES -->', totalTables);
-template = template.replace('<!-- INJECT_STAT_DIAGRAMS -->', totalDiagrams);
-template = template.replace('<!-- INJECT_STAT_QA -->', totalQA);
+template = template.replace("<!-- INJECT_QA_CARDS -->", cardsHtml);
+template = template.replace(
+  "<!-- INJECT_STATS_PILL -->",
+  `${totalChapters} chapters &middot; ${totalTopics} topics &middot; ${totalCode} code examples`,
+);
+template = template.replace("<!-- INJECT_STAT_CHAPTERS -->", totalChapters);
+template = template.replace("<!-- INJECT_STAT_TOPICS -->", totalTopics);
+template = template.replace("<!-- INJECT_STAT_CODE -->", totalCode);
+template = template.replace("<!-- INJECT_STAT_TABLES -->", totalTables);
+template = template.replace("<!-- INJECT_STAT_DIAGRAMS -->", totalDiagrams);
+template = template.replace("<!-- INJECT_STAT_QA -->", totalQA);
 
-console.log('Writing index.html...');
+console.log("Writing index.html...");
 fs.writeFileSync(outputPath, template);
 
 // Copy static assets
-console.log('Copying static assets...');
-fs.copyFileSync(path.join(__dirname, '../src/styles.css'), path.join(__dirname, '../styles.css'));
-fs.copyFileSync(path.join(__dirname, '../src/app.js'), path.join(__dirname, '../app.js'));
+console.log("Copying static assets...");
+fs.copyFileSync(
+  path.join(__dirname, "../src/styles.css"),
+  path.join(__dirname, "../styles.css"),
+);
+fs.copyFileSync(
+  path.join(__dirname, "../src/app.js"),
+  path.join(__dirname, "../app.js"),
+);
 
-const outNotesDir = path.join(__dirname, '../notes');
+const outNotesDir = path.join(__dirname, "../notes");
 if (!fs.existsSync(outNotesDir)) {
   fs.mkdirSync(outNotesDir);
 }
-noteFiles.forEach(file => {
+noteFiles.forEach((file) => {
   fs.copyFileSync(path.join(notesDirPath, file), path.join(outNotesDir, file));
 });
 
-console.log('Done! Build successfully.');
+console.log("Done! Build successfully.");

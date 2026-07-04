@@ -1,11 +1,11 @@
 <article class="chapter" data-chapter="20" id="ch20">
           <div class="chapter-ghost">20</div>
           <header class="chapter-head"><span class="chapter-tag">Chapter 20</span>
-            <h2>Google Kubernetes Engine, Stateful Workloads, Microservices DNS, Ingress, Con gMap, Secrets, and CI/CD
+            <h2>Google Kubernetes Engine, Stateful Workloads, Microservices DNS, Ingress, ConfigMap, Secrets, and CI/CD
             </h2>
           </header>
           <p class="note-para">This chapter covers Google Kubernetes Engine, Stateful Workloads, Microservices DNS,
-            Ingress, Con gMap, Secrets, and CI/CD. It includes 44 interview questions and scenarios.</p>
+            Ingress, ConfigMap, Secrets, and CI/CD. It includes 44 interview questions and scenarios.</p>
           <section class="note-section" id="ch20-sec1">
             <h3><span class="secnum">20.1.</span>Key Concepts</h3>
             <ul class="note-list lvl-1">
@@ -54,7 +54,7 @@
                 used because databases require stable network identity and persistent storage. The StatefulSet defines a
                 volumeClaimTemplate so each replica gets its own PersistentVolumeClaim backed by a Google Cloud
                 persistent disk through a StorageClass. A headless Service provides stable DNS names for each Pod, such
-                as db- 0.db.default.svc.cluster.local. Con gMaps can separate primary and replica configuration, and
+                as db- 0.db.default.svc.cluster.local. ConfigMaps can separate primary and replica configuration, and
                 Secrets store credentials. Init containers can perform bootstrapping tasks like setting server IDs or
                 cloning data from a peer. Readiness and liveness probes are configured to verify the database is healthy
                 before traffic is sent or before Kubernetes restarts the Pod.</li>
@@ -95,17 +95,17 @@
                     DNS records can point to it reliably.</name>
                 </name>
               </li>
-              <li><strong>What is the difference between a Con gMap and a Secret?</strong><br><br>Con gMaps store
+              <li><strong>What is the difference between a ConfigMap and a Secret?</strong><br><br>ConfigMaps store
                 non-sensitive configuration data such as environment variables, command- line arguments, and
                 configuration files. Secrets store sensitive data such as passwords, tokens, and TLS certificates. Both
                 can be mounted as volumes or injected as environment variables. Values in Secrets are base64-encoded but
                 not encrypted by default unless etcd encryption at rest is enabled. Secrets should be used for sensitive
                 data, but they should still be protected with RBAC and integrated with external secret managers when
-                possible. Con gMaps can be updated more freely and are safe to store in version control if they contain
+                possible. ConfigMaps can be updated more freely and are safe to store in version control if they contain
                 no secrets.</li>
               <li><strong>How do you manage environment-specific configuration in GKE?</strong><br><br>I use
                 separate namespaces for each environment such as dev, staging, and prod. Each namespace contains its own
-                Con gMaps and Secrets. The Deployment references these resources, so the same container image can run in
+                ConfigMaps and Secrets. The Deployment references these resources, so the same container image can run in
                 any environment with the correct configuration. For managing many environments, I use Helm or Kustomize
                 to generate manifests per environment from a common base. Sensitive values are stored in Google Secret
                 Manager and injected by an external secrets operator or Workload Identity, rather than being committed
@@ -115,7 +115,7 @@
                 Alternatively, I use an external secrets operator such as External Secrets Operator or Sealed Secrets
                 for GitOps work ows. Native Kubernetes Secrets can be used for simple cases, but they should be
                 encrypted at rest in etcd, access should be restricted with RBAC, and they should be mounted as files
-                rather than environment variables when possible. I never store secrets in container images, Con gMaps,
+                rather than environment variables when possible. I never store secrets in container images, ConfigMaps,
                 or Git repositories in plain text. Regular rotation and audit logging are also important.</li>
               <li><strong>What is the typical CI/CD ow for deploying to GKE using GitHub
                   Actions?</strong><br><br>The CI/CD ow usually has two stages. The continuous integration stage
@@ -151,7 +151,7 @@
               <li><strong>How do you implement a canary deployment in GKE?</strong><br><br>A canary deployment can
                 be implemented with a Service mesh such as Istio or with GKE Ingress traffic splitting. With Istio, you
                 define a VirtualService that routes a small percentage of traffic to the canary version based on labels.
-                With GKE Ingress, you create a BackendCon g with traffic splitting weights across two Services. You
+                With GKE Ingress, you create a BackendConfig  with traffic splitting weights across two Services. You
                 deploy the canary version as a separate Deployment with a small replica count, route 5 or 10 percent of
                 traffic to it, monitor error rates and latency, and gradually increase the percentage if healthy.
                 Automated rollback triggers if metrics exceed thresholds.</li>
@@ -228,7 +228,7 @@
                   deployment?</strong><br><br>I use a StatefulSet because Postgres needs stable identity and
                 storage. I create a headless Service for stable DNS names per replica. I define a volumeClaimTemplate in
                 the StatefulSet that requests storage from a premium SSD StorageClass, such as premium-rwo. I store
-                credentials in a Kubernetes Secret and mount them as environment variables. I use a Con gMap for
+                credentials in a Kubernetes Secret and mount them as environment variables. I use a ConfigMap for
                 postgresql.conf settings. I configure liveness and readiness probes, and an init container if
                 replication setup is needed. I also set a PodDisruptionBudget with maxUnavailable: 1 to protect quorum
                 or availability during node drains. For production, I prefer Cloud SQL through a Private IP or Cloud SQL
@@ -244,7 +244,7 @@
                 <service>.<namespace>.svc.cluster.local. I inspect labels to ensure the Service selector matches the
                     target Pods. I check NetworkPolicies in both namespaces to see if traffic is blocked. I run a debug
                     Pod in namespace A and test connectivity with curl or nslookup. If DNS fails, I check CoreDNS Pods
-                    and Con gMap. If NetworkPolicy is the issue, I add an allow rule from the source Pod selector to the
+                    and ConfigMap. If NetworkPolicy is the issue, I add an allow rule from the source Pod selector to the
                     destination port. Real-time example: the order service in namespace orders cannot call the payment
                     service in namespace payments. The order service uses only payment-service without the namespace. I
                     update the URL to payment- service.payments.svc.cluster.local. Additionally, a default-deny
@@ -309,15 +309,15 @@
                 rescheduling. Real-time example: a Redis StatefulSet uses emptyDir for persistence. A node drains, the
                 Pod moves, and all cache data is gone. I replace emptyDir with a volumeClaimTemplate using premium-rwo,
                 and the new Pod mounts the same PVC after rescheduling, preserving data.</li>
-              <li><strong>You need to update a Con gMap used by a running Deployment. Will the application pick up the
-                  change?</strong><br><br>If the Con gMap is mounted as a volume, Kubernetes updates the files in
-                the running containers, but the application must watch or reload the files to use them. If the Con gMap
+              <li><strong>You need to update a ConfigMap used by a running Deployment. Will the application pick up the
+                  change?</strong><br><br>If the ConfigMap is mounted as a volume, Kubernetes updates the files in
+                the running containers, but the application must watch or reload the files to use them. If the ConfigMap
                 is injected as environment variables, the values are set at Pod creation time and will not update until
                 the Pod restarts. To force a restart, I run kubectl rollout restart deployment/<name>. For applications
                   that support hot reload, I implement a file watcher or periodic refresh. For most Java backend
                   services, rolling restart is the simplest and most reliable method. Real-time example: a feature ag
-                  stored in a Con gMap is updated, but the Spring Boot application still uses the old value. I mount the
-                  Con gMap as a volume and add a FileSystemWatcher that refreshes the ag on change. I also keep kubectl
+                  stored in a ConfigMap is updated, but the Spring Boot application still uses the old value. I mount the
+                  ConfigMap as a volume and add a FileSystemWatcher that refreshes the ag on change. I also keep kubectl
                   rollout restart as a fallback for ags that are loaded once at startup.</name>
               </li>
               <li><strong>A GKE Ingress returns 502 Bad Gateway for a healthy service. What do you
@@ -374,7 +374,7 @@
                             Logging and Monitoring for cluster-level events and resource saturation. Real-time example:
                             a Pod shows CrashLoopBackOff. kubectl logs --previous shows a missing table error. I exec
                             into the database Pod, confirm the migration did not run, check the init container logs, and
-                            find that the migration container used the wrong database host. I fix the Con gMap and the
+                            find that the migration container used the wrong database host. I fix the ConfigMap and the
                             application starts.</pod>
                         </ns>
                       </pod>
@@ -424,14 +424,14 @@
                 </cluster>
               </li>
               <li><strong>A microservice needs environment-specific feature ags. How do you manage them in
-                  GKE?</strong><br><br>I store feature ags in a Con gMap per namespace, one for each environment.
-                The Deployment mounts the Con gMap as a file or injects values as environment variables. The application
+                  GKE?</strong><br><br>I store feature ags in a ConfigMap per namespace, one for each environment.
+                The Deployment mounts the ConfigMap as a file or injects values as environment variables. The application
                 reads the ag value and toggles behavior accordingly. For more advanced use cases, I use a feature ag
-                service such as LaunchDarkly, Split, or a custom ag API. When a ag changes, I either update the Con gMap
-                and restart the Deployment, or use a ags API that supports dynamic updates. Con gMaps work well for
+                service such as LaunchDarkly, Split, or a custom ag API. When a ag changes, I either update the ConfigMap
+                and restart the Deployment, or use a ags API that supports dynamic updates. ConfigMaps work well for
                 static per-environment ags, while a ag service is better for user-targeted or gradual rollouts.
                 Real-time example: an e-commerce service needs a new checkout UI in staging but not production. I add
-                feature.new-checkout=true to the staging Con gMap and feature.new- checkout=false to the production Con
+                feature.new-checkout=true to the staging ConfigMap and feature.new- checkout=false to the production Con
                 gMap. The same image runs in both environments, and behavior changes based on the mounted configuration.
               </li>
               <li><strong>A GKE workload needs to handle traffic spikes automatically. How do you set up

@@ -135,7 +135,7 @@
                 circuit breakers have three states. The CLOSED state is normal operation, where all calls pass through
                 and outcomes are recorded in a sliding window. The OPEN state rejects calls immediately with a
                 CallNotPermittedException when the failure rate or slow call rate exceeds a threshold. The HALF_OPEN
-                state allows a con gurable number of probe calls after a wait duration; if they succeed, the circuit
+                state allows a Configurable number of probe calls after a wait duration; if they succeed, the circuit
                 closes, otherwise it opens again. The sliding window can be count-based or time-based, and it records
                 successful, failed, ignored, and slow calls separately.</li>
               <li><strong>What is the difference between Resilience4J and Net ix Hystrix?</strong><br><br>Net ix
@@ -147,7 +147,7 @@
                 time-based sliding windows, which Hystrix lacked.</li>
               <li><strong>What Resilience4J fault-tolerance modules exist, and what does each
                   do?</strong><br><br>Resilience4J provides several modules. CircuitBreaker stops calls to a failing
-                service to prevent cascading failures. Retry re-executes failed calls with con gurable backoff.
+                service to prevent cascading failures. Retry re-executes failed calls with Configurable backoff.
                 RateLimiter limits the number of calls per time window. Bulkhead limits concurrent calls to isolate
                 resource usage, with semaphore-based and thread-pool-based variants. TimeLimiter enforces a timeout on
                 asynchronous calls returning CompletableFuture or CompletionStage. These modules can be combined, and
@@ -328,12 +328,12 @@
                 client will not help. Proper monitoring of bulkhead metrics shows whether the limit is actually being
                 hit.</li>
               <li><strong>A microservice architecture needs centralized configuration. How do you handle
-                  it?</strong><br><br>I use Spring Cloud Con g Server backed by a Git repository to store
-                environment-specific configuration. Each service fetches its configuration at startup from the con g
+                  it?</strong><br><br>I use Spring Cloud Config  Server backed by a Git repository to store
+                environment-specific configuration. Each service fetches its configuration at startup from the Config 
                 server, and profiles such as dev, staging, and prod are separated. I also use Spring Cloud Bus with a
                 message broker to push configuration refresh events to all services without restarting them. Services
                 expose /actuator/refresh to reload configuration on demand. Secrets are not stored in plain text in Git;
-                instead, I use encrypted values with Spring Cloud Con g encryption or store secrets in AWS Secrets
+                instead, I use encrypted values with Spring Cloud Config  encryption or store secrets in AWS Secrets
                 Manager or HashiCorp Vault and reference them from the configuration. Centralized configuration prevents
                 configuration drift and makes environments reproducible.</li>
               <li><strong>An order service calls a payment service, an inventory service, and a notification service to

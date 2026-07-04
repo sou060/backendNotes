@@ -70,7 +70,7 @@
                 a Kubernetes cluster that isolates groups of resources. Namespaces allow multiple teams or applications
                 to share a cluster without name collisions. They are often used to separate environments such as
                 development, staging, and production, or to isolate microservices by team. Resource quotas, limits, RBAC
-                policies, and network policies can be applied per namespace. Objects such as Pods, Services, Con gMaps,
+                policies, and network policies can be applied per namespace. Objects such as Pods, Services, ConfigMaps,
                 and Secrets exist within a namespace, but cluster-wide resources such as Nodes and PersistentVolumes are
                 not namespaced.</li>
               <li><strong>What is a Kubernetes Service, and why is it needed?</strong><br><br>A Service exposes a
@@ -124,12 +124,12 @@
                 applications, and learn Kubernetes concepts without needing a cloud cluster. It supports addons for
                 ingress, DNS, storage, and dashboard. For production workloads, a managed or self-hosted multi-node
                 cluster is required.</li>
-              <li><strong>What is a Con gMap, and how is it used?</strong><br><br>A Con gMap is a Kubernetes object
+              <li><strong>What is a ConfigMap, and how is it used?</strong><br><br>A ConfigMap is a Kubernetes object
                 for storing non-sensitive configuration data as key-value pairs. It decouples configuration from
-                container images, allowing the same image to be used across environments. Con gMaps can be mounted as
+                container images, allowing the same image to be used across environments. ConfigMaps can be mounted as
                 files in a volume, exposed as environment variables, or read by an application through the Kubernetes
-                API. For backend developers, Con gMaps are useful for application settings such as feature ags, URLs,
-                and logging levels. Sensitive data should not be stored in Con gMaps; use Secrets instead.</li>
+                API. For backend developers, ConfigMaps are useful for application settings such as feature ags, URLs,
+                and logging levels. Sensitive data should not be stored in ConfigMaps; use Secrets instead.</li>
               <li><strong>What is a Secret in Kubernetes?</strong><br><br>A Secret is a Kubernetes object for
                 storing sensitive data such as passwords, tokens, and certificates. Secret values are base64-encoded but
                 are not encrypted by default unless etcd encryption at rest is enabled. Secrets can be mounted as files
@@ -170,7 +170,7 @@
                 those permissions to subjects. A Role applies within a namespace, while a ClusterRole applies
                 cluster-wide. RBAC is essential for securing multi- tenant clusters and ensuring that applications and
                 users have only the permissions they need. For example, a backend service account should only be allowed
-                to read Con gMaps in its own namespace, not delete nodes.</li>
+                to read ConfigMaps in its own namespace, not delete nodes.</li>
               <li><strong>A Pod is stuck in CrashLoopBackOff. What is your troubleshooting work
                   ow?</strong><br><br>I start with kubectl get pods -n <namespace> to confirm the status and restart
                   count. Then I run kubectl describe pod <pod-name> to inspect events, which often reveal the cause such
@@ -181,8 +181,8 @@
                         startup command, dependency not ready, or insufficient resources. Real-time example: a Spring
                         Boot Pod restarts continuously with CrashLoopBackOff. kubectl describe shows Back-off restarting
                         failed container. kubectl logs --previous reveals Caused by: java.lang.IllegalArgumentException:
-                        Could not resolve placeholder 'DB_HOST'. The Con gMap app-config was not mounted because of a
-                        typo in configMapRef. I correct the Con gMap name, apply the manifest, and the Pod
+                        Could not resolve placeholder 'DB_HOST'. The ConfigMap app-config was not mounted because of a
+                        typo in configMapRef. I correct the ConfigMap name, apply the manifest, and the Pod
                         starts.</pod-name></pod-name></pod-name></namespace>
               </li>
               <li><strong>A Pod is in ImagePullBackOff. How do you resolve it?</strong><br><br>ImagePullBackOff
@@ -321,15 +321,15 @@
                 least two Pods are always ready, and traffic is never served to a Pod before its readiness probe
                 succeeds.</li>
               <li><strong>A backend application needs different configurations per environment. How do you manage it in
-                  Kubernetes?</strong><br><br>I use Con gMaps and Secrets for environment-specific configuration,
+                  Kubernetes?</strong><br><br>I use ConfigMaps and Secrets for environment-specific configuration,
                 keeping the container image identical across environments. Each namespace represents an environment such
-                as dev, staging, or prod. I mount Con gMaps as files or inject values as environment variables. For
+                as dev, staging, or prod. I mount ConfigMaps as files or inject values as environment variables. For
                 complex configuration, I use Helm or Kustomize to generate manifests per environment. Sensitive values
-                go into Secrets, and non-sensitive values go into Con gMaps. I avoid embedding environment differences
+                go into Secrets, and non-sensitive values go into ConfigMaps. I avoid embedding environment differences
                 in the image so that the same artifact can be promoted through the pipeline. Real-time example: the
-                order service needs different database URLs for staging and production. I create a Con gMap order-
-                service-config in each namespace with the appropriate DB_URL. The Deployment references the Con gMap as
-                environment variables. The same Docker image is deployed to both environments, and only the Con gMap
+                order service needs different database URLs for staging and production. I create a ConfigMap order-
+                service-config in each namespace with the appropriate DB_URL. The Deployment references the ConfigMap as
+                environment variables. The same Docker image is deployed to both environments, and only the ConfigMap
                 differs.</li>
               <li><strong>A Pod is stuck in Pending and never schedules. What do you check?</strong><br><br>I run
                 kubectl describe pod to read the events, which usually explain why scheduling failed. Common causes
