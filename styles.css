@@ -1451,6 +1451,11 @@ footer.site-footer {
 }
 
 @media (max-width: 900px) {
+  .app {
+    display: block;
+    width: 100%;
+  }
+
   .sidebar {
     position: fixed;
     width: min(100%, 320px);
@@ -1466,6 +1471,11 @@ footer.site-footer {
   }
 
   .main {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .view {
     width: 100%;
   }
 
