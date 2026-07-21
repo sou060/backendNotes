@@ -93,6 +93,7 @@ body.dark-mode .icon-moon {
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -102,6 +103,7 @@ body {
   font-family: "Inter", system-ui, sans-serif;
   font-size: 15.5px;
   line-height: 1.65;
+  overflow-x: hidden;
 }
 
 h1,
@@ -716,6 +718,15 @@ body.dark-mode .topbar {
   position: relative;
   z-index: 1;
   margin: 38px 0;
+}
+
+.note-section,
+.note-section p,
+.note-section li,
+.note-section code,
+.note-section pre code {
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .note-section h3 {
@@ -1671,6 +1682,10 @@ footer.site-footer {
 
   .chapter-ghost {
     font-size: 100px;
+  }
+
+  .diagram-svg svg {
+    min-width: 0;
   }
 }
 
