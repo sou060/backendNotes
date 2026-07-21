@@ -4,11 +4,12 @@
             <h2>Spring Boot Testing — JUnit, Mockito, Integration Testing, and JaCoCo</h2>
           </header>
           <p class="note-para">This chapter covers Spring Boot Testing — JUnit, Mockito, Integration Testing, and
-            JaCoCo. It includes 39 interview questions and scenarios.</p>
+            JaCoCo. It includes 39 interview questions and scenarios organized by topic below.</p>
           <section class="note-section" id="ch10-sec1">
-            <h3><span class="secnum">10.1.</span>Key Concepts</h3>
+            <h3><span class="secnum">10.1.</span>Testing Fundamentals & JUnit 5</h3>
+            <p class="note-para">This section covers the basics of testing, JUnit 5 lifecycle annotations, and AssertJ.</p>
             <ul class="note-list lvl-1">
-              <li><strong>Why is testing important in a Spring Boot application, and what does Spring Boot provide out
+<li><strong>Why is testing important in a Spring Boot application, and what does Spring Boot provide out
                   of the box?</strong><br><br>Testing is important because it catches regressions early, documents
                 expected behavior, and gives confidence during refactoring or production incidents. Spring Boot provides
                 the spring-boot-starter-test starter, which bundles JUnit 5, Mockito, AssertJ, Hamcrest, JSONassert, and
@@ -17,7 +18,7 @@
                 @SpringBootTest. The starter also configures the build tools to separate unit tests from integration
                 tests, which is useful on CI where you want quick feedback before running slower integration suites.
               </li>
-              <li><strong>What is the difference between unit testing and integration testing in a Spring Boot
+<li><strong>What is the difference between unit testing and integration testing in a Spring Boot
                   project?</strong><br><br>A unit test isolates a single class or method and replaces all
                 collaborators with test doubles, so a failure points directly to the unit under test. An integration
                 test loads part or all of the Spring context and exercises real collaborators such as the database, the
@@ -25,21 +26,21 @@
                 Integration tests are slower but verify wiring, transaction behavior, serialization, and configuration
                 that unit tests cannot. A healthy project runs unit tests on every commit and integration tests in a
                 separate CI stage or nightly job.</li>
-              <li><strong>What is JUnit 5, and how is it different from JUnit 4?</strong><br><br>JUnit 5 is the
+<li><strong>What is JUnit 5, and how is it different from JUnit 4?</strong><br><br>JUnit 5 is the
                 current generation of the JUnit testing framework. It has a modular architecture made of JUnit Platform,
                 which discovers and runs tests; JUnit Jupiter, which provides the modern programming and extension
                 model; and JUnit Vintage, which can run JUnit 3 and 4 tests. Unlike JUnit 4, it uses @Test, @BeforeEach,
                 @AfterEach, @BeforeAll, and @AfterAll annotations, supports parameterized tests, dynamic tests, and a
                 powerful extension API. The extension model replaces JUnit 4 runners and rules, so Spring uses
                 SpringExtension instead of the old SpringRunner.</li>
-              <li><strong>Explain the lifecycle annotations @BeforeAll, @BeforeEach, @AfterEach, and @AfterAll in JUnit
+<li><strong>Explain the lifecycle annotations @BeforeAll, @BeforeEach, @AfterEach, and @AfterAll in JUnit
                   5.</strong><br><br>@BeforeAll runs once before any test in the class and is typically used for
                 expensive setup such as starting a database container. @BeforeEach runs before every test and is used to
                 reset state, create fresh mocks, or reinitialize the object under test. @AfterEach runs after every test
                 to clean up resources like open files or database rows inserted by the test. @AfterAll runs once after
                 all tests complete and is used to stop containers or close connection pools. Static setup methods must
                 be static, which is a common trap when you need shared state across tests.</li>
-              <li><strong>What is AssertJ, and why do developers prefer it over standard JUnit
+<li><strong>What is AssertJ, and why do developers prefer it over standard JUnit
                   assertions?</strong><br><br>AssertJ is a fluent assertion library that makes test failures
                 readable and assertions easy to write. Instead of assertEquals(expected, actual), you write
                 assertThat(actual).isEqualTo(expected). It has rich support for collections, exceptions, strings, dates,
@@ -48,21 +49,27 @@
                 sageContaining("not found") reads like a sentence and bundles multiple checks. AssertJ also avoids
                 confusion about the expected-versus-actual parameter order, which is a common source of misleading
                 failure messages.</li>
-              <li><strong>How do you write a basic unit test for a Spring Boot service method?</strong><br><br>You
+<li><strong>How do you write a basic unit test for a Spring Boot service method?</strong><br><br>You
                 test the service class directly without loading the Spring context. You create the service instance
                 yourself or use Mockito's @InjectMocks, and you provide its dependencies with @Mock. In the test you
                 arrange the inputs and mock behavior, act by calling the service method, and assert the result or verify
                 interactions. For example, if OrderService depends on OrderRepository, you mock the repository to return
                 an order, call orderService.findById(1L), and assert that the returned order has the expected customer
                 name. Since the Spring context is not loaded, the test starts in milliseconds.</li>
-              <li><strong>What is Mockito, and what problem does it solve?</strong><br><br>Mockito is a mocking
+            </ul>
+          </section>
+          <section class="note-section" id="ch10-sec2">
+            <h3><span class="secnum">10.2.</span>Mocking with Mockito</h3>
+            <p class="note-para">This section explores Mockito, stubs, spies, verify(), and @MockBean.</p>
+            <ul class="note-list lvl-1">
+<li><strong>What is Mockito, and what problem does it solve?</strong><br><br>Mockito is a mocking
                 framework that lets you create test doubles for dependencies so you can isolate the class you are
                 testing. It solves the problem of slow or unavailable collaborators such as databases, external REST
                 services, or message queues during unit tests. With Mockito you can define stubbed responses, verify
                 that certain methods were called, and capture the arguments passed to mocked methods. This keeps unit
                 tests focused, fast, and deterministic. A common mistake is mocking everything including simple value
                 objects, which makes tests brittle and less trustworthy.</li>
-              <li><strong>What is the difference between @Mock, @Spy, and @InjectMocks in
+<li><strong>What is the difference between @Mock, @Spy, and @InjectMocks in
                   Mockito?</strong><br><br>@Mock creates a fully mocked object where every method returns default
                 values unless stubbed. @Spy creates a partial mock that wraps a real instance and calls real methods by
                 default, unless you stub a specific method. @InjectMocks creates an instance of the class under test and
@@ -70,7 +77,7 @@
                 convenient for service-layer tests, but constructor injection is cleaner because it makes dependencies
                 explicit and avoids reflection-based injection, which can silently fail if field names do not match.
               </li>
-              <li><strong>How do you stub a method with Mockito, and what happens if a stubbed method is called with
+<li><strong>How do you stub a method with Mockito, and what happens if a stubbed method is called with
                   unexpected arguments?</strong><br><br>You stub a method with
                 when(mock.method(args)).thenReturn(value), or with the BDD-style
                 given(mock.method(args)).willReturn(value). If the method is called with arguments that do not match any
@@ -79,7 +86,7 @@
                 test may pass even though the mock interaction is wrong. To catch this, use
                 Mockito.strictness(Strictness.STRICT_STUBS), which fails the test if a stubbed mock is called with
                 unexpected arguments or if a stubbed method is never called.</li>
-              <li><strong>What is the purpose of verify() in Mockito, and when should you use
+<li><strong>What is the purpose of verify() in Mockito, and when should you use
                   it?</strong><br><br>verify() checks that a specific interaction happened with a mock, such as a
                 method being called a certain number of times or with specific arguments. You use it when the side
                 effect of the method under test is more important than the returned value, for example when a service
@@ -87,14 +94,20 @@
                 while verify(emailClient, never()).send(any()) confirms that no email was sent for an invalid order.
                 However, overusing verify() on every collaborator makes tests brittle; prefer asserting outcomes and
                 verify only meaningful interactions.</li>
-              <li><strong>What is @MockBean, and when do you use it instead of @Mock?</strong><br><br>@MockBean is a
+<li><strong>What is @MockBean, and when do you use it instead of @Mock?</strong><br><br>@MockBean is a
                 Spring test annotation that replaces an existing bean in the Spring application context with a Mockito
                 mock. You use it in integration or slice tests where the context is loaded, such as @WebMvcTest or
                 @SpringBootTest, and you need a real controller but a fake service. @Mock is used in plain unit tests
                 where there is no Spring context. A common pitfall is using @MockBean in a class with many tests; it
                 triggers context caching invalidation because Spring sees a modified context, which can slow down the
                 whole suite.</li>
-              <li><strong>How do you test the persistence layer in Spring Boot, and what does @DataJpaTest
+            </ul>
+          </section>
+          <section class="note-section" id="ch10-sec3">
+            <h3><span class="secnum">10.3.</span>Data Access & Testcontainers</h3>
+            <p class="note-para">This section covers testing the persistence layer and using Testcontainers for isolated databases.</p>
+            <ul class="note-list lvl-1">
+<li><strong>How do you test the persistence layer in Spring Boot, and what does @DataJpaTest
                   do?</strong><br><br>The persistence layer is tested with @DataJpaTest, which configures an
                 in-memory or real database, loads @Entity classes, and creates a default TestEntityManager and
                 repository beans. It does not load the full application context, so web components and services are
@@ -103,7 +116,7 @@
                 that rolls back automatically, leaving the database clean. For complex queries, an in-memory database
                 may behave differently from production, so many teams switch to Testcontainers with the real database
                 vendor.</li>
-              <li><strong>What are Testcontainers, and why would you use them for repository
+<li><strong>What are Testcontainers, and why would you use them for repository
                   tests?</strong><br><br>Testcontainers is a Java library that starts lightweight, throwaway Docker
                 containers for databases, message brokers, and other services during tests. For repository tests, it
                 lets you run PostgreSQL, MySQL, or Oracle inside a container instead of relying on H2. This eliminates
@@ -111,7 +124,7 @@
                 database and production. The container starts once per test class, tests run against the real database,
                 and the container is stopped after the tests finish. The trade-off is slower startup, but the confidence
                 gained is worth it for queries that use native SQL, JSON columns, or stored procedures.</li>
-              <li><strong>How do you configure Testcontainers for a Spring Boot @DataJpaTest?</strong><br><br>You
+<li><strong>How do you configure Testcontainers for a Spring Boot @DataJpaTest?</strong><br><br>You
                 define a container as a static field annotated with @Container, start it in @BeforeAll, and set Spring
                 DataSource properties so the test context connects to the running container. With the latest Spring Boot
                 and Testcontainers integration, you can also use @ServiceConnection so Spring Boot automatically
@@ -119,7 +132,13 @@
                 dependency, and you may reuse the same container across tests with a singleton pattern or the
                 Testcontainers reuse feature to reduce startup time. The key is to keep container lifecycle separate
                 from the test transaction so the container keeps running while individual tests still roll back.</li>
-              <li><strong>What is @WebMvcTest, and what does it load?</strong><br><br>@WebMvcTest is a slice test
+            </ul>
+          </section>
+          <section class="note-section" id="ch10-sec4">
+            <h3><span class="secnum">10.4.</span>Web MVC & Integration Testing</h3>
+            <p class="note-para">This section reviews @WebMvcTest, MockMvc, and full context @SpringBootTest runs.</p>
+            <ul class="note-list lvl-1">
+<li><strong>What is @WebMvcTest, and what does it load?</strong><br><br>@WebMvcTest is a slice test
                 annotation that loads only the Spring MVC web layer. It auto-configures MockMvc, registers @Controller
                 and @ControllerAdvice beans, and excludes the full service, repository, and component scan unless
                 explicitly imported. It is ideal for testing REST controllers because you can simulate HTTP requests,
@@ -127,7 +146,7 @@
                 Collaborating services are provided with @MockBean. A common mistake is expecting security filters to be
                 fully configured; while Spring Security filters are registered, authentication must be mocked or
                 disabled depending on the test intent.</li>
-              <li><strong>What is MockMvc, and how does it differ from TestRestTemplate or
+<li><strong>What is MockMvc, and how does it differ from TestRestTemplate or
                   WebTestClient?</strong><br><br>MockMvc is a Spring testing utility that dispatches HTTP requests
                 through the DispatcherServlet without starting a real servlet container. It tests controller behavior,
                 binding, validation, exception handling, and filter interactions in a lightweight way. TestRestTemplate
@@ -136,7 +155,7 @@
                 full stack including actual serialization and container filters. For most controller tests, MockMvc is
                 sufficient; reserve the real server approach for integration tests that need end-to-end HTTP semantics.
               </li>
-              <li><strong>What is @SpringBootTest, and what are its web environment
+<li><strong>What is @SpringBootTest, and what are its web environment
                   options?</strong><br><br>@SpringBootTest loads the complete Spring Boot application context and is
                 used for full integration tests. Its webEnvironment attribute controls how the web layer is started.
                 MOCK loads a web context but does not start a real server, RANDOM_PORT starts an embedded server on a
@@ -144,7 +163,7 @@
                 RANDOM_PORT is the safest choice for integration tests because it avoids port conflicts on CI and lets
                 TestRestTemplate or WebTestClient send real requests. MOCK is useful when you want the web beans
                 configured but prefer MockMvc.</li>
-              <li><strong>What is the Spring TestContext framework, and how does caching affect test
+<li><strong>What is the Spring TestContext framework, and how does caching affect test
                   performance?</strong><br><br>The Spring TestContext framework manages the application context for
                 tests, including dependency injection, transaction management, and context caching. When multiple test
                 classes use the same context configuration, Spring reuses the cached context instead of creating a new
@@ -152,7 +171,7 @@
                 or different @TestPropertySource values changes the context key and forces a new context to load. A
                 suite that uses many different @MockBean combinations can suffer from context cache pollution and slow
                 builds, so it is worth grouping tests that share the same context.</li>
-              <li><strong>How do you test an asynchronous method in Spring Boot?</strong><br><br>Asynchronous
+<li><strong>How do you test an asynchronous method in Spring Boot?</strong><br><br>Asynchronous
                 methods are usually annotated with @Async and executed by a TaskExecutor. In a unit test, you call the
                 method and use CompletableFuture.get() or Future.get() with a timeout to wait for the result. In an
                 integration test, you may inject the executor and wait for active tasks to finish, or use Awaitility to
@@ -160,7 +179,13 @@
                 call, which usually fails because the task has not run yet. You should also test the error path by
                 verifying that exceptions are handled by the returned Future or by an AsyncUncaughtExceptionHandler for
                 void async methods.</li>
-              <li><strong>What is JaCoCo, and what does it measure?</strong><br><br>JaCoCo is a Java code coverage
+            </ul>
+          </section>
+          <section class="note-section" id="ch10-sec5">
+            <h3><span class="secnum">10.5.</span>Test Coverage & Advanced Testing</h3>
+            <p class="note-para">This section covers JaCoCo, parameterized tests, test data setup, and mock boundaries.</p>
+            <ul class="note-list lvl-1">
+<li><strong>What is JaCoCo, and what does it measure?</strong><br><br>JaCoCo is a Java code coverage
                 library that instruments bytecode during test execution and reports how much of the code was executed.
                 It measures instruction coverage, branch coverage, line coverage, method coverage, and class coverage.
                 The HTML report shows which lines were covered and which branches were missed, while the XML report is
@@ -168,13 +193,13 @@
                 line coverage with weak assertions is misleading because the code can be exercised without being
                 verified. JaCoCo should be paired with meaningful assertions and reviewed alongside the test suite
                 quality.</li>
-              <li><strong>How do you exclude classes or methods from JaCoCo coverage?</strong><br><br>You configure
+<li><strong>How do you exclude classes or methods from JaCoCo coverage?</strong><br><br>You configure
                 exclusions in the JaCoCo Maven or Gradle plugin using patterns such as **/config/*, **/dto/**, or
                 **/*Exception. Lombok-generated methods can be excluded with the lombok.addLombokGeneratedAnnotation =
                 true setting, which marks generated code so JaCoCo ignores it. Exclusions are useful for boilerplate
                 such as equals and hashCode, mapping classes, or generated sources, but excluding real business logic to
                 hit a coverage target is a harmful practice. The goal is to reduce noise, not to game the metric.</li>
-              <li><strong>What are parameterized tests in JUnit 5, and when are they
+<li><strong>What are parameterized tests in JUnit 5, and when are they
                   useful?</strong><br><br>Parameterized tests let you run the same test logic with multiple sets of
                 inputs. You can use @ValueSource for simple values, @CsvSource for tabular data, @MethodSource for
                 complex objects, or @ArgumentsSource for custom suppliers. They are useful for validation rules, pricing
@@ -182,7 +207,7 @@
                 parameterized test can check that a discount calculator returns the correct amount for customer tiers
                 GOLD, SILVER, and BRONZE. Without parameterized tests, you would copy- paste nearly identical test
                 methods, which is hard to maintain.</li>
-              <li><strong>What is the difference between @MockBean and @SpyBean in Spring
+<li><strong>What is the difference between @MockBean and @SpyBean in Spring
                   tests?</strong><br><br>@MockBean completely replaces a bean in the Spring context with a Mockito
                 mock, so calls return stubbed values by default. @SpyBean wraps the real bean, so real behavior runs
                 unless a specific method is stubbed. Use @MockBean when the real implementation should not execute, such
@@ -190,7 +215,7 @@
                 when you want to verify that the real bean was called or when you need to override one method of an
                 otherwise real service. Spies are useful but can make tests harder to debug because the real code runs
                 and may trigger unexpected side effects.</li>
-              <li><strong>How do you handle test data setup in integration tests without making tests depend on each
+<li><strong>How do you handle test data setup in integration tests without making tests depend on each
                   other?</strong><br><br>Each test should start from a clean, well-defined state. Use the
                 transactional rollback behavior of @Transactional on tests so database changes are undone. For data that
                 must survive across transactions, such as when testing a service that calls @Transactional(propagation =
@@ -198,7 +223,13 @@
                 data created by a previous test because it makes execution order matter and causes flaky failures. Some
                 teams use SQL scripts or libraries like Flyway for baseline schema and small seed data sets, but
                 test-specific data should be created and cleaned up by the test itself.</li>
-              <li><strong>A developer writes a service test that passes locally but fails on CI because of timezone
+            </ul>
+          </section>
+          <section class="note-section" id="ch10-sec6">
+            <h3><span class="secnum">10.6.</span>Scenario-Based Questions</h3>
+            <p class="note-para">This section provides real-world scenarios on test flakiness, context caching, and test coverage gaps.</p>
+            <ul class="note-list lvl-1">
+<li><strong>A developer writes a service test that passes locally but fails on CI because of timezone
                   differences. How do you investigate and fix it?</strong><br><br>I first look at any date or
                 timestamp assertions in the test and in the production code. If the test creates an expected value using
                 LocalDateTime.now() or new Date() and compares it against a value returned by the service, the
@@ -208,7 +239,7 @@
                 explicit, for example by setting -Duser.timezone=UTC in the CI pipeline and using TIMESTAMP WITH TIME
                 ZONE columns. I also check whether the test relies on the current date for filtering and replace it with
                 a controlled reference date.</li>
-              <li><strong>A @DataJpaTest passes on its own but fails when the whole suite runs because of leftover data.
+<li><strong>A @DataJpaTest passes on its own but fails when the whole suite runs because of leftover data.
                   What is the cause?</strong><br><br>The cause is usually a test that commits data and does not
                 clean up, or a non-transactional operation that leaks state. @DataJpaTest is transactional by default,
                 so most tests roll back, but a test calling a service method annotated with @Transactional(propagation =
@@ -217,7 +248,7 @@
                 find the offending test by running the suite with logging enabled and inspecting the database state
                 after each test class. The fix is to add explicit cleanup in @AfterEach, use unique identifiers per
                 test, or refactor the production code so tests can rely on automatic rollback.</li>
-              <li><strong>A controller test with @WebMvcTest returns a 200 status but the response body is empty. How do
+<li><strong>A controller test with @WebMvcTest returns a 200 status but the response body is empty. How do
                   you debug it?</strong><br><br>An empty body usually means the controller returns a response object
                 but it is not serialized, or the mock did not return the expected object. I first verify that the
                 controller method is actually returning the object and that @RestController or @ResponseBody is present.
@@ -226,7 +257,7 @@
                 check that the object has getters, because Jackson needs them. Finally, I inspect the MockMvc result to
                 see whether an exception was swallowed, and I enable debug logging for org.springframework.web to trace
                 the request through the filters.</li>
-              <li><strong>A service test using Mockito throws an UnnecessaryStubbingException after a refactor. What is
+<li><strong>A service test using Mockito throws an UnnecessaryStubbingException after a refactor. What is
                   happening?</strong><br><br>UnnecessaryStubbingException is thrown when strict stubbing is enabled
                 and a stubbed interaction was never used during the test. After the refactor, the production code may no
                 longer call the stubbed method, or the test may have stubbed a method that was only relevant to an older
@@ -234,7 +265,7 @@
                 actually required by the scenario being tested. If strict stubbing is too noisy for a class with shared
                 setup, I either split the test into smaller focused tests or apply Mockito.lenient() only where a shared
                 stub is acceptable. The goal is to keep the test honest about what it is verifying.</li>
-              <li><strong>An integration test with @SpringBootTest(webEnvironment = RANDOM_PORT) fails because the
+<li><strong>An integration test with @SpringBootTest(webEnvironment = RANDOM_PORT) fails because the
                   actuator health endpoint returns 404. How do you fix it?</strong><br><br>The actuator endpoint is
                 not loaded because @SpringBootTest does not auto- configure actuator unless the actuator starter is on
                 the classpath and the endpoint is enabled. I check that spring-boot-starter-actuator is a dependency and
@@ -243,7 +274,7 @@
                 also verify that the test does not override management.server.port to a fixed port that collides with
                 another test. When actuator is intentionally disabled for a test, I either enable it for that test class
                 or assert against an internal service bean instead of the HTTP endpoint.</li>
-              <li><strong>A test with Testcontainers is extremely slow because the database container starts for every
+<li><strong>A test with Testcontainers is extremely slow because the database container starts for every
                   test class. How do you speed it up?</strong><br><br>I start by moving the container declaration to
                 a base class or a shared utility so the same container instance is reused across multiple test classes.
                 With Testcontainers, I enable the testcontainers.reuse.enable flag in ~/.testcontainers.properties so
@@ -252,7 +283,7 @@
                 @DirtiesContext annotations that force the Spring context to restart. If the suite is still slow, I move
                 the fastest unit-like repository tests to H2 and reserve Testcontainers only for tests that exercise
                 vendor-specific SQL or stored procedures.</li>
-              <li><strong>A developer disables CSRF in a @WebMvcTest and now real requests fail with 403 in production.
+<li><strong>A developer disables CSRF in a @WebMvcTest and now real requests fail with 403 in production.
                   What went wrong?</strong><br><br>The test disabled CSRF to make the mock setup easier, but the
                 developer assumed the controller behavior was the only thing being tested. CSRF is part of Spring
                 Security, and disabling it in tests hides the fact that state-changing browser requests require a valid
@@ -260,7 +291,7 @@
                 CSRF tokens in state-changing requests using csrf(). For pure API clients using bearer tokens, CSRF is
                 legitimately disabled, but that decision belongs in the production configuration, not hidden in tests.
                 Tests should mirror production security as closely as possible to catch integration issues early.</li>
-              <li><strong>A test with @MockBean runs fine alone but causes context reloads and slow builds across the
+<li><strong>A test with @MockBean runs fine alone but causes context reloads and slow builds across the
                   suite. How do you address it?</strong><br><br>@MockBean changes the Spring context fingerprint, so
                 every unique combination of mocked beans triggers a new context cache entry. If many test classes mock
                 different sets of beans, the cache fills up and contexts are constantly created and destroyed. I address
@@ -269,7 +300,7 @@
                 context at all, I replace @MockBean with plain Mockito @Mock and remove @SpringBootTest, which
                 eliminates context reloads entirely. When a slice test such as @WebMvcTest is sufficient, I use it
                 instead of the full context.</li>
-              <li><strong>A repository test using H2 passes, but the same query fails in production on PostgreSQL.
+<li><strong>A repository test using H2 passes, but the same query fails in production on PostgreSQL.
                   Why?</strong><br><br>H2 supports a different SQL dialect than PostgreSQL, and some queries that
                 work in H2 may use syntax, functions, or type casting that PostgreSQL does not accept. Native queries,
                 JSON operators, window functions, and custom types are common sources of mismatch. The fix is to move
@@ -278,7 +309,7 @@
                 portable logic. If a native query is unavoidable, I write a dedicated integration test against the real
                 database and keep the H2 test only for simple repository methods where dialect differences do not
                 matter.</li>
-              <li><strong>A developer writes a unit test that calls a private method using reflection. Is this a good
+<li><strong>A developer writes a unit test that calls a private method using reflection. Is this a good
                   practice, and what would you suggest?</strong><br><br>Testing private methods through reflection
                 is usually not a good practice because it couples the test to internal implementation details and makes
                 refactoring painful. Private methods are tested indirectly by testing the public methods that call them.
@@ -286,7 +317,7 @@
                 extracted into a separate class with public methods that can be tested directly. The exception is legacy
                 code that cannot be refactored safely; in that case, reflection may be a temporary bridge, but the goal
                 should be to refactor the code rather than maintain reflection-based tests.</li>
-              <li><strong>A code coverage report shows 90 percent line coverage, but a bug still reaches production. How
+<li><strong>A code coverage report shows 90 percent line coverage, but a bug still reaches production. How
                   is that possible?</strong><br><br>Line coverage only measures whether a line was executed, not
                 whether it was verified. A test can execute error-handling code without asserting that the correct
                 exception is thrown, or it can call a method with a weak assertion that misses the bug. Coverage also
@@ -294,7 +325,7 @@
                 not a quality guarantee. I review tests for meaningful assertions, add mutation testing or
                 property-based testing for critical paths, and run integration tests against realistic data. If a bug
                 escapes, I add a regression test that fails before the fix and passes after it.</li>
-              <li><strong>A test that verifies an email was sent keeps failing intermittently. How do you stabilize
+<li><strong>A test that verifies an email was sent keeps failing intermittently. How do you stabilize
                   it?</strong><br><br>Intermittent failures in asynchronous email sending usually come from timing
                 issues. The test asserts before the background thread has finished, or the mock interaction happens on a
                 different thread than the test thread. I stabilize the test by using Awaitility to wait until the mock
@@ -302,7 +333,7 @@
                 wait for completion. If the email client runs inside an @Async method, I inject the TaskExecutor and
                 wait for active tasks. I also make the test deterministic by controlling the thread pool or by making
                 the email service synchronous in the test configuration.</li>
-              <li><strong>A build fails because JaCoCo reports zero coverage for classes generated by MapStruct or
+<li><strong>A build fails because JaCoCo reports zero coverage for classes generated by MapStruct or
                   Lombok. How do you handle it?</strong><br><br>Generated code should not count against coverage
                 because it is not hand-written business logic. For Lombok, I add lombok.config with
                 lombok.addLombokGeneratedAnnotation = true so JaCoCo recognizes the @Generated annotation and skips
@@ -310,7 +341,7 @@
                 implementation classes, for example with **/mapper/*Impl. I keep the domain and service classes included
                 in coverage so the report reflects actual code quality. If the team uses other generators, I add their
                 output packages to the exclusions and document why those classes are not measured.</li>
-              <li><strong>A controller test passes in isolation but fails after adding Spring Security to the project.
+<li><strong>A controller test passes in isolation but fails after adding Spring Security to the project.
                   How do you update the test?</strong><br><br>Adding Spring Security introduces filters that
                 intercept every request, so unauthenticated requests to protected endpoints return 401 instead of 200. I
                 update the test by configuring MockMvc with the security filters and either providing test credentials
@@ -319,7 +350,7 @@
                 enabled and use @WithMockUser to simulate an authenticated user. I also add tests that verify the
                 endpoint correctly rejects unauthenticated requests and enforces role-based access, so security behavior
                 is covered, not bypassed.</li>
-              <li><strong>A test suite reports IllegalStateException: Failed to load ApplicationContext after adding a
+<li><strong>A test suite reports IllegalStateException: Failed to load ApplicationContext after adding a
                   new dependency. What is your debugging approach?</strong><br><br>I start by reading the full stack
                 trace and the caused-by chain, because the root cause is usually buried several levels deep. Common
                 reasons are a missing property, a bean that fails to initialize, a conditional configuration that

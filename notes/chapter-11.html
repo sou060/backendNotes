@@ -4,11 +4,12 @@
             <h2>Spring Boot Production Deployment — AWS, Profiles, CI/CD, and Flyway</h2>
           </header>
           <p class="note-para">This chapter covers Spring Boot Production Deployment — AWS, Profiles, CI/CD, and Flyway.
-            It includes 44 interview questions and scenarios.</p>
+            It includes 44 interview questions and scenarios organized by topic below.</p>
           <section class="note-section" id="ch11-sec1">
-            <h3><span class="secnum">11.1.</span>Key Concepts</h3>
+            <h3><span class="secnum">11.1.</span>Database Setup & Management</h3>
+            <p class="note-para">This section covers deploying production databases, multi-AZ configurations, and credential management.</p>
             <ul class="note-list lvl-1">
-              <li><strong>What are the main things to consider when moving a Spring Boot application from local
+<li><strong>What are the main things to consider when moving a Spring Boot application from local
                   development to production?</strong><br><br>Production readiness is much more than deploying a JAR
                 file. You need a managed database with backups, environment-specific configuration, secrets management,
                 health monitoring, centralized logging, and a repeatable deployment pipeline. On AWS this usually means
@@ -17,7 +18,7 @@
                 Spring profiles and environment variables so the same artifact runs in dev, staging, and production
                 without code changes. A common pitfall is shipping the production database password inside the JAR or
                 leaving debug endpoints exposed.</li>
-              <li><strong>How do you set up a production database with Amazon RDS?</strong><br><br>I create a DB
+<li><strong>How do you set up a production database with Amazon RDS?</strong><br><br>I create a DB
                 subnet group that spans at least two availability zones for high availability, then provision the RDS
                 instance or Aurora cluster with the desired engine, instance class, storage, and backup retention.
                 Security groups restrict inbound traffic to the application tier only, and the database is placed in
@@ -26,7 +27,7 @@
                 environment variable such as SPRING_DATASOURCE_URL, which points to the RDS endpoint, rather than
                 hard-coding the host. I also create a read replica if reporting queries need to offload traffic from the
                 primary instance.</li>
-              <li><strong>What is the difference between RDS Multi-AZ and a read replica?</strong><br><br>Multi-AZ
+<li><strong>What is the difference between RDS Multi-AZ and a read replica?</strong><br><br>Multi-AZ
                 maintains a synchronous standby in another availability zone for high availability. If the primary
                 fails, RDS automatically fails over to the standby without manual intervention. It is for availability,
                 not scaling. A read replica is an asynchronous copy of the primary that can serve read traffic and be
@@ -34,7 +35,7 @@
                 may lag behind the primary by a small amount. Teams sometimes confuse the two and enable Multi-AZ
                 expecting read scaling, or create a read replica expecting automatic failover, so it is important to
                 choose based on the actual goal.</li>
-              <li><strong>How do you manage database credentials securely in a Spring Boot application on
+<li><strong>How do you manage database credentials securely in a Spring Boot application on
                   AWS?</strong><br><br>Credentials should never be committed to source control or baked into the
                 Docker image. In AWS, the cleanest approach is to store the username and password in AWS Secrets Manager
                 and have the application retrieve them at startup, either by integrating Spring Cloud AWS or by mounting
@@ -44,7 +45,13 @@
                 manual. Whatever the mechanism, the application must fail clearly at startup if the secret cannot be
                 read, so misconfiguration is discovered immediately rather than masked by a connection error hours
                 later.</li>
-              <li><strong>What are Spring profiles, and how do they help with environment- specific
+            </ul>
+          </section>
+          <section class="note-section" id="ch11-sec2">
+            <h3><span class="secnum">11.2.</span>Spring Profiles & Configuration</h3>
+            <p class="note-para">This section explains how to manage environment-specific properties and profiles in Spring.</p>
+            <ul class="note-list lvl-1">
+<li><strong>What are Spring profiles, and how do they help with environment- specific
                   configuration?</strong><br><br>Spring profiles let you define sets of beans and properties that
                 apply only in specific environments. You activate a profile with spring.profiles.active=prod, and Spring
                 loads application-prod.properties or application-prod.yml alongside the main configuration. Profiles are
@@ -52,7 +59,7 @@
                 value is that the same deployable artifact can run anywhere. A common mistake is putting
                 environment-specific values directly in application.properties; instead, put defaults there and override
                 them per profile or through environment variables so the artifact remains portable.</li>
-              <li><strong>How do you structure application.properties or application.yml for dev, staging, and
+<li><strong>How do you structure application.properties or application.yml for dev, staging, and
                   production?</strong><br><br>I keep common settings in the main application.yml, such as
                 application name, Jackson settings, and logging format. I then create profile-specific files like
                 application- dev.yml, application-staging.yml, and application-prod.yml that contain
@@ -60,7 +67,7 @@
                 supplied through environment variables or a secret manager. For example, spring.datasource.url can point
                 to a local Docker database in dev and an RDS endpoint in prod. I also use a local profile for developers
                 that disables cloud integrations and uses an in- memory or Dockerized database.</li>
-              <li><strong>What is the @Profile annotation, and when would you use it?</strong><br><br>@Profile lets
+<li><strong>What is the @Profile annotation, and when would you use it?</strong><br><br>@Profile lets
                 you register a bean only when a specific profile is active. For example, you might have a
                 MockNotificationService annotated with @Profile("local") and a real AwsSesNotificationService annotated
                 with @Profile("!local"). This keeps the application runnable locally without external credentials. It is
@@ -68,7 +75,13 @@
                 behavior; if every environment behaves differently, the production path is not well tested. Profiles
                 should mainly handle externalized configuration and infrastructure wiring, not business logic branches.
               </li>
-              <li><strong>What is AWS Elastic Beanstalk, and why is it a common choice for Spring Boot
+            </ul>
+          </section>
+          <section class="note-section" id="ch11-sec3">
+            <h3><span class="secnum">11.3.</span>AWS Elastic Beanstalk Deployment</h3>
+            <p class="note-para">This section explores application deployment on AWS Elastic Beanstalk and auto-scaling.</p>
+            <ul class="note-list lvl-1">
+<li><strong>What is AWS Elastic Beanstalk, and why is it a common choice for Spring Boot
                   deployments?</strong><br><br>Elastic Beanstalk is a managed platform service that handles capacity
                 provisioning, load balancing, auto-scaling, and application health monitoring for you. You upload your
                 JAR or Docker image, choose a platform such as Java 17, and Elastic Beanstalk deploys it onto EC2
@@ -76,7 +89,7 @@
                 overhead; you get a production-grade environment without manually configuring EC2, load balancers, and
                 scaling policies. The trade-off is less control than ECS, EKS, or raw EC2, and some teams outgrow it as
                 they need custom networking or advanced deployment strategies.</li>
-              <li><strong>How do you deploy a Spring Boot JAR to Elastic Beanstalk with a load balancer and
+<li><strong>How do you deploy a Spring Boot JAR to Elastic Beanstalk with a load balancer and
                   auto-scaling?</strong><br><br>I create an Elastic Beanstalk web server environment and choose a
                 load-balanced configuration. The environment provisions an Application Load Balancer, an Auto Scaling
                 group, and EC2 instances running the Java platform. I upload the Spring Boot JAR as an application
@@ -84,7 +97,7 @@
                 /actuator/health, configure auto-scaling triggers based on CPU or request count, and set instance type
                 and minimum/maximum counts. The load balancer forwards traffic on port 80 or 443 to the instances on the
                 port Spring Boot listens on, usually 5000 for Elastic Beanstalk Java platforms.</li>
-              <li><strong>What port does a Spring Boot application run on when deployed to Elastic Beanstalk, and how do
+<li><strong>What port does a Spring Boot application run on when deployed to Elastic Beanstalk, and how do
                   you configure it?</strong><br><br>Elastic Beanstalk Java platforms default to running the
                 application on port 5000, and the nginx proxy forwards requests from port 80 to port 5000. If your
                 Spring Boot application uses a different port, you must set SERVER_PORT to 5000 or update the nginx
@@ -92,7 +105,7 @@
                 that the application starts on 8080 locally and fails health checks on Elastic Beanstalk because the
                 load balancer expects it on 5000. I always verify the port setting in the environment properties and use
                 server.port=5000 or the equivalent environment variable.</li>
-              <li><strong>How do you connect an Elastic Beanstalk application to an RDS database?</strong><br><br>I
+<li><strong>How do you connect an Elastic Beanstalk application to an RDS database?</strong><br><br>I
                 create the RDS instance first and then configure the Elastic Beanstalk environment properties to point
                 to it. The properties include SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, and
                 SPRING_DATASOURCE_PASSWORD. The security group of the RDS instance must allow inbound traffic from the
@@ -100,7 +113,7 @@
                 Beanstalk's integrated RDS option for production because it ties the database lifecycle to the
                 environment; instead, create RDS separately and reference it through environment properties. This keeps
                 the database alive if the environment is recreated or scaled down.</li>
-              <li><strong>What is auto-scaling, and what metrics should trigger it in a Spring Boot
+<li><strong>What is auto-scaling, and what metrics should trigger it in a Spring Boot
                   application?</strong><br><br>Auto-scaling automatically adds or removes EC2 instances based on
                 demand to maintain performance and control cost. Common triggers are CPU utilization above a threshold
                 for several minutes, request count per target, network traffic, or custom CloudWatch metrics such as
@@ -108,7 +121,13 @@
                 faster for IO-bound workloads. Scaling policies should have cooldowns so instances are not added and
                 removed too quickly. I also configure a minimum instance count for availability and a maximum to prevent
                 runaway costs during traffic spikes or attacks.</li>
-              <li><strong>What is CI/CD, and how does AWS CodePipeline and CodeBuild help?</strong><br><br>CI/CD is
+            </ul>
+          </section>
+          <section class="note-section" id="ch11-sec4">
+            <h3><span class="secnum">11.4.</span>CI/CD with AWS</h3>
+            <p class="note-para">This section reviews continuous integration pipelines using AWS CodePipeline and CodeBuild.</p>
+            <ul class="note-list lvl-1">
+<li><strong>What is CI/CD, and how does AWS CodePipeline and CodeBuild help?</strong><br><br>CI/CD is
                 the practice of automatically building, testing, and deploying code changes. AWS CodeBuild compiles the
                 code, runs tests, and produces artifacts such as a JAR or Docker image. AWS CodePipeline orchestrates
                 the stages: source from GitHub, build with CodeBuild, and deploy to Elastic Beanstalk, ECS, or S3.
@@ -116,21 +135,27 @@
                 fast, repeatable, and auditable releases. A common mistake is skipping tests in the pipeline or
                 deploying directly to production without a staging stage, which defeats the purpose of having a
                 pipeline.</li>
-              <li><strong>How do you configure GitHub webhooks to trigger AWS CodePipeline?</strong><br><br>In
+<li><strong>How do you configure GitHub webhooks to trigger AWS CodePipeline?</strong><br><br>In
                 CodePipeline, I set the source provider to GitHub version 2, which uses a GitHub App connection to
                 authenticate. During setup, CodePipeline creates a webhook in the GitHub repository that sends push
                 events to the pipeline. Alternatively, you can use a webhook created through API Gateway or a Lambda
                 function that starts the pipeline. The webhook payload is filtered by branch, so only pushes to main or
                 release branches trigger a build. I also ensure the pipeline has a manual approval stage between staging
                 and production so a human can gate the final deployment.</li>
-              <li><strong>What buildspec file does CodeBuild need for a Spring Boot Maven
+<li><strong>What buildspec file does CodeBuild need for a Spring Boot Maven
                   project?</strong><br><br>CodeBuild uses a buildspec.yml file to define phases and artifacts. The
                 phases typically include install, pre-build, build, and post-build. In the build phase, I run mvn clean
                 verify to compile, run unit and integration tests, and package the JAR. In post-build, I copy the JAR to
                 the artifacts directory. The artifacts section tells CodeBuild which files to pass to the next pipeline
                 stage, such as target/*.jar and an application.properties if needed. I also cache the Maven dependencies
                 in ~/.m2 to speed up subsequent builds. If tests fail, the build stops and nothing is deployed.</li>
-              <li><strong>What is database migration, and why is it important in
+            </ul>
+          </section>
+          <section class="note-section" id="ch11-sec5">
+            <h3><span class="secnum">11.5.</span>Database Migration with Flyway</h3>
+            <p class="note-para">This section covers automated database migrations, versioned scripts, and handling schema changes.</p>
+            <ul class="note-list lvl-1">
+<li><strong>What is database migration, and why is it important in
                   production?</strong><br><br>Database migration is the controlled process of applying schema
                 changes such as adding tables, columns, indexes, or constraints as the application evolves. In
                 production, manual changes are risky because they are hard to reproduce, review, and roll back.
@@ -138,21 +163,21 @@
                 automatically in a defined order. This makes deployments repeatable across environments and keeps the
                 schema in sync with the code. A production incident often happens when a code change expects a column
                 that was never added to the production schema.</li>
-              <li><strong>How does Flyway work in a Spring Boot application?</strong><br><br>Flyway is a database
+<li><strong>How does Flyway work in a Spring Boot application?</strong><br><br>Flyway is a database
                 migration tool that applies SQL or Java migration scripts stored in db/migration. Scripts are named with
                 a version prefix such as V1__create_users_table.sql, and Flyway executes them in order. It maintains a
                 flyway_schema_history table to track which migrations have already been applied, so it never runs the
                 same script twice. In Spring Boot, adding flyway-core to the classpath enables auto-configuration that
                 runs migrations at startup. This means the application will not start if a migration fails, which
                 prevents running code against an incompatible schema.</li>
-              <li><strong>What is the difference between versioned migrations and repeatable migrations in
+<li><strong>What is the difference between versioned migrations and repeatable migrations in
                   Flyway?</strong><br><br>Versioned migrations are numbered scripts that run exactly once and are
                 used for schema changes that must not be repeated, such as adding a column or creating a table.
                 Repeatable migrations have a description but no version number, and they run whenever their checksum
                 changes. They are useful for views, stored procedures, functions, and reference data that should be
                 recreated when the script is updated. A typical setup uses versioned migrations for structural changes
                 and repeatable migrations for database logic that depends on those structures.</li>
-              <li><strong>How do you handle destructive changes in a Flyway migration
+<li><strong>How do you handle destructive changes in a Flyway migration
                   safely?</strong><br><br>Destructive changes such as dropping a column or table should be done in
                 multiple deployments to avoid data loss and downtime. Instead of dropping a column immediately, I first
                 deploy a migration that adds a new column and copies data, update the application to read from both,
@@ -160,7 +185,7 @@
                 Flyway's versioning guarantees order, but it does not protect you from the business impact of a bad
                 script. I always review migrations in a pull request, test them against a copy of production data, and
                 have a rollback plan such as restoring from a snapshot.</li>
-              <li><strong>How do you manage environment-specific Flyway configuration in Spring
+<li><strong>How do you manage environment-specific Flyway configuration in Spring
                   Boot?</strong><br><br>Flyway reads properties from the active Spring profile, so you can have
                 different schemas, locations, or baseline settings per environment. For example, application-prod.yml
                 might set spring.flyway.locations=classpath:db/migration,classpath:db/migrat ion/prod and disable clean
@@ -169,28 +194,34 @@
                 Secrets Manager, not from the Flyway configuration file. I also set
                 spring.flyway.baseline-on-migrate=true when introducing Flyway to an existing database that already has
                 a schema.</li>
-              <li><strong>What is the difference between blue-green deployment and rolling deployment on Elastic
+            </ul>
+          </section>
+          <section class="note-section" id="ch11-sec6">
+            <h3><span class="secnum">11.6.</span>Advanced Deployment & Monitoring</h3>
+            <p class="note-para">This section details blue-green deployments, log aggregation, and infrastructure as code.</p>
+            <ul class="note-list lvl-1">
+<li><strong>What is the difference between blue-green deployment and rolling deployment on Elastic
                   Beanstalk?</strong><br><br>A rolling deployment updates instances in place a few at a time, which
                 is simple but means old and new versions run simultaneously during the transition. A blue-green
                 deployment creates a separate environment with the new version, verifies it, and then swaps the load
                 balancer to point to the new environment. Blue-green deployments are safer because you can rollback by
                 swapping back, but they cost more because both environments run briefly. Elastic Beanstalk supports swap
                 URLs for blue-green deployments, while rolling updates are a built-in deployment policy.</li>
-              <li><strong>How do you monitor a Spring Boot application deployed on AWS?</strong><br><br>I expose
+<li><strong>How do you monitor a Spring Boot application deployed on AWS?</strong><br><br>I expose
                 health, metrics, and info endpoints through Spring Boot Actuator and secure them so only authorized
                 systems can read them. CloudWatch can collect logs from the Elastic Beanstalk environment and trigger
                 alarms on error counts, CPU, or memory. For application-level metrics, I use Micrometer to publish
                 custom metrics such as request duration, order creation count, or payment failure rate to CloudWatch or
                 Prometheus. I also set up SNS notifications so the team is alerted when alarms fire. Health checks on
                 the load balancer should use /actuator/health so unhealthy instances are replaced automatically.</li>
-              <li><strong>How do you handle log aggregation for distributed Spring Boot
+<li><strong>How do you handle log aggregation for distributed Spring Boot
                   instances?</strong><br><br>In Elastic Beanstalk, instances come and go, so logs stored locally are
                 lost when an instance is terminated. I configure the environment to stream logs to CloudWatch Logs using
                 the Elastic Beanstalk log streaming option, or I use the CloudWatch agent inside Docker deployments. The
                 application should write structured JSON logs with correlation IDs so log entries can be traced across
                 services. For larger systems, I forward logs to a centralized tool such as ELK, Splunk, or Datadog. I
                 also ensure that sensitive data is not logged, and that log levels are configurable per profile.</li>
-              <li><strong>What is infrastructure as code, and why is it useful for AWS
+<li><strong>What is infrastructure as code, and why is it useful for AWS
                   deployments?</strong><br><br>Infrastructure as code is the practice of defining AWS resources such
                 as RDS, Elastic Beanstalk, load balancers, and IAM roles in declarative templates using tools like
                 Terraform, AWS CloudFormation, or the AWS CDK. It makes deployments repeatable, version-controlled, and
@@ -198,7 +229,13 @@
                 what was configured. With infrastructure as code, you recreate the environment by running the same
                 template. It also supports separate environments that are identical except for size and secrets, which
                 reduces "works in dev, fails in prod" issues.</li>
-              <li><strong>A production deployment fails because the application cannot connect to RDS after switching
+            </ul>
+          </section>
+          <section class="note-section" id="ch11-sec7">
+            <h3><span class="secnum">11.7.</span>Scenario-Based Questions</h3>
+            <p class="note-para">This section provides real-world scenarios on deployment failures, migration issues, and scaling bottlenecks.</p>
+            <ul class="note-list lvl-1">
+<li><strong>A production deployment fails because the application cannot connect to RDS after switching
                   from dev. How do you investigate?</strong><br><br>I begin by reading the application startup logs
                 carefully, because the exact exception tells me whether this is a network reachability problem or an
                 authentication problem. A connection timeout usually means the security group is blocking traffic, the
@@ -211,7 +248,7 @@
                 have changed and the application configuration must be updated before the next deployment. I avoid the
                 trap of trying different credentials blindly or opening the security group to the internet, because both
                 increase risk and do not fix a routing problem.</li>
-              <li><strong>A Spring Boot application works in dev but uses the dev database in production because of
+<li><strong>A Spring Boot application works in dev but uses the dev database in production because of
                   hard-coded configuration. How do you fix the configuration strategy?</strong><br><br>I first
                 search the codebase for any hard-coded localhost URLs, default usernames, or passwords that are checked
                 into the repository, because these are the values the application will use if no environment override is
@@ -224,7 +261,7 @@
                 I also add a CI step that scans the repository for hard-coded secrets and localhost database URLs,
                 failing the build if any are found. The lesson is that the same artifact should run everywhere, with
                 environment-specific values injected at runtime rather than baked into the build.</li>
-              <li><strong>A deployment to Elastic Beanstalk succeeds, but health checks fail and the environment rolls
+<li><strong>A deployment to Elastic Beanstalk succeeds, but health checks fail and the environment rolls
                   back. What do you check?</strong><br><br>I open the Elastic Beanstalk events and the application
                 logs in CloudWatch immediately, because a successful deployment only means the files were copied, not
                 that the application is healthy. The most common reasons for failed health checks are the application
@@ -237,7 +274,7 @@
                 at startup, because a failed migration can leave the application unable to start and therefore unable to
                 pass health checks. Once the cause is fixed, I deploy again and monitor the health dashboard before
                 declaring the release successful.</li>
-              <li><strong>A Flyway migration runs successfully in dev but fails in production because a table already
+<li><strong>A Flyway migration runs successfully in dev but fails in production because a table already
                   exists. How do you resolve it?</strong><br><br>This typically happens when Flyway is introduced to
                 a database that was already created and modified manually, so the production schema is at a later state
                 than the first migration script assumes. I start by checking the flyway_schema_history table, or its
@@ -251,7 +288,7 @@
                 there, and run the application smoke tests to confirm everything works. The long-term fix is to ensure
                 every environment is created from the same migration sequence so manual drift does not happen again.
               </li>
-              <li><strong>A CI/CD pipeline deploys to production automatically whenever code is pushed to main. After a
+<li><strong>A CI/CD pipeline deploys to production automatically whenever code is pushed to main. After a
                   bad release, the team wants a staging gate. How do you redesign the pipeline?</strong><br><br>I
                 restructure the pipeline into clear stages: source, build, staging, manual approval, and production. In
                 the build stage, CodeBuild compiles the code, runs unit and integration tests, and produces the
@@ -264,7 +301,7 @@
                 back quickly. I also add GitHub branch protection rules requiring pull request reviews before code can
                 reach main, so the pipeline is not triggered by unreviewed changes. The key principle is that no change
                 should reach customers without being exercised in a staging environment first.</li>
-              <li><strong>A migration script drops an unused column, and the rollback requires restoring from backup.
+<li><strong>A migration script drops an unused column, and the rollback requires restoring from backup.
                   How do you prevent this next time?</strong><br><br>This is a classic destructive migration
                 mistake, and the immediate lesson is that dropping a column should always be the final step of a
                 multi-release process. The first step is to remove every application reference to the column and deploy
@@ -276,7 +313,7 @@
                 I label the migration as destructive and require two approvals. If the column was already dropped and
                 data is needed, I restore the pre-drop snapshot to a separate instance and extract the data, rather than
                 trying to undo the migration by hand.</li>
-              <li><strong>Auto-scaling adds instances during peak hours but costs spike unexpectedly. How do you balance
+<li><strong>Auto-scaling adds instances during peak hours but costs spike unexpectedly. How do you balance
                   performance and cost?</strong><br><br>I begin by reviewing the auto-scaling history and CloudWatch
                 metrics to see exactly when and why instances were added. CPU is the default trigger, but for an
                 IO-bound Spring Boot application the CPU may stay low while response time degrades, so scaling based on
@@ -289,7 +326,7 @@
                 per-hour cost, and I reserve Spot instances only for stateless, fault-tolerant batch work. The caution
                 is that aggressive cost optimization should never remove the minimum instances needed for availability.
               </li>
-              <li><strong>A load balancer is distributing traffic, but one instance is unhealthy and still receiving
+<li><strong>A load balancer is distributing traffic, but one instance is unhealthy and still receiving
                   requests. Why?</strong><br><br>I first check the health check configuration on the target group,
                 because an incorrect path, a long interval, or a high number of healthy thresholds can delay the load
                 balancer from detecting a failure. If the health check path is a static page that always returns 200
@@ -301,7 +338,7 @@
                 detection with graceful shutdown of in-flight requests. I also enable the load balancer access logs and
                 target group metrics so I can see exactly when an instance was marked unhealthy and how long it remained
                 in rotation.</li>
-              <li><strong>A developer checks AWS access keys into the GitHub repository. What do you do
+<li><strong>A developer checks AWS access keys into the GitHub repository. What do you do
                   immediately?</strong><br><br>I treat the keys as compromised the moment they touch version
                 control, even if they were removed quickly, because Git history retains them. I immediately rotate the
                 credentials in the AWS IAM console by deactivating and deleting the exposed access keys and creating new
@@ -313,7 +350,7 @@
                 explain why access keys must be provided through environment variables or IAM roles rather than code. I
                 also recommend switching from long-term access keys to IAM roles wherever possible, because roles do not
                 expose static credentials.</li>
-              <li><strong>The team wants to switch from Elastic Beanstalk to containers on ECS. What changes in the
+<li><strong>The team wants to switch from Elastic Beanstalk to containers on ECS. What changes in the
                   deployment pipeline?</strong><br><br>The biggest change is that the build artifact becomes a
                 Docker image rather than an executable JAR. In CodeBuild, I update the buildspec.yml to run docker
                 build, tag the image with the commit hash or build ID, and push it to Amazon ECR. The deploy stage then
@@ -326,7 +363,7 @@
                 sidecars so observability is consistent with the previous setup. The transition requires the team to
                 understand container networking, task lifecycle, and image versioning, but it gives more flexibility for
                 blue-green and canary deployments.</li>
-              <li><strong>A new environment variable is added to the application, but production crashes on startup
+<li><strong>A new environment variable is added to the application, but production crashes on startup
                   because it is missing. How do you prevent this in the pipeline?</strong><br><br>I add a validation
                 step early in the pipeline that compares the environment configuration against a required manifest. This
                 can be a simple script in CodeBuild that reads a required- env.properties file and checks that every
@@ -338,7 +375,7 @@
                 run the application with the prod profile and minimal environment variables in a CI smoke test to catch
                 missing configuration before it reaches production. The broader lesson is that configuration changes
                 should be reviewed and applied through the same pipeline as code changes.</li>
-              <li><strong>A migration fails because two developers wrote scripts with the same version number. How do
+<li><strong>A migration fails because two developers wrote scripts with the same version number. How do
                   you resolve the conflict?</strong><br><br>Flyway requires every versioned migration to have a
                 unique prefix, so two files named V5__... will cause validate to fail. I coordinate with the other
                 developer to decide which script logically comes first, then I rename one script to the next available
@@ -349,7 +386,7 @@
                 date, and I add a CI step that runs flyway validate or checks for duplicate version prefixes before the
                 pull request can be merged. I also encourage the team to announce when they are adding migrations on
                 shared branches so two people do not independently pick the same version number.</li>
-              <li><strong>The application logs are full of stack traces, but the team cannot find the original error
+<li><strong>The application logs are full of stack traces, but the team cannot find the original error
                   quickly. How do you improve observability?</strong><br><br>I start by adding a correlation ID at
                 the entry point of every request, usually through a servlet filter or interceptor, and I propagate that
                 ID through the MDC so that every log statement emitted during the request includes the same identifier.
@@ -361,7 +398,7 @@
                 generic incident message to the client. I make sure sensitive data such as passwords or tokens are never
                 logged, and I add alerts on ERROR rate spikes so the team knows about problems before users report them.
               </li>
-              <li><strong>A production deployment happens during business hours and causes downtime. How do you move to
+<li><strong>A production deployment happens during business hours and causes downtime. How do you move to
                   zero-downtime deployments?</strong><br><br>I first move the deployment window outside business
                 hours as a short-term measure, but the real fix is to change the deployment strategy. In Elastic
                 Beanstalk, I use blue-green deployment by cloning the environment, deploying the new version, running
@@ -373,7 +410,7 @@
                 must be backward-compatible, meaning old code can still run against the new schema until the deployment
                 finishes. I also verify that the load balancer health checks are strict enough to prevent traffic from
                 reaching instances that have started but are not yet ready.</li>
-              <li><strong>A staging deployment uses the same RDS instance as production to save cost. What are the
+<li><strong>A staging deployment uses the same RDS instance as production to save cost. What are the
                   risks?</strong><br><br>Sharing a database between staging and production is one of the riskiest
                 cost optimizations because it breaks environment isolation completely. A bug in a staging feature can
                 corrupt or delete production data, a load test can starve production queries and cause timeouts for real
@@ -384,7 +421,7 @@
                 tight, I use a smaller instance class for staging, schedule it to stop during nights and weekends, or
                 use RDS snapshots to recreate it on demand. The database is the one resource where the cost of sharing
                 always outweighs the savings.</li>
-              <li><strong>The RDS storage usage is growing rapidly and approaching the maximum provisioned size. How do
+<li><strong>The RDS storage usage is growing rapidly and approaching the maximum provisioned size. How do
                   you respond?</strong><br><br>I first identify what is consuming storage by checking CloudWatch
                 metrics for database size growth, transaction logs, and temporary files. If the growth comes from normal
                 data accumulation, I enable RDS storage auto-scaling so the volume grows automatically up to a defined
@@ -396,7 +433,7 @@
                 warehouse and purge them in batches. I avoid filling the disk to 100 percent, because many databases
                 become read-only or crash at that point, and I set CloudWatch alarms at 70 and 85 percent so the team
                 has time to act.</li>
-              <li><strong>HTTPS requests to the Elastic Beanstalk environment fail with a certificate error. How do you
+<li><strong>HTTPS requests to the Elastic Beanstalk environment fail with a certificate error. How do you
                   fix it?</strong><br><br>I check whether the Application Load Balancer or the instance itself is
                 terminating TLS. In most Elastic Beanstalk setups, the load balancer terminates HTTPS using an ACM
                 certificate, and the instances handle HTTP. I open the load balancer listener configuration and verify
@@ -407,7 +444,7 @@
                 canonical name. I also confirm that the security group allows inbound HTTPS traffic on 443. I avoid
                 putting self-signed certificates on the instances unless absolutely necessary, because ACM provides free
                 managed certificates that renew automatically.</li>
-              <li><strong>The CodeBuild project builds successfully on a developer's laptop, but the same tests fail in
+<li><strong>The CodeBuild project builds successfully on a developer's laptop, but the same tests fail in
                   the pipeline. What do you check?</strong><br><br>I start by reading the CodeBuild log to see
                 exactly which tests failed and how they failed, because environment differences are the most common
                 cause. The pipeline may run tests against a different database profile, a different timezone, or missing
@@ -419,7 +456,7 @@
                 pin those versions in the buildspec. Once I identify the difference, I make the build environment
                 reproducible, often by adding a Docker-based build or by running the same buildspec in a local CodeBuild
                 agent.</li>
-              <li><strong>After scaling out, the application runs out of database connections and starts failing. How do
+<li><strong>After scaling out, the application runs out of database connections and starts failing. How do
                   you fix it?</strong><br><br>Running out of connections usually means the total pool size across
                 all instances exceeds the database's maximum connection limit. I calculate the expected total
                 connections by multiplying the per-instance HikariCP maximum pool size by the number of instances and
@@ -431,7 +468,7 @@
                 high, I scale the RDS instance class vertically to support more connections or use RDS Proxy to pool and
                 share database connections efficiently. I avoid simply raising the pool size as the first fix, because
                 that usually makes the problem worse.</li>
-              <li><strong>A production secret in AWS Secrets Manager is rotated, and the application stops working. How
+<li><strong>A production secret in AWS Secrets Manager is rotated, and the application stops working. How
                   do you handle secret rotation without downtime?</strong><br><br>The problem is likely that the
                 application reads the secret only at startup and never refreshes it, so when the secret value changes
                 the cached credentials become invalid. I first restore service by restarting the affected instances or
